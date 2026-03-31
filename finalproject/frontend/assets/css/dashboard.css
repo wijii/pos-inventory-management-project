@@ -1,0 +1,457 @@
+:root {
+    --card-bg: #292422;
+    --border: #453f3a;
+    --orange: #d9840d;
+    --light-orange: #fe9a00;
+    --text-color: #fcfaf8;
+    --text-muted: rgba(252, 250, 248, 0.5);
+    --bg: #231e1d;
+    --danger: #ef4444;
+    --danger-bg: rgba(239, 68, 68, 0.08);
+    --danger-border: rgba(239, 68, 68, 0.4);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text-color);
+}
+
+/* ── LAYOUT ─────────────────────────────────────────── */
+.container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ── MAIN ───────────────────────────────────────────── */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 24px 20px;
+    overflow-y: auto;
+    overflow-x: visible;
+    min-width: 0;
+}
+
+/* ── FILTER BUTTONS ─────────────────────────────────── */
+.filters {
+    margin: 14px 0 16px;
+    display: flex;
+    gap: 10px;
+}
+
+.filters button {
+    background: var(--card-bg);
+    color: var(--text-muted);
+    border: 2px solid var(--border);
+    padding: 0 22px;
+    border-radius: 8px;
+    height: 40px;
+    min-width: 100px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.filters button:hover {
+    border-color: var(--orange);
+    color: var(--text-color);
+    transform: translateY(-3px);
+}
+
+.filters button.active {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* ── DASHBOARD GRID ─────────────────────────────────── */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 700px;
+    gap: 20px;
+    align-items: start;
+}
+
+/* ── LEFT COLUMN ────────────────────────────────────── */
+.left {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+}
+
+/* ── STAT CARDS ─────────────────────────────────────── */
+.stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 18px 22px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    height: 130px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: visible;
+}
+
+.card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.card-inner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.card.danger {
+    border-color: var(--danger-border);
+}
+
+.card.danger::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--danger-bg);
+    pointer-events: none;
+    border-radius: 12px;
+}
+
+.card p {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+
+.card h2 {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.card > span {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.card-badge {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 1.5px solid var(--danger-border);
+    background: var(--danger-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--danger);
+}
+
+.card-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 1.5px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* ── CHART CARD ─────────────────────────────────────── */
+.chart-card {
+    background: var(--card-bg);
+    padding: 20px 22px 16px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 410px;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.chart-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.chart-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 3px;
+}
+
+.chart-total-badge {
+    background: rgba(254, 154, 0, 0.12);
+    border: 1px solid #4f3711;
+    color: var(--light-orange);
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.chart-canvas-wrap {
+    flex: 1;
+    position: relative;
+    min-height: 0;
+}
+
+.chart-canvas-wrap canvas {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* ── RIGHT COLUMN ───────────────────────────────────── */
+.right {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    margin-top: -34px;
+}
+
+/* ── QUICK NAVIGATION ───────────────────────────────── */
+.quick {
+    overflow: visible;
+}
+
+.quick h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.quick-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 6px;
+}
+
+.quick-card {
+    border-radius: 12px;
+    background: var(--card-bg);
+    text-align: center;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.quick-card:hover {
+    border-color: var(--orange);
+    transform: translateY(-6px);
+    z-index: 10;
+}
+
+.quick-card.active {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 1px var(--orange);
+}
+
+.quick-card p {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+/* ── QUICK ICONS ────────────────────────────────────── */
+.quick-icon {
+    width: 38px;
+    height: 38px;
+    stroke-width: 1.5;
+}
+
+.quick-icon-wrap {
+    width: 70px;
+    height: 70px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid;
+}
+
+.quick-icon.pos      { stroke: #2b7fff; }
+.quick-icon.products { stroke: #fe9a00; }
+.quick-icon.inventory{ stroke: #8b5cf6; }
+.quick-icon.sales    { stroke: #00c950; }
+.quick-icon.staff    { stroke: #f6339a; }
+.quick-icon.settings { stroke: #9f9fa9; }
+
+.quick-icon-wrap.pos       { background: rgba(43,127,255,0.12);  border-color: #1d3459; }
+.quick-icon-wrap.products  { background: rgba(254,154,0,0.12);   border-color: #4f3711; }
+.quick-icon-wrap.inventory { background: rgba(139,92,246,0.12);  border-color: #412559; }
+.quick-icon-wrap.sales     { background: rgba(0,201,80,0.12);    border-color: #114927; }
+.quick-icon-wrap.staff     { background: rgba(246,51,154,0.12);  border-color: #551f3b; }
+.quick-icon-wrap.settings  { background: rgba(159,159,169,0.12); border-color: #2f2f33; }
+
+/* ── TOP PRODUCTS ───────────────────────────────────── */
+.top-products {
+    background: var(--card-bg);
+    padding: 18px 18px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.top-products h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+.product {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 10px;
+    row-gap: 4px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.product:last-child { border-bottom: none; padding-bottom: 0; }
+.product:first-child { padding-top: 0; }
+
+.product-name {
+    font-size: 13px;
+    font-weight: 600;
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.product-amount {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--orange);
+    grid-column: 2;
+    grid-row: 1;
+    text-align: right;
+}
+
+.product-sold {
+    font-size: 11px;
+    color: var(--text-muted);
+    grid-column: 1 / -1;
+    grid-row: 2;
+}
+
+.product-bar-track {
+    height: 5px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 99px;
+    overflow: hidden;
+    grid-column: 1 / -1;
+    grid-row: 3;
+}
+
+.product-bar-fill {
+    height: 100%;
+    background: var(--orange);
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ── ANIMATION ──────────────────────────────────────── */
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate {
+    animation: fadeSlide 0.3s ease both;
+}
+
+/* ── LOGOUT ────────────────────────────────────────*/
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 16px;
+    width: 600px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--border);
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.cancelBtn {
+    background: var(--border);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.deleteBtn {
+    background: var(--orange);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: var(--text-color);
+    font-weight: bold;
+    cursor: pointer;
+}

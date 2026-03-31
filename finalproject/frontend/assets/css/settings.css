@@ -1,0 +1,263 @@
+:root {
+    --card-bg: #292422;
+    --border: #453f3a;
+    --orange: #d9840d;
+    --light-orange: #fe9a00;
+    --text-color: #fcfaf8;
+    --text-muted: rgba(252, 250, 248, 0.5);
+    --bg: #231e1d;
+    --danger: #ef4444;
+    --danger-bg: rgba(239, 68, 68, 0.08);
+    --danger-border: rgba(239, 68, 68, 0.4);
+
+    --alertgreen-bg: #15291d;
+    --alertgreen-border: #114827;
+    --alertgreen-text: #00c950;
+    }
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text-color);
+}
+
+.main {
+    flex: 1;
+    padding: 25px;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.card h3 {
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+
+.tax-card .form-group {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.form-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-size: 14px;
+    opacity: .9;
+}
+
+.form-group input {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text-color);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--orange);
+}
+
+.account-flex {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--border); /* Placeholder color if image fails */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* This keeps the image inside the circle */
+    border: 2px solid var(--border);
+}
+
+/* 2. Make the image fill the container correctly */
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* This prevents stretching */
+    display: block;
+}
+
+.button {
+    padding: 10px 18px;
+    background: var(--orange);
+    border: none;
+    border-radius: 8px;
+    color: var(--text-color);
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.btnpos {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.button:hover {
+    background: var(--light-orange);
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.small-input {
+    width: 60px;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin-left: -20px;
+    margin-right: -20px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    width: auto;
+}
+
+/* ── LOGOUT ────────────────────────────────────────*/
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 16px;
+    width: 600px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--border);
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.cancelBtn {
+    background: var(--border);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.deleteBtn {
+    background: var(--orange);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: var(--text-color);
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* ALERT CONTAINER */
+#alertsContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+/* ALERT BOX */
+.alerts {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 5px;
+    width: 320px;              
+    padding: 14px 18px;
+
+    background: var(--alertgreen-bg);      
+    border: 1px solid var(--alertgreen-border);
+
+    color: var(--alertgreen-text);
+    border-radius: 12px;
+
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+
+    animation: slideIn 0.3s ease;
+}
+
+/* ICON */
+.alert-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--alertgreen-text);
+}
+
+/* ANIMATION */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(120%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(120%);
+  }
+}

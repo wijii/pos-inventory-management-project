@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>POS Dashboard</title>
+    <style>
+      @font-face {
+        font-family: "CafeFont";
+        src: url("fonts/Lato-Bold.ttf") format("truetype");
+        font-weight: 700;
+        font-display: block;
+      }
+    </style>
+    <link rel="preload" href="fonts/Lato-Bold.ttf" as="font" type="font/truetype" crossorigin>
+    <link rel="stylesheet" href="../assets/css/navigationbar.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/topbar.css">
+  </head>
+
+  <body>
+    <div id="page-overlay"></div>
+    <div class="container">
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="logo">
+          <h2>Manager</h2>
+          <p>Jhonas Pogi</p>
+        </div>
+        <ul>
+          <li class="active">
+            <a href="dashboard.html" class="link"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+          </li>
+          <li>
+            <a href="pos.html" class="link"><i data-lucide="shopping-cart"></i> POS</a>
+          </li>
+          <li>
+            <a href="products.html" class="link"><i data-lucide="box"></i> Products</a>
+          </li>
+          <li>
+            <a href="inventory.html" class="link"><i data-lucide="layers"></i> Inventory</a>
+          </li>
+          <li>
+            <a href="sales.html" class="link"><i data-lucide="receipt"></i> Sales</a>
+          </li>
+          <li>
+            <a href="staff.html" class="link"><i data-lucide="users"></i> Staff</a>
+          </li>
+          <li>
+            <a href="settings.html" class="link"><i data-lucide="settings"></i> Settings</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- MAIN -->
+      <div class="main">
+
+        <!-- TOPBAR — stays fixed at top, outside scroll wrapper -->
+        <div class="topbar">
+          <div class="topbars"><h3>DASHBOARD</h3></div>
+          <a href="#" class="logout" onclick="openModal('logoutModal')">
+            <i data-lucide="log-out"></i> Logout
+          </a>
+        </div>
+
+        <!-- SCROLL WRAPPER — everything below topbar scrolls inside here -->
+        <div class="main-scroll">
+
+          <!-- FILTERS -->
+          <div class="filters">
+            <button class="filter-btn active" data-period="daily">Today</button>
+            <button class="filter-btn" data-period="weekly">This Week</button>
+            <button class="filter-btn" data-period="monthly">Monthly</button>
+          </div>
+
+          <!-- GRID -->
+          <div class="dashboard-grid">
+
+            <!-- LEFT -->
+            <div class="left">
+
+              <div class="stats">
+                <div class="card">
+                  <div class="card-inner">
+                    <div class="card-icon-wrap" style="background:rgba(217,132,13,0.15);border-color:rgba(217,132,13,0.4);">
+                      <i data-lucide="trending-up" style="width:20px;height:20px;stroke:#d9840d;"></i>
+                    </div>
+                    <div class="card-text">
+                      <p>Total Sales</p>
+                      <h2 id="sales">₱1,000.00</h2>
+                      <span id="salesSub">Today</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-inner">
+                    <div class="card-icon-wrap" style="background:rgba(43,127,255,0.15);border-color:rgba(43,127,255,0.4);">
+                      <i data-lucide="repeat" style="width:20px;height:20px;stroke:#2b7fff;"></i>
+                    </div>
+                    <div class="card-text">
+                      <p>Transactions</p>
+                      <h2 id="transactions">2</h2>
+                      <span>Completed Transactions</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-inner">
+                    <div class="card-icon-wrap" style="background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.4);">
+                      <i data-lucide="wallet" style="width:20px;height:20px;stroke:#8b5cf6;"></i>
+                    </div>
+                    <div class="card-text">
+                      <p>Average Ticket</p>
+                      <h2 id="avg">₱500.00</h2>
+                      <span>Per transaction</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card danger" id="lowStockCard">
+                  <div class="card-inner">
+                    <div class="card-badge" id="lowStockBadge">
+                      <i data-lucide="alert-triangle" style="width:20px;height:20px;stroke-width:2;"></i>
+                    </div>
+                    <div class="card-text">
+                      <p>Low Stock Items</p>
+                      <h2 id="lowStock">3</h2>
+                      <span>Need Restocking</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chart-card">
+                <div class="chart-header">
+                  <div>
+                    <h3 id="chartTitle">Revenue Overview</h3>
+                    <div class="chart-sub" id="chartSub">Today Breakdown</div>
+                  </div>
+                  <div class="chart-total-badge" id="chartBadge">₱5,321</div>
+                </div>
+                <div class="chart-canvas-wrap">
+                  <canvas id="salesChart"></canvas>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div class="right">
+
+              <div class="quick">
+                <h3>Quick Navigation</h3>
+                <div class="quick-grid">
+                  <div class="quick-card" onclick="location.href='pos.html'">
+                    <div class="quick-icon-wrap pos"><i data-lucide="shopping-cart" class="quick-icon pos"></i></div>
+                    <p>POS Terminal</p>
+                  </div>
+                  <div class="quick-card" onclick="location.href='products.html'">
+                    <div class="quick-icon-wrap products"><i data-lucide="package" class="quick-icon products"></i></div>
+                    <p>Products</p>
+                  </div>
+                  <div class="quick-card" onclick="location.href='inventory.html'">
+                    <div class="quick-icon-wrap inventory"><i data-lucide="layers" class="quick-icon inventory"></i></div>
+                    <p>Inventory</p>
+                  </div>
+                  <div class="quick-card" onclick="location.href='sales.html'">
+                    <div class="quick-icon-wrap sales"><i data-lucide="receipt" class="quick-icon sales"></i></div>
+                    <p>Sales</p>
+                  </div>
+                  <div class="quick-card" onclick="location.href='staff.html'">
+                    <div class="quick-icon-wrap staff"><i data-lucide="users" class="quick-icon staff"></i></div>
+                    <p>Staff</p>
+                  </div>
+                  <div class="quick-card" onclick="location.href='settings.html'">
+                    <div class="quick-icon-wrap settings"><i data-lucide="settings" class="quick-icon settings"></i></div>
+                    <p>Settings</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="top-products">
+                <h3>Top Products</h3>
+                <div id="topProductsList"></div>
+              </div>
+
+            </div>
+
+          </div><!-- end dashboard-grid -->
+
+        </div><!-- end main-scroll -->
+
+      </div><!-- end main -->
+    </div><!-- end container -->
+
+    <!--LOGOUT MODAL-->
+    <div class="modal" id="logoutModal">
+    <div class="modal-content">
+      <h2>Logout</h2>
+      <p>Are you sure you want to logout?</p>
+
+    <div class="modal-buttons">
+      <button onclick="closeModal('logoutModal')" class="cancelBtn">Cancel</button>
+      <button class="deleteBtn" onclick="confirmLogout()">Logout</button>
+    </div>
+  </div>
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../assets/js/lucide.min.js"></script>
+    <script src="../controllers/navigationbar.js"></script>
+    <script src="../controllers/dashboard.js"></script>
+    <script>lucide.createIcons();</script>
+  </body>
+</html>

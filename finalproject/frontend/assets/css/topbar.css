@@ -1,0 +1,34 @@
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:#292422;
+padding:15px;
+border-radius:16px;
+border:2px solid #453f3a;
+}
+
+.logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* space between icon and text */
+  text-decoration: none;
+  color: white;
+  padding: 8px 15px;
+  background: #825417;
+  border-radius: 8px;
+  stroke-width: 1.5; 
+  height: auto; 
+  width: auto; 
+}
+
+.logout-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.logout:hover{
+    background: #d9840d;
+}
+
+  

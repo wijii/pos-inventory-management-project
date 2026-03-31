@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Staff Management</title>
+<link rel="stylesheet" href="../assets/css/navigationbar.css">
+<link rel="stylesheet" href="../assets/css/staff.css">
+
+
+</head>
+<body>
+
+   <div id="page-overlay"></div>
+
+<div class="container">
+
+
+<!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+    <div class="logo">
+        <h2>Manager</h2>
+        <p>Jhonas Pogi</p>
+    </div>
+
+    <ul>
+
+<li>
+<a href="dashboard.html" class="link">
+<i data-lucide="layout-dashboard"></i>
+Dashboard
+</a>
+</li>
+
+<li>
+<a href="pos.html" class="link">
+<i data-lucide="shopping-cart"></i>
+POS
+</a>
+</li>
+
+<li>
+<a href="products.html" class="link">
+<i data-lucide="box"></i>
+Products
+</a>
+</li>
+
+<li>
+<a href="inventory.html" class="link">
+<i data-lucide="layers"></i>
+Inventory
+</a>
+</li>
+
+<li>
+<a href="sales.html" class="link">
+<i data-lucide="receipt"></i>
+Sales
+</a>
+</li>
+
+<li class="active">
+<a href="staff.html" class="link">
+<i data-lucide="users"></i>
+Staff
+</a>
+</li>
+
+<li>
+<a href="settings.html" class="link">
+<i data-lucide="settings"></i>
+Settings
+</a>
+</li>
+
+</ul>
+
+
+    </div>
+
+    <!-- MAIN -->
+    <main class="main">
+      <!-- TOPBAR: Contains Title and Logout -->
+      <div class="topbar">
+          <h3 class="page-title">STAFF</h3>
+          <div class="logout" onclick="openModal('logoutModal')">
+              <i data-lucide="log-out"></i> Logout
+          </div>
+      </div>
+
+      <!-- ACTION ROW: Contains Search and Add Button below the Topbar -->
+      <div class="action-row">
+          <div class="searchbtn">
+              <input type="text" id="search" placeholder="Search by name or id">
+          </div>
+          <button class="addBtn">+ Add Staff</button>
+      </div>
+
+      <div class="staff-grid" id="staffGrid">
+          <!-- Staff cards will be injected here -->
+      </div>
+    </main>
+
+</div>
+
+<!-- ADD STAFF MODAL -->
+<div class="modal" id="addStaffModal">
+  <div class="modal-content">
+    <h2>Add Staff Member</h2>
+    <form id="addStaffForm" novalidate>
+      
+      <input type="text" name="name" required placeholder="Full Name">
+
+      <select name="role" required>
+        <option value="" disabled selected hidden >Select Role</option>
+        <option value="Manager">Manager</option>
+        <option value="Cashier">Cashier</option>
+      </select>
+
+      <div class="cppw">
+        <input type="email" name="email" required placeholder="Email">
+        <input type="text" name="phone" required placeholder="Phone No.">
+      </div>
+
+      <input type="password" name="password" required placeholder="Password">
+      <hr>
+      <div class="modal-buttons">
+        <button type="button" class="cancelBtn">Cancel</button>
+        <button type="submit" class="confirmBtn">Confirm</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="deleteModal">
+  <div class="modal-content">
+    <h2>Delete Staff Member</h2>
+    <p class="smol">Please enter the manager password to continue.</p>
+
+    <div class="password-field">
+        <input type="password" id="managerPassword" placeholder="Enter manager password">
+        <button type="button" id="togglePassword">
+            <i data-lucide="eye"></i>
+        </button>
+    </div>
+
+    <div class="modal-buttons">
+      <button type="button" class="cancelDeleteBtn">Cancel</button>
+      <button type="button" class="confirmDeleteBtn">Verify & Delete</button>
+    </div>
+  </div>
+</div>
+
+<!--LOGOUT MODAL-->
+    <div class="modal" id="logoutModal">
+    <div class="modal-content">
+      <h2>Logout</h2>
+      <p>Are you sure you want to logout?</p>
+
+    <div class="modal-buttons2">
+      <button onclick="closeModal('logoutModal')" class="cancelBtn">Cancel</button>
+      <button class="logoutBtn" onclick="confirmLogout()">Logout</button>
+    </div>
+  </div>
+</div>
+
+ <script src="../controllers/navigationbar.js"></script>
+<script src="../assets/js/lucide.min.js"></script> 
+<script src="../controllers/staff.js"></script>
+
+<div id="alertsContainer"></div>
+</body>
+</html>

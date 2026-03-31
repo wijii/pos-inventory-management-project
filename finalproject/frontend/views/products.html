@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>POS Dashboard</title>
+<link rel="stylesheet" href="../assets/css/navigationbar.css">
+<link rel="stylesheet" href="../assets/css/products.css">
+<link rel="stylesheet" href="../assets/css/topbar.css">
+</head>
+
+<body>
+
+<div class="container">
+
+ <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="logo">
+          <h2>Manager</h2>
+          <p>Jhonas Pogi</p>
+        </div>
+ 
+        <ul>
+          <li>
+            <a href="dashboard.html" class="link">
+              <i data-lucide="layout-dashboard"></i>
+              Dashboard
+            </a>
+          </li>
+          <li class="active">
+            <a href="pos.html" class="link">
+              <i data-lucide="shopping-cart"></i>
+              POS
+            </a>
+          </li>
+          <li>
+            <a href="products.html" class="link">
+              <i data-lucide="box"></i>
+              Products
+            </a>
+          </li>
+          <li>
+            <a href="inventory.html" class="link">
+              <i data-lucide="layers"></i>
+              Inventory
+            </a>
+          </li>
+          <li>
+            <a href="sales.html" class="link">
+              <i data-lucide="receipt"></i>
+              Sales
+            </a>
+          </li>
+          <li>
+            <a href="staff.html" class="link">
+              <i data-lucide="users"></i>
+              Staff
+            </a>
+          </li>
+          <li>
+            <a href="settings.html" class="link">
+              <i data-lucide="settings"></i>
+              Settings
+            </a>
+          </li>
+        </ul>
+        
+      </div>
+      
+      <!-- MAIN -->
+      <div class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+          <div class="topbars"> <!-- Unified class with dashboard -->
+          <h3>PRODUCTS</h3>
+          </div>
+          <a href="#" class="logout" onclick="openModal('logoutModal')">
+            <i data-lucide="log-out"></i> Logout
+          </a>
+        </div>
+
+
+        <!-- SEARCH + BUTTON -->
+        <div class="inventory-header">
+
+            <div class="search-wrap">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Search by product name or by Id" />
+              </div>
+
+            <button class="addBtn" onclick="openModal('typeModal')">+ Add Products</button>
+
+        </div>
+
+
+        <!-- PRODUCT TABLE -->
+        <div class="table-container">
+
+            <h3>Catalog</h3>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>SKU</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th class="action">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="productTable">
+
+                    <tr>
+                        <td>Caramel Machiatto</td>
+                        <td>CM00S</td>
+                        <td><span class="badge">Beverages</span></td>
+                        <td>₱0.00</td>
+                        <td>
+                            <button onclick="openUpdateModal(this)" class="edit">
+                              <i data-lucide="pencil"></i>
+                            </button>
+                            <button onclick="openDeleteModal(this)" class="delete">
+                              <i data-lucide="trash-2"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Caramel Machiatto</td>
+                        <td>CM00M</td>
+                        <td><span class="badge">Beverages</span></td>
+                        <td>₱0.00</td>
+                        <td>
+                            <button onclick="openUpdateModal(this)" class="edit">
+                              <i data-lucide="pencil"></i>
+                            </button>
+                            <button onclick="openDeleteModal(this)" class="delete">
+                              <i data-lucide="trash-2"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+</div>
+
+<div id="alertsContainer"></div>
+
+</body>
+
+<!-- ADD PRODUCT MODAL -->
+<div class="modal" id="typeModal">
+  <div class="modal-content">
+    <h2>Add New Product</h2>
+    <p>What type of product are you adding?</p>
+
+    <div class="type-selection">
+      <button class="typeBtn food" onclick="openFoodModal()">
+        <i data-lucide="utensils"></i> Food
+      </button>
+      <button class="typeBtn drink" onclick="openDrinkModal()">
+        <i data-lucide="cup-soda"></i> Drinks
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="foodModal">
+  <div class="modal-content">
+
+    <h2>Add Food Product</h2>
+
+    <div class="form-grid">
+
+      <!-- IMAGE -->
+      <div class="image-box" onclick="document.getElementById('foodImageInput').click()">
+        <img id="foodPreview" src="" alt="">
+        <span>Upload</span>
+        <input type="file" id="foodImageInput" accept="image/*" hidden>
+      </div>
+
+      <!-- FORM -->
+      <div class="form-fields">
+        <label>Product Name</label>
+        <input type="text" id="foodName">
+
+        <label>Price</label>
+        <input type="number" id="foodPrice">
+      </div>
+
+    </div>
+
+    <div class="modal-buttons">
+      <button onclick="closeModal('foodModal')" class="cancelBtn">Cancel</button>
+      <button onclick="saveFood()" class="saveBtn">Save Product</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal" id="drinkModal">
+  <div class="modal-content">
+
+    <h2>Add Drink Product</h2>
+
+<div class="full-width">
+
+  <label>Product Name</label>
+  <input type="text" id="drinkName" class="product-name">
+
+</div>
+
+<div class="form-grid">
+
+  <!-- LEFT: IMAGE -->
+  <div class="image-box" onclick="document.getElementById('drinkImageInput').click()">
+    <img id="drinkPreview" src="" alt="">
+    <span>Upload</span>
+    <input type="file" id="drinkImageInput" accept="image/*" hidden>
+  </div>
+
+  <!-- RIGHT: SIZES -->
+  <div class="form-fields">
+
+    <div class="size-card">
+  <div class="size-left">
+    <div class="size-icon">S</div>
+    <div>
+      <p class="size-title">Small</p>
+      <span class="size-sub">Base size</span>
+    </div>
+  </div>
+  <div class="size-right">
+    <div class="price-box">
+      <span>₱</span>
+      <input type="number" id="smallPrice">
+    </div>
+  </div>
+</div>
+
+<div class="size-card">
+  <div class="size-left">
+    <div class="size-icon">M</div>
+    <div>
+      <p class="size-title">Medium</p>
+      <span class="size-sub">x1.25 of base</span>
+    </div>
+  </div>
+  <div class="size-right">
+    <div class="price-box">
+      <span>₱</span>
+      <input type="number" id="mediumPrice">
+    </div>
+  </div>
+</div>
+
+<div class="size-card">
+  <div class="size-left">
+    <div class="size-icon">L</div>
+    <div>
+      <p class="size-title">Large</p>
+      <span class="size-sub">x1.5 of base</span>
+    </div>
+  </div>
+  <div class="size-right">
+    <div class="price-box">
+      <span>₱</span>
+      <input type="number" id="largePrice">
+    </div>
+  </div>
+</div>
+
+  </div>
+
+</div>
+
+    <div class="modal-buttons">
+      <button onclick="closeModal('drinkModal')" class="cancelBtn">Cancel</button>
+      <button onclick="saveDrink()" class="saveBtn">Save Product</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal" id="successModal">
+  <div class="modal-content">
+    <h2>✅ Product Added!</h2>
+
+    <p id="successText"></p>
+    <p><strong>SKU:</strong> <span id="generatedSKU"></span></p>
+
+    <div class="modal-buttons">
+      <button onclick="closeModal('successModal')" class="saveBtn">Done</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- UPDATE PRODUCT MODAL -->
+<div class="modal" id="updateModal">
+   <div class="modal-content">
+
+        <h2>Update Product</h2>
+
+        <label>Name</label>
+        <input type="text" placeholder="Product name">
+
+        <div class="row">
+            <div>
+                <label>SKU</label>
+                <input type="text">
+            </div>
+
+            <div>
+                <label>Price</label>
+                <input type="number" min="0">
+            </div>
+        </div>
+
+        <label>Category</label>
+        <select id="updateCategory">
+          <option value="">-- Select Category --</option>
+          <option value="Beverages">Beverages</option>
+          <option value="Drink">Drink</option> 
+          </select>
+
+    <div class="modal-buttons">
+      <button onclick="closeModal('updateModal')" class="cancelBtn">Cancel</button>
+      <button class="saveBtn">Update Product</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- DELETE PRODUCT MODAL -->
+<div class="modal" id="deleteModal">
+  <div class="modal-content">
+    <h2>Delete Product</h2>
+    <p>Are you sure you want to delete this product?</p>
+
+    <div class="modal-buttons">
+      <button onclick="closeModal('deleteModal')" class="cancelBtn">Cancel</button>
+      <button class="deleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL-->
+<div class="modal" id="confirmModal">
+  <div class="modal-content confirm-modal">
+
+    <!-- HEADER -->
+    <div class="confirm-header">
+      <h2>Add New Product</h2>
+      <div class="underline"></div>
+    </div>
+
+    <!-- APPROVAL BOX -->
+    <div class="approval-box">
+      <div class="icon">
+        <i data-lucide="shield-check"></i>
+      </div>
+      <div>
+        <h4>Manager Approval Required</h4>
+        <p>Enter your password to confirm adding this product to the catalog</p>
+      </div>
+    </div>
+
+    <!-- PRODUCT INFO -->
+    <div class="product-info">
+      <div class="left">
+        <p>Product</p>
+        <p>Category</p>
+        <p>Price</p>
+      </div>
+
+      <div class="right">
+        <p id="confirmName"></p>
+        <p id="confirmCategory"></p>
+        <p class="price">₱<span id="confirmPrice"></span></p>
+      </div>
+    </div>
+
+    <!-- PASSWORD -->
+    <div class="password-group">
+      <label>YOUR PASSWORD (Jhonas Pogi)</label>
+      <div class="password-input">
+        <input type="password" id="managerPassword">
+     
+      </div>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="confirm-actions">
+      <button class="addAnother" onclick="closeModal('confirmModal')">
+        Add Another
+      </button>
+
+      <button class="confirmBtn" onclick="confirmSave()">
+        Confirm & Save
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!--LOGOUT MODAL-->
+<div class="modal" id="logoutModal">
+  <div class="modal-content">
+    <h2>Logout</h2>
+    <p>Are you sure you want to logout?</p>
+
+    <div class="modal-buttons">
+      <button onclick="closeModal('logoutModal')" class="cancelBtn">Cancel</button>
+      <button class="deleteBtn" onclick="confirmLogout()">Logout</button>
+    </div>
+  </div>
+</div>
+
+<script src="../controllers/products.js"></script>
+<script src="../assets/js/lucide.min.js"></script>
+<script src="../controllers/navigationbar.js"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+</html>

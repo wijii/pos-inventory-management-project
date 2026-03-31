@@ -1,0 +1,319 @@
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Font */
+@font-face {
+  font-family: "CafeFont";
+  src: url("../fonts/Lato-Bold.ttf") format("truetype");
+}
+
+/* Variables */
+:root {
+
+
+  /* MAIN COLORS */
+  --bg: #0d0d0d;
+  --card-bg: #181510;
+  --border: #453f3a;
+  --orange: #d9840d;
+  --text-color: #fcfaf8;
+
+  /* TEXT COLORS */
+  --text-muted: #9e938c;
+  --text-orange: #fe9a00;
+
+  /* INPUTS */
+  --input-bg: #231e1d;
+  --input-border: #3a2e1a;
+  --input-focus: #d9840d;
+
+  /* CHECKBOX */
+  --checkbox-border: #453f3a;
+
+  /* BUTTON */
+  --btn-text: #1a1100;
+  --btn-disabled: #9e8a6b;
+
+  /* ALERT */
+  --alert-bg: #2d0607;
+  --alert-border: #4d0408;
+  --alert-text: #ff9ea1;
+
+  /* CARD GRADIENT */
+  --card-top-gradient: linear-gradient(160deg, #2b2218, #171410);
+
+  /* GLOW EFFECTS */
+  --glow-left: rgba(160, 82, 10, 0.55);
+  --glow-left-mid: rgba(100, 45, 5, 0.25);
+  --glow-right: rgba(140, 70, 8, 0.4);
+  --glow-right-mid: rgba(80, 35, 4, 0.18);
+
+
+
+  /* Gradient */
+  --card-top-bg: linear-gradient(160deg, #2b2218, #171410);
+
+  /* Glows */
+  --glow-left: rgba(160, 82, 10, 0.55);
+  --glow-left-mid: rgba(100, 45, 5, 0.25);
+  --glow-right: rgba(140, 70, 8, 0.4);
+  --glow-right-mid: rgba(80, 35, 4, 0.18);
+}
+
+/* Body */
+body {
+  min-height: 100vh;
+  background-color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "CafeFont", sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Glows */
+
+.bg-glow {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-glow--left {
+  width: 520px;
+  height: 520px;
+  top: -80px;
+  left: -160px;
+  background: radial-gradient(circle, var(--glow-left) 0%, var(--glow-left-mid) 50%, transparent 75%);
+}
+
+.bg-glow--right {
+  width: 420px;
+  height: 420px;
+  bottom: -60px;
+  right: -100px;
+  background: radial-gradient(circle, var(--glow-right) 0%, var(--glow-right-mid) 50%, transparent 75%);
+}
+
+/* Card */
+
+.card {
+  width: 400px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* Card Top */
+
+.card-top {
+  background: var(--card-top-gradient);
+  text-align: center;
+  padding: 36px 32px 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.Cafelogo {
+  width: 80px;
+  display: block;
+  margin: 0 auto 12px auto;
+}
+
+h1 {
+  font-size: 32px;
+  color: var(--text-color);
+  letter-spacing: 1.5px;
+}
+
+h1 span {
+  color: var(--text-orange);
+}
+
+/* Card Bottom */
+
+.card-bottom {
+  background: var(--card-bg);
+  padding: 28px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Inputs */
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.input-wrapper:last-child {
+  margin-bottom: 0;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 14px 10px;
+  background: var(--input-bg);
+  border: 1.5px solid var(--input-border);
+  border-radius: 8px;
+  color: var(--text-color);
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input-wrapper input:focus {
+  border-color: var(--input-focus);
+}
+
+.input-wrapper label {
+  position: absolute;
+  left: 10px;
+  top: 45%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  padding: 0 4px;
+}
+
+.input-wrapper input:focus+label,
+.input-wrapper input:not(:placeholder-shown)+label {
+  top: -1px;
+  font-size: 14px;
+  color: var(--input-focus);
+  background-color: var(--card-bg);
+}
+
+/* Show Password */
+
+.show-pw {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.show-pw input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.custom-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid var(--checkbox-border);
+  background: var(--input-bg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.show-pw input[type="checkbox"]:checked+.custom-checkbox {
+  background: var(--orange);
+  border-color: var(--orange);
+}
+
+/* Login Button */
+
+#loginBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 50px;
+  font-family: "CafeFont", serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  cursor: pointer;
+  margin-top: 4px;
+  background-color: var(--btn-disabled);
+  color: var(--btn-text);
+  transition: transform 0.15s;
+}
+
+#loginBtn:disabled {
+  transform: none;
+}
+
+#loginBtn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+#loginBtn:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+/* Toast Alerts */
+
+#alertsContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.alerts {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background-color: var(--alert-bg);
+  border: 1px solid var(--alert-border);
+  color: var(--alert-text);
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  min-width: 220px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateX(100%);
+  animation: slideIn 0.4s forwards, fadeOut 0.4s 3s forwards;
+}
+
+.alert-icon {
+  width: 34px;
+  height: 34px;
+}
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* Icon */
+
+.btn-icon {
+  width: 20px;
+  height: 20px;
+}

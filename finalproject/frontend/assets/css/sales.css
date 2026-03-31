@@ -1,0 +1,543 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #231e1d;
+    color: var(--text-color);
+}
+
+.main {
+    padding: 20px;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.topbar {
+    margin-bottom: 20px;
+}
+
+.topbar.sticky {
+    position: sticky;
+    top: 10px;
+    z-index: 100;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* ── STAT CARDS ─────────────────────────────────── */
+.cards {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.card {
+    flex: 1;
+    background: var(--card-bg);
+    padding: 18px;
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    transition: transform 0.2s ease, border 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    border-color: var(--orange);
+}
+
+.card p {
+    margin: 0;
+    opacity: 0.8;
+    font-size: 14px;
+}
+
+.card h2 {
+    margin-top: 8px;
+}
+
+/* ICON WRAP */
+.card-icon-wrap {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+
+.card-icon-wrap.orange {
+    background: rgba(217, 132, 13, 0.18);
+    color: #d9840d;
+}
+
+.card-icon-wrap.blue {
+    background: rgba(96, 165, 250, 0.15);
+    color: #60a5fa;
+}
+
+.card-icon-wrap.green {
+    background: rgba(0, 201, 80, 0.15);
+    color: #00c950;
+}
+
+.card-icon-wrap.purple {
+    background: rgba(167, 139, 250, 0.15);
+    color: #a78bfa;
+}
+
+/* ── CHART BOX ──────────────────────────────────── */
+.chart-box {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    margin-bottom: 20px;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 16px;
+}
+
+.bar {
+    flex: 1;
+    background: #d9840d;
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    min-width: 20px;
+}
+
+.bar-label {
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: #fff;
+    font-weight: bold;
+}
+
+.chart-scroll-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.chart-container {
+    height: 220px;
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.chart-scroll-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+
+.chart-scroll-wrapper::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+}
+
+.chart-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+
+.chart-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--orange);
+}
+
+.chart-filters {
+    display: flex;
+    gap: 6px;
+}
+
+.chart-filters .filter-btn {
+    height: 28px;
+    min-width: 65px;
+    font-size: 11px;
+    background: #1e1917;
+    border: 1px solid var(--border);
+}
+
+.filter-btn {
+    background: #292422;
+    border: none;
+    font-size: 13px;
+    padding: 0px 22px;
+    border-radius: 8px;
+    height: 40px;
+    min-width: 100px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.5);
+    margin-left: auto;
+    margin-right: 20px;
+    border: solid 1px #453f3a;
+}
+
+.filter-btn:hover {
+    border-color: var(--orange);
+    color: var(--text-color);
+    transform: translateY(-3px);
+}
+
+.filters button.active {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* ── TABS ───────────────────────────────────────── */
+.tabs-card {
+    background: var(--card-bg);
+    padding: 8px;
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.report-tabs {
+    display: flex;
+    width: 100%;
+    gap: 5px;
+}
+
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.tab-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+    color: var(--text-color);
+    background: var(--orange);
+    box-shadow: 0 4px 15px rgba(217, 132, 13, 0.3);
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* ── TABLE ──────────────────────────────────────── */
+.table-container {
+    overflow-x: auto;
+    margin-top: 10px;
+}
+
+.sales-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+.sales-table th {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 500;
+}
+
+.sales-table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    vertical-align: middle;
+}
+
+.sales-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.text-orange {
+    color: var(--orange);
+    font-weight: 600;
+}
+
+.btn-view {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-color);
+    padding: 6px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.btn-view:hover {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: #fff;
+}
+
+/* ── CHART STATS ────────────────────────────────── */
+.chart-stats {
+    display: flex;
+    gap: 10px;
+}
+
+.chart-stat-box {
+    background: #1a1614;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px 10px;
+    min-width: 140px;
+}
+
+.chart-stat-box p {
+    font-size: 11px;
+    opacity: 0.5;
+    margin-bottom: 4px;
+}
+
+.chart-stat-box h4 {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.chart-sub {
+    font-size: 12px;
+    opacity: 0.5;
+    margin-top: 3px;
+}
+
+/* ── RECEIPT MODAL ──────────────────────────────── */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.receipt-card {
+    background: #1a1615;
+    width: 380px;
+    border-radius: 24px;
+    padding: 30px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.receipt-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.receipt-icon {
+    background: rgba(217, 132, 13, 0.2);
+    color: var(--orange);
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+}
+
+.receipt-meta {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    font-size: 12px;
+    opacity: 0.6;
+    margin: 10px 0;
+}
+
+.cashier-name {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.receipt-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.item-info h5 {
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.item-info p {
+    font-size: 11px;
+    opacity: 0.5;
+}
+
+.item-price {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.receipt-summary {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 15px;
+    margin-top: 20px;
+}
+
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.summary-line.total {
+    opacity: 1;
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 10px;
+}
+
+.payment-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.method-tag {
+    color: var(--orange);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.modal-footer button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    border: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.btn-primary {
+    background: var(--orange);
+    color: #fff;
+}
+
+.close-x {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+/* ── LOGOUT MODAL ───────────────────────────────── */
+.logout-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 16px;
+    width: 600px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--border);
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.cancelBtn {
+    background: var(--border);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.deleteBtn {
+    background: var(--orange);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: var(--text-color);
+    font-weight: bold;
+    cursor: pointer;
+}
+
