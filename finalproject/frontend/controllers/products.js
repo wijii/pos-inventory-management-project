@@ -10,7 +10,7 @@ const MANAGER_PASSWORD = "admin123";
 // ============================================================
 
 let pendingProduct = null;
-let selectedRow    = null;
+let selectedRow = null;
 
 
 // ============================================================
@@ -89,22 +89,22 @@ function showAlert(message) {
 
 function previewImage(inputId, previewId) {
   const input = document.getElementById(inputId);
-  const file  = input.files[0];
+  const file = input.files[0];
   if (!file) return;
 
   const reader = new FileReader();
   reader.onload = e => {
-    const img   = document.getElementById(previewId);
-    img.src     = e.target.result;
+    const img = document.getElementById(previewId);
+    img.src = e.target.result;
     img.style.display = "block";
   };
   reader.readAsDataURL(file);
 }
 
 function populateConfirmModal(name, category, priceText) {
-  document.getElementById("confirmName").innerText     = name;
+  document.getElementById("confirmName").innerText = name;
   document.getElementById("confirmCategory").innerText = category;
-  document.getElementById("confirmPrice").innerText    = priceText;
+  document.getElementById("confirmPrice").innerText = priceText;
 }
 
 
@@ -135,9 +135,9 @@ function openUpdateModal(btn) {
   const cells = selectedRow.querySelectorAll("td");
 
   document.querySelector("#updateModal input[placeholder='Product name']").value = cells[0].innerText;
-  document.querySelector("#updateModal .row input[type='text']").value            = cells[1].innerText;
-  document.querySelector("#updateModal input[type='number']").value               = cells[3].innerText.replace("₱", "");
-  document.getElementById("updateCategory").value                                 = cells[2].innerText.trim();
+  document.querySelector("#updateModal .row input[type='text']").value = cells[1].innerText;
+  document.querySelector("#updateModal input[type='number']").value = cells[3].innerText.replace("₱", "");
+  document.getElementById("updateCategory").value = cells[2].innerText.trim();
 
   openModal("updateModal");
 }
@@ -148,7 +148,7 @@ function openDeleteModal(btn) {
 }
 
 function saveFood() {
-  const name  = document.getElementById("foodName").value;
+  const name = document.getElementById("foodName").value;
   const price = document.getElementById("foodPrice").value;
 
   if (!name || !price) { showAlert("Please fill all fields!"); return; }
@@ -162,10 +162,10 @@ function saveFood() {
 }
 
 function saveDrink() {
-  const name   = document.getElementById("drinkName").value;
-  const small  = document.getElementById("smallPrice").value;
+  const name = document.getElementById("drinkName").value;
+  const small = document.getElementById("smallPrice").value;
   const medium = document.getElementById("mediumPrice").value;
-  const large  = document.getElementById("largePrice").value;
+  const large = document.getElementById("largePrice").value;
 
   if (!name || !small || !medium || !large) { showAlert("Please fill all fields!"); return; }
   if (parseFloat(small) < 0 || parseFloat(medium) < 0 || parseFloat(large) < 0) {
@@ -177,9 +177,9 @@ function saveDrink() {
     type: "Drink",
     name,
     sizes: [
-      { label: "S", price: small  },
+      { label: "S", price: small },
       { label: "M", price: medium },
-      { label: "L", price: large  },
+      { label: "L", price: large },
     ]
   };
   populateConfirmModal(name, "Drink", `${small} / ${medium} / ${large}`);
@@ -196,7 +196,7 @@ function confirmSave() {
 
   const table = document.getElementById("productTable");
 
-  if (pendingProduct.type === "Food")  table.innerHTML += buildFoodRows(pendingProduct);
+  if (pendingProduct.type === "Food") table.innerHTML += buildFoodRows(pendingProduct);
   if (pendingProduct.type === "Drink") table.innerHTML += buildDrinkRows(pendingProduct);
 
   // Reset
@@ -205,7 +205,7 @@ function confirmSave() {
   closeModal("confirmModal");
   lucide.createIcons();
 
-  document.getElementById("successText").innerText  = "Product added!";
+  document.getElementById("successText").innerText = "Product added!";
   document.getElementById("generatedSKU").innerText = "Generated";
   openModal("successModal");
 }
@@ -226,15 +226,15 @@ document.getElementById("drinkImageInput").addEventListener("change", function (
 document.querySelector("#updateModal .saveBtn").addEventListener("click", function () {
   if (!selectedRow) return;
 
-  const name     = document.querySelector("#updateModal input[placeholder='Product name']").value;
-  const sku      = document.querySelector("#updateModal .row input[type='text']").value;
-  const price    = document.querySelector("#updateModal input[type='number']").value;
+  const name = document.querySelector("#updateModal input[placeholder='Product name']").value;
+  const sku = document.querySelector("#updateModal .row input[type='text']").value;
+  const price = document.querySelector("#updateModal input[type='number']").value;
   const category = document.getElementById("updateCategory").value;
 
   if (!name || !sku || !price || !category) { showAlert("Please fill all fields"); return; }
   if (parseFloat(price) < 0) { showAlert("Price cannot be negative!"); return; }
 
-  const cells        = selectedRow.querySelectorAll("td");
+  const cells = selectedRow.querySelectorAll("td");
   cells[0].innerText = name;
   cells[1].innerText = sku;
   cells[2].innerHTML = `<span class="badge">${category}</span>`;
@@ -259,9 +259,30 @@ document.getElementById("searchInput").addEventListener("keyup", function () {
   });
 });
 
-// Close modal on outside click
+
 window.onclick = function (e) {
   document.querySelectorAll(".modal").forEach(modal => {
     if (e.target === modal) modal.style.display = "none";
   });
 };
+
+document.addEventListener('DOMContentLoaded', function () {
+
+  //products table
+  fetch('../../backend/routes.php?action=getProductsTable')
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('productTable').innerHTML = html;
+      lucide.createIcons();
+    })
+    .catch(error => console.error("Error products:", error));
+
+  //categories
+  fetch('../../backend/routes.php?action=getCategoriesDropdown')
+    .then(response => response.text())
+    .then(html => {
+      const catSelect = document.getElementById('updateCategory');
+      if (catSelect) catSelect.innerHTML = html;
+    })
+    .catch(error => console.error("Error categories:", error));
+});

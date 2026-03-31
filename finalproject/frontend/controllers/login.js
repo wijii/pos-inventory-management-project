@@ -1,20 +1,6 @@
 // ============================================================
-// DATA
+// DATA & SESSION
 // ============================================================
-
-const USERS = [
-  { username: "admin",   password: "admin123",   redirect: "dashboard.html" },
-  { username: "cashier", password: "cashier123", redirect: "cashier.html"   },
-];
-
-
-// ============================================================
-// LOGIC
-// ============================================================
-
-function findUser(username, password) {
-  return USERS.find(u => u.username === username && u.password === password);
-}
 
 function saveSession(username) {
   localStorage.setItem("loggedInUser", username);
@@ -55,9 +41,8 @@ function updateButtonColor() {
 }
 
 
-// ============================================================
-// EVENT LISTENERS
-// ============================================================
+//event listeners
+
 
 document.getElementById("showPw").addEventListener("change", function () {
   document.getElementById("password").type = this.checked ? "text" : "password";
@@ -71,18 +56,38 @@ document.getElementById("loginBtn").addEventListener("click", () => {
   const password = document.getElementById("password").value.trim();
 
   if (!username || !password) {
-    showAlert("Please fill in both username and password");
+    showAlert("Please provide both your username and password.");
     return;
   }
 
-  const user = findUser(username, password);
+  // ajax
+  $.ajax({
+    url: "../../backend/routes.php?action=login",
+    type: "POST",
+    data: {
+      username: username,
+      password: password
+    },
+    success: function (result) {
 
-  if (user) {
-    saveSession(user.username);
-    window.location.href = user.redirect;
-  } else {
-    showAlert("Invalid username or password");
-  }
+      if (result === "Manager" || result === "Cashier") {
+
+        localStorage.setItem("loggedInUser", username);
+
+        if (result === "Manager") {
+          window.location.href = "dashboard.html";
+        } else {
+          window.location.href = "cashier.html";
+        }
+      } else {
+        showAlert("Please check your credentials and try again.");
+      }
+    },
+    error: function (error) {
+      console.error("AJAX Error:", error);
+      showAlert("System error: Unable to connect to the server.");
+    }
+  });
 });
 
 document.addEventListener("keydown", (e) => {
