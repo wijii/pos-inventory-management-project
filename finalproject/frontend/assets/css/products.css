@@ -683,6 +683,12 @@ button.delete:hover {
     animation: slideIn 0.3s ease;
 }
 
+.alerts.success {
+    background: #15291d;      
+    border: 1px solid #114827;
+    color: #00c950;
+}
+
 /* ICON */
 .alert-icon {
     width: 18px;

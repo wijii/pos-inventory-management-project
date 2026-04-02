@@ -11,26 +11,8 @@ function saveSession(username) {
 // UI / RENDERING
 // ============================================================
 
-function showAlert(message) {
-  const alertsContainer = document.getElementById("alertsContainer");
-  if (!alertsContainer) return;
+// showAlert is now shared through navigationbar.js
 
-  const alertBox = document.createElement("div");
-  alertBox.classList.add("alerts");
-
-  const icon = document.createElement("img");
-  icon.src = "../assets/svgs/AlertLogo.svg";
-  icon.classList.add("alert-icon");
-
-  const text = document.createElement("span");
-  text.textContent = message;
-
-  alertBox.appendChild(icon);
-  alertBox.appendChild(text);
-  alertsContainer.appendChild(alertBox);
-
-  setTimeout(() => alertBox.remove(), 3500);
-}
 
 function updateButtonColor() {
   const username = document.getElementById("username").value.trim();

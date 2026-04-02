@@ -1,25 +1,20 @@
 <?php
 
-
 //AJAX requests will be sent to this file.
 //check what action the frontend wants to perform.
-$action = isset($_GET['action']) ? $_GET['action'] : '';
 
-//route the request to the controller based on the action
-switch ($action) {
-    case 'login':
-        require 'controllers/AuthController.php';
-        break;
-
-    //prod actions
-    case 'getCategoriesDropdown':
-    case 'getProductsTable':
-        // case 'addProduct': mamya na ulit auko na
-        require 'controllers/ProductController.php';
-        break;
-
-    default:
-        echo "Error: The requested action was not found.";
-        break;
+if (isset($_GET['action'])) {
+    $action = $_GET['action'];
+} else {
+    $action = '';
 }
-?>
+
+//route the request to the correct Controller based on the action
+
+if ($action == 'login' || $action == 'session' || $action == 'logout' || $action == 'verifyManager') {
+    require 'controllers/AuthController.php';
+} else if ($action == 'getCategoriesDropdown' || $action == 'getProductsTable' || $action == 'addProduct' || $action == 'updateProduct' || $action == 'deleteProduct' || $action == 'getPOSProductsJSON') {
+    require 'controllers/ProductController.php';
+} else {
+    echo "Error: The requested action was not found.";
+}

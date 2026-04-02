@@ -1,21 +1,10 @@
-// ============================================================
-// DATA
-// ============================================================
 
 const MANAGER_PASSWORD = "admin123";
 
-
-// ============================================================
-// STATE
-// ============================================================
-
 let pendingProduct = null;
 let selectedRow = null;
-
-
-// ============================================================
-// LOGIC
-// ============================================================
+let selectedSkuID = null;
+let selectedProductID = null;
 
 function generateSKU(name) {
   const prefix = name.substring(0, 4).toUpperCase();
@@ -57,21 +46,24 @@ function buildDrinkRows(product) {
   }).join("");
 }
 
-function confirmLogout() {
-  window.location.href = "login.html";
-}
+// confirmLogout is now handled in navigationbar.js to be shared across pages
+
 
 
 // ============================================================
 // UI / RENDERING
 // ============================================================
 
-function showAlert(message) {
+function showAlert(message, isSuccess = false) {
   const alertsContainer = document.getElementById("alertsContainer");
   if (!alertsContainer) return;
 
   const alertBox = document.createElement("div");
   alertBox.classList.add("alerts");
+  
+  if (isSuccess) {
+    alertBox.classList.add("success");
+  }
 
   const icon = document.createElement("img");
   icon.src = "../assets/svgs/AlertLogo.svg";
@@ -134,10 +126,20 @@ function openUpdateModal(btn) {
   selectedRow = btn.closest("tr");
   const cells = selectedRow.querySelectorAll("td");
 
-  document.querySelector("#updateModal input[placeholder='Product name']").value = cells[0].innerText;
+  //read the IDs that the server embedded in the data attributes of this row
+  selectedSkuID = selectedRow.dataset.skuid;
+  selectedProductID = selectedRow.dataset.productid;
+
+  //pre-fill the modal with the row's current values
+  //since cell 0 now has an image inside,look for the span that holds the name
+  const nameSpan = cells[0].querySelector("span");
+  document.querySelector("#updateModal input[placeholder='Product name']").value = nameSpan ? nameSpan.innerText : cells[0].innerText;
+
   document.querySelector("#updateModal .row input[type='text']").value = cells[1].innerText;
-  document.querySelector("#updateModal input[type='number']").value = cells[3].innerText.replace("₱", "");
-  document.getElementById("updateCategory").value = cells[2].innerText.trim();
+  document.querySelector("#updateModal input[type='number']").value = cells[3].innerText.replace("₱", "").replaceAll(",", "");
+
+  //pre-select the category using the CategoryID stored in the data attribute
+  document.getElementById("updateCategory").value = selectedRow.dataset.categoryid;
 
   openModal("updateModal");
 }
@@ -150,11 +152,19 @@ function openDeleteModal(btn) {
 function saveFood() {
   const name = document.getElementById("foodName").value;
   const price = document.getElementById("foodPrice").value;
+  const imageFile = document.getElementById("foodImageInput").files[0];
 
   if (!name || !price) { showAlert("Please fill all fields!"); return; }
   if (parseFloat(price) < 0) { showAlert("Price cannot be negative!"); return; }
 
-  pendingProduct = { type: "Food", name, price };
+  // Image size limit: 2MB (matches the 180x180 image-box on screen)
+  const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
+  if (imageFile && imageFile.size > maxSizeInBytes) {
+    showAlert("Image is too large. Please upload a photo under 2MB.");
+    return;
+  }
+
+  pendingProduct = { type: "Food", name, price, image: imageFile };
   populateConfirmModal(name, "Food", parseFloat(price).toFixed(2));
 
   closeModal("foodModal");
@@ -166,6 +176,7 @@ function saveDrink() {
   const small = document.getElementById("smallPrice").value;
   const medium = document.getElementById("mediumPrice").value;
   const large = document.getElementById("largePrice").value;
+  const imageFile = document.getElementById("drinkImageInput").files[0];
 
   if (!name || !small || !medium || !large) { showAlert("Please fill all fields!"); return; }
   if (parseFloat(small) < 0 || parseFloat(medium) < 0 || parseFloat(large) < 0) {
@@ -173,9 +184,17 @@ function saveDrink() {
     return;
   }
 
+  // Image size limit: 2MB (matches the 180x180 image-box on screen)
+  const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
+  if (imageFile && imageFile.size > maxSizeInBytes) {
+    showAlert("Image is too large. Please upload a photo under 2MB.");
+    return;
+  }
+
   pendingProduct = {
     type: "Drink",
     name,
+    image: imageFile,
     sizes: [
       { label: "S", price: small },
       { label: "M", price: medium },
@@ -191,29 +210,84 @@ function saveDrink() {
 function confirmSave() {
   const password = document.getElementById("managerPassword").value;
 
-  if (password !== MANAGER_PASSWORD) { showAlert("Incorrect password"); return; }
+  if (!password) { showAlert("Please enter a password"); return; }
   if (!pendingProduct) return;
 
-  const table = document.getElementById("productTable");
+  // First verify the password via backend
+  $.ajax({
+    url: '../../backend/routes.php?action=verifyManager',
+    type: 'POST',
+    data: { password: password },
+    success: function (verifyResult) {
+      if (verifyResult.trim() === "Success") {
+        // Password correct, now save the product
+        saveProductToBackend();
+      } else {
+        showAlert("Incorrect manager password");
+      }
+    },
+    error: function () {
+      showAlert("Network error during verification.");
+    }
+  });
+}
 
-  if (pendingProduct.type === "Food") table.innerHTML += buildFoodRows(pendingProduct);
-  if (pendingProduct.type === "Drink") table.innerHTML += buildDrinkRows(pendingProduct);
+function saveProductToBackend() {
+  const fd = new FormData();
+  fd.append("type", pendingProduct.type);
+  fd.append("name", pendingProduct.name);
 
-  // Reset
-  pendingProduct = null;
-  document.getElementById("managerPassword").value = "";
-  closeModal("confirmModal");
-  lucide.createIcons();
+  if (pendingProduct.image) {
+    fd.append("image", pendingProduct.image);
+  }
 
-  document.getElementById("successText").innerText = "Product added!";
-  document.getElementById("generatedSKU").innerText = "Generated";
-  openModal("successModal");
+  if (pendingProduct.type === "Food") {
+    fd.append("price", pendingProduct.price);
+  } else if (pendingProduct.type === "Drink") {
+    fd.append("smallPrice", pendingProduct.sizes[0].price);
+    fd.append("mediumPrice", pendingProduct.sizes[1].price);
+    fd.append("largePrice", pendingProduct.sizes[2].price);
+  }
+
+  $.ajax({
+    url: '../../backend/routes.php?action=addProduct',
+    type: 'POST',
+    data: fd,
+    processData: false,
+    contentType: false,
+    success: function (result) {
+      if (result.trim() === "Success") {
+        pendingProduct = null;
+        document.getElementById("managerPassword").value = "";
+        closeModal("confirmModal");
+
+        document.getElementById("successText").innerText = "Product securely added!";
+        document.getElementById("generatedSKU").innerText = "Saved to Database";
+        openModal("successModal");
+
+        $.ajax({
+          url: '../../backend/routes.php?action=getProductsTable',
+          type: 'GET',
+          success: function (html) {
+            document.getElementById('productTable').innerHTML = html;
+            lucide.createIcons();
+          }
+        });
+
+      } else if (result.trim() === "ErrorImageTooLarge") {
+        showAlert("The image file is too large. Please choose a photo under 2MB.");
+      } else {
+        showAlert("Failed to add product: " + result);
+      }
+    },
+    error: function (err) {
+      showAlert("Network error while adding product.");
+    }
+  });
 }
 
 
-// ============================================================
-// EVENT LISTENERS
-// ============================================================
+
 
 document.getElementById("foodImageInput").addEventListener("change", function () {
   previewImage("foodImageInput", "foodPreview");
@@ -227,29 +301,80 @@ document.querySelector("#updateModal .saveBtn").addEventListener("click", functi
   if (!selectedRow) return;
 
   const name = document.querySelector("#updateModal input[placeholder='Product name']").value;
-  const sku = document.querySelector("#updateModal .row input[type='text']").value;
+  const skuCode = document.querySelector("#updateModal .row input[type='text']").value;
   const price = document.querySelector("#updateModal input[type='number']").value;
-  const category = document.getElementById("updateCategory").value;
+  const categoryID = document.getElementById("updateCategory").value;
 
-  if (!name || !sku || !price || !category) { showAlert("Please fill all fields"); return; }
-  if (parseFloat(price) < 0) { showAlert("Price cannot be negative!"); return; }
+  if (!name || !skuCode || !price || !categoryID) { showAlert("Please fill all fields"); return; }
 
-  const cells = selectedRow.querySelectorAll("td");
-  cells[0].innerText = name;
-  cells[1].innerText = sku;
-  cells[2].innerHTML = `<span class="badge">${category}</span>`;
-  cells[3].innerText = `₱${parseFloat(price).toFixed(2)}`;
+  if (!selectedSkuID || !selectedProductID) {
+    showAlert("Error: Missing database IDs. Try refreshing the page.");
+    return;
+  }
 
-  selectedRow = null;
-  closeModal("updateModal");
+  $.ajax({
+    url: '../../backend/routes.php?action=updateProduct',
+    type: 'POST',
+    data: {
+      skuID: selectedSkuID,
+      productID: selectedProductID,
+      name: name,
+      skuCode: skuCode,
+      price: price,
+      categoryID: categoryID
+    },
+    success: function (result) {
+      if (result.trim() === "Success") {
+        showAlert("Product updated successfully!", true);
+        selectedRow = null;
+        closeModal("updateModal");
+
+        // Refresh table
+        $.ajax({
+          url: '../../backend/routes.php?action=getProductsTable',
+          type: 'GET',
+          success: function (html) {
+            document.getElementById('productTable').innerHTML = html;
+            lucide.createIcons();
+          }
+        });
+      } else {
+        showAlert("Update failed: " + result);
+      }
+    },
+    error: function (err) {
+      showAlert("Network error during update.");
+    }
+  });
 });
 
 document.querySelector("#deleteModal .deleteBtn").addEventListener("click", function () {
-  if (selectedRow) {
-    selectedRow.remove();
-    selectedRow = null;
+  if (!selectedRow) { closeModal("deleteModal"); return; }
+
+  const skuID = selectedRow.dataset.skuid;
+  if (!skuID) {
+    showAlert("Error: Cannot delete. ID is missing.");
+    return;
   }
-  closeModal("deleteModal");
+
+  $.ajax({
+    url: '../../backend/routes.php?action=deleteProduct',
+    type: 'POST',
+    data: { skuID: skuID },
+    success: function (result) {
+      if (result.trim() === "Success") {
+        selectedRow.remove();
+        selectedRow = null;
+        closeModal("deleteModal");
+        showAlert("Product removed from view.", true);
+      } else {
+        showAlert("Delete failed: " + result);
+      }
+    },
+    error: function (err) {
+      showAlert("Network error during delete.");
+    }
+  });
 });
 
 document.getElementById("searchInput").addEventListener("keyup", function () {
@@ -268,21 +393,30 @@ window.onclick = function (e) {
 
 document.addEventListener('DOMContentLoaded', function () {
 
-  //products table
-  fetch('../../backend/routes.php?action=getProductsTable')
-    .then(response => response.text())
-    .then(html => {
+  //load the products table on page load
+  $.ajax({
+    url: '../../backend/routes.php?action=getProductsTable',
+    type: 'GET',
+    success: function (html) {
       document.getElementById('productTable').innerHTML = html;
       lucide.createIcons();
-    })
-    .catch(error => console.error("Error products:", error));
+    },
+    error: function (err) {
+      console.error("Error loading products:", err);
+    }
+  });
 
-  //categories
-  fetch('../../backend/routes.php?action=getCategoriesDropdown')
-    .then(response => response.text())
-    .then(html => {
+  //load the categories dropdown for the update modal
+  $.ajax({
+    url: '../../backend/routes.php?action=getCategoriesDropdown',
+    type: 'GET',
+    success: function (html) {
       const catSelect = document.getElementById('updateCategory');
       if (catSelect) catSelect.innerHTML = html;
-    })
-    .catch(error => console.error("Error categories:", error));
+    },
+    error: function (err) {
+      console.error("Error loading categories:", err);
+    }
+  });
+
 });

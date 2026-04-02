@@ -2,16 +2,7 @@
 // DATA
 // ============================================================
 
-const products = [
-  { id: "BITCH-051", name: "Dark Choco Macchiato", price: 0.01, stock: 11, category: "beverages", img: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=80" },
-  { id: "BITCH-201", name: "Matcha Overload",      price: 0.01, stock: 11, category: "beverages", img: "https://images.unsplash.com/photo-1619096252214-ef06c45683e3?w=400&q=80" },
-  { id: "BITCH-501", name: "Mango Overload",       price: 0.01, stock: 11, category: "beverages", img: "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=400&q=80" },
-  { id: "BITCH-301", name: "Caramel Chocolate",    price: 0.01, stock: 11, category: "beverages", img: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&q=80" },
-  { id: "BITCH-021", name: "Caramel Overload",     price: 0.01, stock: 11, category: "beverages", img: "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&q=80" },
-  { id: "FOOD-001",  name: "Cheese Bread",         price: 0.01, stock: 8,  category: "food",      img: "https://images.unsplash.com/photo-1549931319-a545dcf3bc7b?w=400&q=80" },
-  { id: "FOOD-002",  name: "Egg Sandwich",         price: 0.01, stock: 5,  category: "food",      img: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80" },
-  { id: "FOOD-003",  name: "Club Sandwich",        price: 0.01, stock: 0,  category: "food",      img: "https://images.unsplash.com/photo-1539252554873-d71e8d8c9f18?w=400&q=80" },
-];
+let products = [];
 
 const SIZE_OPTIONS = [
   { key: "small",  label: "Small",  badge: "S", sub: "Base size",     multiplier: 1.00 },
@@ -459,6 +450,28 @@ window.onclick = function(e) {
 // INIT
 // ============================================================
 
-renderProducts();
-renderCart();
+$(document).ready(function() {
+  $.ajax({
+    url: '../../backend/routes.php?action=getPOSProductsJSON',
+    type: 'GET',
+    dataType: 'json',
+    success: function(data) {
+      if (data && data.length > 0) {
+        products = data;
+      } else {
+        products = [];
+      }
+      renderProducts();
+      renderCart();
+    },
+    error: function() {
+      // fallback or error handling
+      products = [];
+      renderProducts();
+      renderCart();
+      console.log("Failed to load products from database.");
+    }
+  });
+});
+
 
