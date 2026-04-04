@@ -415,7 +415,7 @@ document.getElementById("modalConfirm").addEventListener("click", () => {
       ? parseFloat(document.getElementById("cashInput").value) || 0
       : total;
 
-  //perform checkout via backend
+  //packages cart data and passes to AJAX service to complete transaction
   posAjax.checkout(
     cash,
     total,
@@ -436,20 +436,21 @@ document.getElementById("modalConfirm").addEventListener("click", () => {
         if (cashInput) cashInput.value = "";
         document.getElementById("confirmModal").classList.remove("show");
         renderCart();
-        
-        // Finalize POS Checkout by immediately re-fetching products 
+
         // to update the live stock numbers on the order grid
         posAjax.getProducts(
           function (data) {
             products = data || [];
-            renderProducts(); 
+            renderProducts();
             lucide.createIcons();
           },
           function (err) {
-            console.error("Failed to refresh stock numbers post-checkout.", err);
-          }
+            console.error(
+              "Failed to refresh stock numbers post-checkout.",
+              err,
+            );
+          },
         );
-
       } else {
         alert("Checkout Failed: " + result);
       }

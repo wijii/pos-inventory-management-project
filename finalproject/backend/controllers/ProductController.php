@@ -210,7 +210,7 @@ if ($action == 'getCategoriesDropdown') {
                 "id" => $p['BaseSKU'],
                 "name" => $p['ProductName'],
                 "price" => floatval($p['Price']),
-                "stock" => 99, // mocked stock until inventory is integrated
+                "stock" => intval($p['Quantity']), // uses actual stock from database
                 "category" => strtolower($p['CategoryName']),
                 "img" => !empty($p['ProductImagePath']) ? $p['ProductImagePath'] : "https://via.placeholder.com/150"
             );

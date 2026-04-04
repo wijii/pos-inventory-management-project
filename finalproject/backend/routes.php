@@ -17,6 +17,8 @@ if ($action == 'login' || $action == 'session' || $action == 'logout' || $action
     require 'controllers/ProductController.php';
 } else if ($action == 'checkout') {
     require 'controllers/TransactionController.php';
+} else if ($action == 'getInventoryJSON' || $action == 'updateInventoryStock') {
+    require 'controllers/InventoryController.php';
 } else {
     echo "Error: The requested action was not found.";
 }

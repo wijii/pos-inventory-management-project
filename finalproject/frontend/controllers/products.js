@@ -1,4 +1,3 @@
-
 const MANAGER_PASSWORD = "admin123";
 
 let pendingProduct = null;
@@ -29,9 +28,10 @@ function buildFoodRows(product) {
 }
 
 function buildDrinkRows(product) {
-  return product.sizes.map(size => {
-    const sku = generateSKU(product.name + size.label);
-    return `
+  return product.sizes
+    .map((size) => {
+      const sku = generateSKU(product.name + size.label);
+      return `
       <tr>
         <td>${product.name}</td>
         <td>${sku}</td>
@@ -43,12 +43,9 @@ function buildDrinkRows(product) {
         </td>
       </tr>
     `;
-  }).join("");
+    })
+    .join("");
 }
-
-// confirmLogout is now handled in navigationbar.js to be shared across pages
-
-
 
 // ============================================================
 // UI / RENDERING
@@ -85,7 +82,7 @@ function previewImage(inputId, previewId) {
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = (e) => {
     const img = document.getElementById(previewId);
     img.src = e.target.result;
     img.style.display = "block";
@@ -98,7 +95,6 @@ function populateConfirmModal(name, category, priceText) {
   document.getElementById("confirmCategory").innerText = category;
   document.getElementById("confirmPrice").innerText = priceText;
 }
-
 
 // ============================================================
 // MODALS
@@ -133,13 +129,18 @@ function openUpdateModal(btn) {
   //pre-fill the modal with the row's current values
   //since cell 0 now has an image inside,look for the span that holds the name
   const nameSpan = cells[0].querySelector("span");
-  document.querySelector("#updateModal input[placeholder='Product name']").value = nameSpan ? nameSpan.innerText : cells[0].innerText;
+  document.querySelector(
+    "#updateModal input[placeholder='Product name']",
+  ).value = nameSpan ? nameSpan.innerText : cells[0].innerText;
 
-  document.querySelector("#updateModal .row input[type='text']").value = cells[1].innerText;
-  document.querySelector("#updateModal input[type='number']").value = cells[3].innerText.replace("₱", "").replaceAll(",", "");
+  document.querySelector("#updateModal .row input[type='text']").value =
+    cells[1].innerText;
+  document.querySelector("#updateModal input[type='number']").value =
+    cells[3].innerText.replace("₱", "").replaceAll(",", "");
 
   //pre-select the category using the CategoryID stored in the data attribute
-  document.getElementById("updateCategory").value = selectedRow.dataset.categoryid;
+  document.getElementById("updateCategory").value =
+    selectedRow.dataset.categoryid;
 
   openModal("updateModal");
 }
@@ -154,10 +155,16 @@ function saveFood() {
   const price = document.getElementById("foodPrice").value;
   const imageFile = document.getElementById("foodImageInput").files[0];
 
-  if (!name || !price) { showAlert("Please fill all fields!"); return; }
-  if (parseFloat(price) < 0) { showAlert("Price cannot be negative!"); return; }
+  if (!name || !price) {
+    showAlert("Please fill all fields!");
+    return;
+  }
+  if (parseFloat(price) < 0) {
+    showAlert("Price cannot be negative!");
+    return;
+  }
 
-  // Image size limit: 2MB (matches the 180x180 image-box on screen)
+  //image size limit 2MB
   const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
   if (imageFile && imageFile.size > maxSizeInBytes) {
     showAlert("Image is too large. Please upload a photo under 2MB.");
@@ -178,13 +185,20 @@ function saveDrink() {
   const large = document.getElementById("largePrice").value;
   const imageFile = document.getElementById("drinkImageInput").files[0];
 
-  if (!name || !small || !medium || !large) { showAlert("Please fill all fields!"); return; }
-  if (parseFloat(small) < 0 || parseFloat(medium) < 0 || parseFloat(large) < 0) {
+  if (!name || !small || !medium || !large) {
+    showAlert("Please fill all fields!");
+    return;
+  }
+  if (
+    parseFloat(small) < 0 ||
+    parseFloat(medium) < 0 ||
+    parseFloat(large) < 0
+  ) {
     showAlert("Prices cannot be negative!");
     return;
   }
 
-  // Image size limit 2mb
+  //image size limit 2mb
   const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
   if (imageFile && imageFile.size > maxSizeInBytes) {
     showAlert("Image is too large. Please upload a photo under 2MB.");
@@ -199,7 +213,7 @@ function saveDrink() {
       { label: "S", price: small },
       { label: "M", price: medium },
       { label: "L", price: large },
-    ]
+    ],
   };
   populateConfirmModal(name, "Drink", `${small} / ${medium} / ${large}`);
 
@@ -210,20 +224,27 @@ function saveDrink() {
 function confirmSave() {
   const password = document.getElementById("managerPassword").value;
 
-  if (!password) { showAlert("Please enter a password"); return; }
+  if (!password) {
+    showAlert("Please enter a password");
+    return;
+  }
   if (!pendingProduct) return;
 
   // First verify the password via backend
-  productsAjax.verifyManager(password, function (verifyResult) {
-    if (verifyResult.trim() === "Success") {
-      // Password correct, now save the product
-      saveProductToBackend();
-    } else {
-      showAlert("Incorrect manager password");
-    }
-  }, function () {
-    showAlert("Network error during verification.");
-  });
+  productsAjax.verifyManager(
+    password,
+    function (verifyResult) {
+      if (verifyResult.trim() === "Success") {
+        // Password correct, now save the product
+        saveProductToBackend();
+      } else {
+        showAlert("Incorrect manager password");
+      }
+    },
+    function () {
+      showAlert("Network error during verification.");
+    },
+  );
 }
 
 function saveProductToBackend() {
@@ -243,136 +264,173 @@ function saveProductToBackend() {
     fd.append("largePrice", pendingProduct.sizes[2].price);
   }
 
-  productsAjax.addProduct(fd, function (result) {
-    if (result.trim() === "Success") {
-      pendingProduct = null;
-      document.getElementById("managerPassword").value = "";
-      closeModal("confirmModal");
+  //takes product FormData and passes to AJAX service for file upload/save
+  productsAjax.addProduct(
+    fd,
+    function (result) {
+      if (result.trim() === "Success") {
+        pendingProduct = null;
+        document.getElementById("managerPassword").value = "";
+        closeModal("confirmModal");
 
-      document.getElementById("successText").innerText = "Product securely added!";
-      document.getElementById("generatedSKU").innerText = "Saved to Database";
-      openModal("successModal");
+        document.getElementById("successText").innerText =
+          "Product securely added!";
+        document.getElementById("generatedSKU").innerText = "Saved to Database";
+        openModal("successModal");
 
-      productsAjax.getProductsTable(function (html) {
-        document.getElementById('productTable').innerHTML = html;
-        lucide.createIcons();
-      });
-
-    } else if (result.trim() === "ErrorImageTooLarge") {
-      showAlert("The image file is too large. Please choose a photo under 2MB.");
-    } else {
-      showAlert("Failed to add product: " + result);
-    }
-  }, function (err) {
-    showAlert("Network error while adding product.");
-  });
+        //refreshes the table with the new product
+        productsAjax.getProductsTable(function (html) {
+          document.getElementById("productTable").innerHTML = html;
+          lucide.createIcons();
+        });
+      } else if (result.trim() === "ErrorImageTooLarge") {
+        showAlert(
+          "The image file is too large. Please choose a photo under 2MB.",
+        );
+      } else {
+        showAlert("Failed to add product: " + result);
+      }
+    },
+    function (err) {
+      showAlert("Network error while adding product.");
+    },
+  );
 }
 
-
-
-
-document.getElementById("foodImageInput").addEventListener("change", function () {
-  previewImage("foodImageInput", "foodPreview");
-});
-
-document.getElementById("drinkImageInput").addEventListener("change", function () {
-  previewImage("drinkImageInput", "drinkPreview");
-});
-
-document.querySelector("#updateModal .saveBtn").addEventListener("click", function () {
-  if (!selectedRow) return;
-
-  const name = document.querySelector("#updateModal input[placeholder='Product name']").value;
-  const skuCode = document.querySelector("#updateModal .row input[type='text']").value;
-  const price = document.querySelector("#updateModal input[type='number']").value;
-  const categoryID = document.getElementById("updateCategory").value;
-
-  if (!name || !skuCode || !price || !categoryID) { showAlert("Please fill all fields"); return; }
-
-  if (!selectedSkuID || !selectedProductID) {
-    showAlert("Error: Missing database IDs. Try refreshing the page.");
-    return;
-  }
-
-  productsAjax.updateProduct({
-    skuID: selectedSkuID,
-    productID: selectedProductID,
-    name: name,
-    skuCode: skuCode,
-    price: price,
-    categoryID: categoryID
-  }, function (result) {
-    if (result.trim() === "Success") {
-      showAlert("Product updated successfully!", true);
-      selectedRow = null;
-      closeModal("updateModal");
-
-      // Refresh table
-      productsAjax.getProductsTable(function (html) {
-        document.getElementById('productTable').innerHTML = html;
-        lucide.createIcons();
-      });
-    } else {
-      showAlert("Update failed: " + result);
-    }
-  }, function (err) {
-    showAlert("Network error during update.");
+document
+  .getElementById("foodImageInput")
+  .addEventListener("change", function () {
+    previewImage("foodImageInput", "foodPreview");
   });
-});
 
-document.querySelector("#deleteModal .deleteBtn").addEventListener("click", function () {
-  if (!selectedRow) { closeModal("deleteModal"); return; }
+document
+  .getElementById("drinkImageInput")
+  .addEventListener("change", function () {
+    previewImage("drinkImageInput", "drinkPreview");
+  });
 
-  const skuID = selectedRow.dataset.skuid;
-  if (!skuID) {
-    showAlert("Error: Cannot delete. ID is missing.");
-    return;
-  }
+document
+  .querySelector("#updateModal .saveBtn")
+  .addEventListener("click", function () {
+    if (!selectedRow) return;
+    const name = document.querySelector(
+      "#updateModal input[placeholder='Product name']",
+    ).value;
+    const skuCode = document.querySelector(
+      "#updateModal .row input[type='text']",
+    ).value;
+    const price = document.querySelector(
+      "#updateModal input[type='number']",
+    ).value;
+    const categoryID = document.getElementById("updateCategory").value;
 
-  productsAjax.deleteProduct(skuID, function (result) {
-    if (result.trim() === "Success") {
-      selectedRow.remove();
-      selectedRow = null;
+    if (!name || !skuCode || !price || !categoryID) {
+      showAlert("Please fill all fields");
+      return;
+    }
+
+    if (!selectedSkuID || !selectedProductID) {
+      showAlert("Error: Missing database IDs. Try refreshing the page.");
+      return;
+    }
+
+    productsAjax.updateProduct(
+      {
+        skuID: selectedSkuID,
+        productID: selectedProductID,
+        name: name,
+        skuCode: skuCode,
+        price: price,
+        categoryID: categoryID,
+      },
+      function (result) {
+        if (result.trim() === "Success") {
+          showAlert("Product updated successfully!", true);
+          selectedRow = null;
+          closeModal("updateModal");
+
+          // Refresh table
+          productsAjax.getProductsTable(function (html) {
+            document.getElementById("productTable").innerHTML = html;
+            lucide.createIcons();
+          });
+        } else {
+          showAlert("Update failed: " + result);
+        }
+      },
+      function (err) {
+        showAlert("Network error during update.");
+      },
+    );
+  });
+
+document
+  .querySelector("#deleteModal .deleteBtn")
+  .addEventListener("click", function () {
+    if (!selectedRow) {
       closeModal("deleteModal");
-      showAlert("Product removed from view.", true);
-    } else {
-      showAlert("Delete failed: " + result);
+      return;
     }
-  }, function (err) {
-    showAlert("Network error during delete.");
+
+    const skuID = selectedRow.dataset.skuid;
+    if (!skuID) {
+      showAlert("Error: Cannot delete. ID is missing.");
+      return;
+    }
+
+    productsAjax.deleteProduct(
+      skuID,
+      function (result) {
+        if (result.trim() === "Success") {
+          selectedRow.remove();
+          selectedRow = null;
+          closeModal("deleteModal");
+          showAlert("Product removed from view.", true);
+        } else {
+          showAlert("Delete failed: " + result);
+        }
+      },
+      function (err) {
+        showAlert("Network error during delete.");
+      },
+    );
   });
-});
 
 document.getElementById("searchInput").addEventListener("keyup", function () {
   const value = this.value.toLowerCase();
-  document.querySelectorAll("#productTable tr").forEach(row => {
-    row.style.display = row.innerText.toLowerCase().includes(value) ? "" : "none";
+  document.querySelectorAll("#productTable tr").forEach((row) => {
+    row.style.display = row.innerText.toLowerCase().includes(value)
+      ? ""
+      : "none";
   });
 });
 
-
 window.onclick = function (e) {
-  document.querySelectorAll(".modal").forEach(modal => {
+  document.querySelectorAll(".modal").forEach((modal) => {
     if (e.target === modal) modal.style.display = "none";
   });
 };
 
-document.addEventListener('DOMContentLoaded', function () {
-
+document.addEventListener("DOMContentLoaded", function () {
   //load the products table on page load
-  productsAjax.getProductsTable(function (html) {
-    document.getElementById('productTable').innerHTML = html;
-    lucide.createIcons();
-  }, function (err) {
-    console.error("Error loading products:", err);
-  });
+  productsAjax.getProductsTable(
+    function (html) {
+      document.getElementById("productTable").innerHTML = html;
+      lucide.createIcons();
+    },
+    function (err) {
+      console.error("Error loading products:", err);
+    },
+  );
 
   //load the categories dropdown for the update modal
-  productsAjax.getCategoriesDropdown(function (html) {
-    const catSelect = document.getElementById('updateCategory');
-    if (catSelect) catSelect.innerHTML = html;
-  }, function (err) {
-    console.error("Error loading categories:", err);
-  });
-
+  productsAjax.getCategoriesDropdown(
+    function (html) {
+      const catSelect = document.getElementById("updateCategory");
+      if (catSelect) catSelect.innerHTML = html;
+    },
+    function (err) {
+      console.error("Error loading categories:", err);
+    },
+  );
 });
