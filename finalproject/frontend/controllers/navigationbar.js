@@ -10,23 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     //load the actual user session info and update the sidebar
-    $.ajax({
-        url: '../../backend/routes.php?action=session',
-        type: 'GET',
-        dataType: 'json',
-        success: function (data) {
-            const sidebarLogo = document.querySelector(".sidebar .logo");
-            if (sidebarLogo) {
-                //update "Manager" and Name with real data from DB
-                sidebarLogo.innerHTML = `
-                  <h2>${data.role}</h2>
-                  <p>${data.firstname}</p>
-                `;
-            }
-        },
-        error: function (err) {
-            console.error("Session fetch failed", err);
+    authAjax.getSession(function (data) {
+        const sidebarLogo = document.querySelector(".sidebar .logo");
+        if (sidebarLogo) {
+            sidebarLogo.innerHTML = `
+              <h2>${data.role}</h2>
+              <p>${data.firstname}</p>
+            `;
         }
+    }, function (err) {
+        console.error("Session fetch failed", err);
     });
 
     //add the Casa Cafe branding at the bottom
@@ -66,24 +59,19 @@ function showAlert(message) {
 
 //logout logic 
 function confirmLogout() {
-    $.ajax({
-        url: '../../backend/routes.php?action=logout',
-        type: 'GET',
-        success: function (result) {
-            if (result.trim() === "Success") {
-                // Clear local storage and redirect to login
-                localStorage.removeItem("loggedInUser");
-                window.location.href = "login.html";
-            } else {
-                console.error("Logout failed at server, forcing local logout.");
-                localStorage.removeItem("loggedInUser");
-                window.location.href = "login.html";
-            }
-        },
-        error: function () {
-            //even if server fails,clear local and redirect
+    authAjax.logout(function (result) {
+        if (result.trim() === "Success") {
+            // Clear local storage and redirect to login
+            localStorage.removeItem("loggedInUser");
+            window.location.href = "login.html";
+        } else {
+            console.error("Logout failed at server, forcing local logout.");
             localStorage.removeItem("loggedInUser");
             window.location.href = "login.html";
         }
+    }, function () {
+        //even if server fails,clear local and redirect
+        localStorage.removeItem("loggedInUser");
+        window.location.href = "login.html";
     });
 }

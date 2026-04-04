@@ -5,15 +5,33 @@
 let products = [];
 
 const SIZE_OPTIONS = [
-  { key: "small",  label: "Small",  badge: "S", sub: "Base size",     multiplier: 1.00 },
-  { key: "medium", label: "Medium", badge: "M", sub: "×1.25 of base", multiplier: 1.25 },
-  { key: "large",  label: "Large",  badge: "L", sub: "×1.5 of base",  multiplier: 1.50 },
+  {
+    key: "small",
+    label: "Small",
+    badge: "S",
+    sub: "Base size",
+    multiplier: 1.0,
+  },
+  {
+    key: "medium",
+    label: "Medium",
+    badge: "M",
+    sub: "×1.25 of base",
+    multiplier: 1.25,
+  },
+  {
+    key: "large",
+    label: "Large",
+    badge: "L",
+    sub: "×1.5 of base",
+    multiplier: 1.5,
+  },
 ];
 
 const DISCOUNTS = {
-  none:   { label: "None",         rate: 0,    color: "" },
-  senior: { label: "Senior (20%)", rate: 0.20, color: "#00c950" },
-  pwd:    { label: "PWD (20%)",    rate: 0.20, color: "#60a5fa" },
+  none: { label: "None", rate: 0, color: "" },
+  senior: { label: "Senior (20%)", rate: 0.2, color: "#00c950" },
+  pwd: { label: "PWD (20%)", rate: 0.2, color: "#60a5fa" },
 };
 
 const TAX_RATE = 0.12;
@@ -53,22 +71,26 @@ function getDiscountAmount(subtotal) {
 }
 
 function getTotal() {
-  const sub      = getSubtotal();
+  const sub = getSubtotal();
   const discount = getDiscountAmount(sub);
-  const taxable  = sub - discount;
+  const taxable = sub - discount;
   return taxable * (1 + TAX_RATE);
 }
 
 function getTax() {
-  const sub      = getSubtotal();
+  const sub = getSubtotal();
   const discount = getDiscountAmount(sub);
-  const taxable  = sub - discount;
+  const taxable = sub - discount;
   return taxable * TAX_RATE;
 }
 
 function generateReceiptId() {
-  return "RCP-" + new Date().toISOString().slice(0, 10).replace(/-/g, "") +
-    "-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+  return (
+    "RCP-" +
+    new Date().toISOString().slice(0, 10).replace(/-/g, "") +
+    "-" +
+    Math.random().toString(36).slice(2, 8).toUpperCase()
+  );
 }
 
 function getTotalItemCount() {
@@ -76,30 +98,35 @@ function getTotalItemCount() {
 }
 
 function addToCart(productId) {
-  const product = products.find(p => p.id === productId);
+  const product = products.find((p) => p.id === productId);
   if (!product || product.stock === 0) return;
-  const existing = cart.find(c => c.id === productId);
+  const existing = cart.find((c) => c.id === productId);
   if (existing) {
     if (existing.qty < product.stock) existing.qty++;
   } else {
-    cart.push({ id: product.id, name: product.name, price: product.price, qty: 1 });
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      qty: 1,
+    });
   }
   renderCart();
 }
 
 function removeFromCart(productId) {
-  cart = cart.filter(c => c.id !== productId);
+  cart = cart.filter((c) => c.id !== productId);
   renderCart();
 }
 
 function changeQty(productId, delta) {
-  const item = cart.find(c => c.id === productId);
+  const item = cart.find((c) => c.id === productId);
   if (!item) return;
-  const baseId  = productId.replace(/-(small|medium|large)$/, "");
-  const product = products.find(p => p.id === baseId);
+  const baseId = productId.replace(/-(small|medium|large)$/, "");
+  const product = products.find((p) => p.id === baseId);
   item.qty += delta;
   if (item.qty <= 0) {
-    cart = cart.filter(c => c.id !== productId);
+    cart = cart.filter((c) => c.id !== productId);
   } else if (product && item.qty > product.stock) {
     item.qty = product.stock;
   }
@@ -107,13 +134,13 @@ function changeQty(productId, delta) {
 }
 
 function pickSize(productId, sizeKey) {
-  const product = products.find(p => p.id === productId);
-  const size    = SIZE_OPTIONS.find(s => s.key === sizeKey);
+  const product = products.find((p) => p.id === productId);
+  const size = SIZE_OPTIONS.find((s) => s.key === sizeKey);
   if (!product || !size) return;
   const finalPrice = parseFloat((product.price * size.multiplier).toFixed(2));
-  const cartId     = `${productId}-${sizeKey}`;
-  const cartName   = `${product.name} (${size.label})`;
-  const existing   = cart.find(c => c.id === cartId);
+  const cartId = `${productId}-${sizeKey}`;
+  const cartName = `${product.name} (${size.label})`;
+  const existing = cart.find((c) => c.id === cartId);
   if (existing) {
     if (existing.qty < product.stock) existing.qty++;
   } else {
@@ -133,18 +160,24 @@ function clearCart() {
   updateTotals();
 }
 
-function confirmLogout() { window.location.href = "login.html"; }
-function printReceipt()  { window.print(); }
+function confirmLogout() {
+  window.location.href = "login.html";
+}
+function printReceipt() {
+  window.print();
+}
 
 // ============================================================
 // UI / RENDERING
 // ============================================================
 
 function renderProducts() {
-  const grid     = document.getElementById("productGrid");
-  const filtered = products.filter(p => {
-    const matchCat    = activeCategory === "all" || p.category === activeCategory;
-    const matchSearch = p.name.toLowerCase().includes(searchQuery) || p.id.toLowerCase().includes(searchQuery);
+  const grid = document.getElementById("productGrid");
+  const filtered = products.filter((p) => {
+    const matchCat = activeCategory === "all" || p.category === activeCategory;
+    const matchSearch =
+      p.name.toLowerCase().includes(searchQuery) ||
+      p.id.toLowerCase().includes(searchQuery);
     return matchCat && matchSearch;
   });
 
@@ -153,7 +186,9 @@ function renderProducts() {
     return;
   }
 
-  grid.innerHTML = filtered.map(p => `
+  grid.innerHTML = filtered
+    .map(
+      (p) => `
     <div class="product-card ${p.stock === 0 ? "out-of-stock" : ""}"
          onclick="${p.stock > 0 ? (p.category === "beverages" ? `openSizePicker('${p.id}')` : `addToCart('${p.id}')`) : ""}">
       <div class="product-img-wrap">
@@ -169,14 +204,16 @@ function renderProducts() {
         <span class="product-stock">${p.stock === 0 ? "Out of Stock" : "Stock " + p.stock}</span>
       </div>
     </div>
-  `).join("");
+  `,
+    )
+    .join("");
 
   lucide.createIcons();
 }
 
 function renderCart() {
   const container = document.getElementById("cartItems");
-  const emptyEl   = document.getElementById("cartEmpty");
+  const emptyEl = document.getElementById("cartEmpty");
   const countBadge = document.getElementById("cartCountBadge");
 
   const totalItems = getTotalItemCount();
@@ -197,7 +234,9 @@ function renderCart() {
     return;
   }
 
-  container.innerHTML = cart.map(item => `
+  container.innerHTML = cart
+    .map(
+      (item) => `
     <div class="cart-item" id="ci-${item.id}">
       <div class="cart-item-top">
         <div>
@@ -217,42 +256,44 @@ function renderCart() {
         <div class="cart-item-subtotal">${fmt(item.price * item.qty)}</div>
       </div>
     </div>
-  `).join("");
+  `,
+    )
+    .join("");
 
   lucide.createIcons();
   updateTotals();
 }
 
 function updateTotals() {
-  const sub      = getSubtotal();
+  const sub = getSubtotal();
   const discount = getDiscountAmount(sub);
-  const tax      = getTax();
-  const total    = getTotal();
-  const d        = DISCOUNTS[activeDiscount];
+  const tax = getTax();
+  const total = getTotal();
+  const d = DISCOUNTS[activeDiscount];
 
   document.getElementById("subtotal").textContent = fmtShort(sub);
-  document.getElementById("tax").textContent      = fmtShort(tax);
-  document.getElementById("total").textContent    = fmtShort(total);
+  document.getElementById("tax").textContent = fmtShort(tax);
+  document.getElementById("total").textContent = fmtShort(total);
 
   // Discount row
-  const discountRow    = document.getElementById("discountRow");
-  const discountLabel  = document.getElementById("discountLabel");
+  const discountRow = document.getElementById("discountRow");
+  const discountLabel = document.getElementById("discountLabel");
   const discountAmount = document.getElementById("discountAmount");
   const discountApplied = document.getElementById("discountApplied");
   const discountAppliedText = document.getElementById("discountAppliedText");
 
   if (activeDiscount !== "none") {
     discountRow.style.display = "";
-    discountLabel.textContent  = d.label;
-    discountLabel.style.color  = d.color;
+    discountLabel.textContent = d.label;
+    discountLabel.style.color = d.color;
     discountAmount.textContent = "-" + fmtShort(discount);
     discountAmount.style.color = d.color;
 
     discountApplied.style.display = "";
-    discountApplied.style.color   = d.color;
+    discountApplied.style.color = d.color;
     discountAppliedText.textContent = `${d.label} applied — saving ${fmtShort(discount)}`;
   } else {
-    discountRow.style.display    = "none";
+    discountRow.style.display = "none";
     discountApplied.style.display = "none";
   }
 
@@ -261,14 +302,19 @@ function updateTotals() {
 
 function updateChange() {
   const cashInput = document.getElementById("cashInput");
-  const changeEl  = document.getElementById("change");
-  const payBtn    = document.getElementById("payBtn");
+  const changeEl = document.getElementById("change");
+  const payBtn = document.getElementById("payBtn");
 
   if (activePayment === "cash") {
-    const cash   = parseFloat(cashInput?.value) || 0;
+    const cash = parseFloat(cashInput?.value) || 0;
     const change = cash - getTotal();
     if (changeEl) changeEl.textContent = fmt(Math.max(0, change));
-    if (payBtn) payBtn.disabled = !(cart.length > 0 && cash >= getTotal() && getTotal() > 0);
+    if (payBtn)
+      payBtn.disabled = !(
+        cart.length > 0 &&
+        cash >= getTotal() &&
+        getTotal() > 0
+      );
   } else {
     // GCash — no cash input needed
     if (payBtn) payBtn.disabled = !(cart.length > 0 && getTotal() > 0);
@@ -279,18 +325,22 @@ function updateChange() {
 // MODALS
 // ============================================================
 
-function openModal(id)  { document.getElementById(id).style.display = "flex"; }
-function closeModal(id) { document.getElementById(id).style.display = "none"; }
+function openModal(id) {
+  document.getElementById(id).style.display = "flex";
+}
+function closeModal(id) {
+  document.getElementById(id).style.display = "none";
+}
 
 function openSizePicker(productId) {
-  const product = products.find(p => p.id === productId);
+  const product = products.find((p) => p.id === productId);
   if (!product) return;
   const overlay = document.getElementById("sizeModal");
   overlay.querySelector(".size-modal-thumb").src = product.img;
   overlay.querySelector(".size-modal-title h4").textContent = product.name;
   const optionsEl = overlay.querySelector(".size-options");
-  optionsEl.innerHTML = SIZE_OPTIONS.map(s => {
-    const price    = product.price * s.multiplier;
+  optionsEl.innerHTML = SIZE_OPTIONS.map((s) => {
+    const price = product.price * s.multiplier;
     const showOrig = s.multiplier > 1;
     return `
       <div class="size-option" onclick="pickSize('${productId}', '${s.key}')">
@@ -317,16 +367,23 @@ function closeSizePicker() {
 // ============================================================
 
 // Cash input
-document.getElementById("cashInput")?.addEventListener("input", () => updateChange());
+document
+  .getElementById("cashInput")
+  ?.addEventListener("input", () => updateChange());
 
 // Pay button
 document.getElementById("payBtn").addEventListener("click", () => {
-  const cash      = activePayment === "cash" ? (parseFloat(document.getElementById("cashInput").value) || 0) : getTotal();
-  const total     = getTotal();
-  const change    = activePayment === "cash" ? cash - total : 0;
+  const cash =
+    activePayment === "cash"
+      ? parseFloat(document.getElementById("cashInput").value) || 0
+      : getTotal();
+  const total = getTotal();
+  const change = activePayment === "cash" ? cash - total : 0;
   const itemCount = getTotalItemCount();
 
-  document.getElementById("modalItems").innerHTML = cart.map(item => `
+  document.getElementById("modalItems").innerHTML = cart
+    .map(
+      (item) => `
     <div class="modal-item-row">
       <div class="modal-item-left">
         <span>${item.name}</span>
@@ -334,12 +391,16 @@ document.getElementById("payBtn").addEventListener("click", () => {
       </div>
       <span class="modal-item-price orange">${fmt(item.price * item.qty)}</span>
     </div>
-  `).join("");
+  `,
+    )
+    .join("");
 
-  document.getElementById("modalTotal").textContent     = fmt(total);
+  document.getElementById("modalTotal").textContent = fmt(total);
   document.getElementById("modalItemCount").textContent = itemCount;
-  document.getElementById("modalCash").textContent      = activePayment === "cash" ? fmt(cash) : "GCash";
-  document.getElementById("modalChange").textContent    = activePayment === "cash" ? fmt(change) : "N/A";
+  document.getElementById("modalCash").textContent =
+    activePayment === "cash" ? fmt(cash) : "GCash";
+  document.getElementById("modalChange").textContent =
+    activePayment === "cash" ? fmt(change) : "N/A";
   document.getElementById("confirmModal").classList.add("show");
 });
 
@@ -348,17 +409,55 @@ document.getElementById("modalCancel").addEventListener("click", () => {
 });
 
 document.getElementById("modalConfirm").addEventListener("click", () => {
-  const total     = getTotal();
-  const receiptId = generateReceiptId();
-  document.getElementById("receiptId").textContent    = "Receipt " + receiptId;
-  document.getElementById("receiptTotal").textContent = "Total: " + fmt(total);
-  document.getElementById("receiptSection").style.display = "flex";
-  cart = [];
-  const cashInput = document.getElementById("cashInput");
-  if (cashInput) cashInput.value = "";
-  document.getElementById("confirmModal").classList.remove("show");
-  renderCart();
-  lucide.createIcons();
+  const total = getTotal();
+  const cash =
+    activePayment === "cash"
+      ? parseFloat(document.getElementById("cashInput").value) || 0
+      : total;
+
+  //perform checkout via backend
+  posAjax.checkout(
+    cash,
+    total,
+    cart,
+    function (result) {
+      if (result.startsWith("Success:")) {
+        const transID = result.split(":")[1];
+        const receiptId = generateReceiptId() + "-" + transID; // Attach DB ID to receipt
+
+        document.getElementById("receiptId").textContent =
+          "Receipt " + receiptId;
+        document.getElementById("receiptTotal").textContent =
+          "Total: " + fmt(total);
+        document.getElementById("receiptSection").style.display = "flex";
+
+        cart = [];
+        const cashInput = document.getElementById("cashInput");
+        if (cashInput) cashInput.value = "";
+        document.getElementById("confirmModal").classList.remove("show");
+        renderCart();
+        
+        // Finalize POS Checkout by immediately re-fetching products 
+        // to update the live stock numbers on the order grid
+        posAjax.getProducts(
+          function (data) {
+            products = data || [];
+            renderProducts(); 
+            lucide.createIcons();
+          },
+          function (err) {
+            console.error("Failed to refresh stock numbers post-checkout.", err);
+          }
+        );
+
+      } else {
+        alert("Checkout Failed: " + result);
+      }
+    },
+    function (err) {
+      alert("Network error during checkout.");
+    },
+  );
 });
 
 document.getElementById("clearCartBtn")?.addEventListener("click", () => {
@@ -376,9 +475,11 @@ document.getElementById("clearCartConfirm").addEventListener("click", () => {
 });
 
 // Filter buttons
-document.querySelectorAll(".filter-btn").forEach(btn => {
+document.querySelectorAll(".filter-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    document
+      .querySelectorAll(".filter-btn")
+      .forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
     activeCategory = btn.dataset.cat;
     renderProducts();
@@ -386,29 +487,31 @@ document.querySelectorAll(".filter-btn").forEach(btn => {
 });
 
 // Search
-document.getElementById("searchInput").addEventListener("input", e => {
+document.getElementById("searchInput").addEventListener("input", (e) => {
   searchQuery = e.target.value.toLowerCase().trim();
   renderProducts();
 });
 
 // Discount buttons
-document.querySelectorAll(".discount-btn").forEach(btn => {
+document.querySelectorAll(".discount-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".discount-btn").forEach(b => b.classList.remove("active"));
+    document
+      .querySelectorAll(".discount-btn")
+      .forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
     activeDiscount = btn.dataset.discount;
 
     // Update active button color based on discount type
     const d = DISCOUNTS[activeDiscount];
-    document.querySelectorAll(".discount-btn").forEach(b => {
+    document.querySelectorAll(".discount-btn").forEach((b) => {
       b.style.borderColor = "";
-      b.style.color       = "";
-      b.style.background  = "";
+      b.style.color = "";
+      b.style.background = "";
     });
     if (activeDiscount !== "none") {
       btn.style.borderColor = d.color;
-      btn.style.color       = d.color;
-      btn.style.background  = d.color + "18";
+      btn.style.color = d.color;
+      btn.style.background = d.color + "18";
     }
 
     updateTotals();
@@ -417,21 +520,23 @@ document.querySelectorAll(".discount-btn").forEach(btn => {
 });
 
 // Payment method buttons
-document.querySelectorAll(".payment-btn").forEach(btn => {
+document.querySelectorAll(".payment-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".payment-btn").forEach(b => b.classList.remove("active"));
+    document
+      .querySelectorAll(".payment-btn")
+      .forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
     activePayment = btn.dataset.method;
 
     const cashSection = document.getElementById("cashSection");
-    const gcashInfo   = document.getElementById("gcashInfo");
+    const gcashInfo = document.getElementById("gcashInfo");
 
     if (activePayment === "cash") {
       cashSection.style.display = "";
-      gcashInfo.style.display   = "none";
+      gcashInfo.style.display = "none";
     } else {
       cashSection.style.display = "none";
-      gcashInfo.style.display   = "";
+      gcashInfo.style.display = "";
     }
 
     updateChange();
@@ -440,22 +545,17 @@ document.querySelectorAll(".payment-btn").forEach(btn => {
 });
 
 // Close modals on outside click
-window.onclick = function(e) {
-  document.querySelectorAll(".modal-overlay, .size-modal-overlay").forEach(modal => {
-    if (e.target === modal) modal.classList.remove("show");
-  });
+window.onclick = function (e) {
+  document
+    .querySelectorAll(".modal-overlay, .size-modal-overlay")
+    .forEach((modal) => {
+      if (e.target === modal) modal.classList.remove("show");
+    });
 };
 
-// ============================================================
-// INIT
-// ============================================================
-
-$(document).ready(function() {
-  $.ajax({
-    url: '../../backend/routes.php?action=getPOSProductsJSON',
-    type: 'GET',
-    dataType: 'json',
-    success: function(data) {
+$(document).ready(function () {
+  posAjax.getProducts(
+    function (data) {
       if (data && data.length > 0) {
         products = data;
       } else {
@@ -464,14 +564,12 @@ $(document).ready(function() {
       renderProducts();
       renderCart();
     },
-    error: function() {
+    function () {
       // fallback or error handling
       products = [];
       renderProducts();
       renderCart();
       console.log("Failed to load products from database.");
-    }
-  });
+    },
+  );
 });
-
-

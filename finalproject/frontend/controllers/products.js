@@ -60,7 +60,7 @@ function showAlert(message, isSuccess = false) {
 
   const alertBox = document.createElement("div");
   alertBox.classList.add("alerts");
-  
+
   if (isSuccess) {
     alertBox.classList.add("success");
   }
@@ -184,7 +184,7 @@ function saveDrink() {
     return;
   }
 
-  // Image size limit: 2MB (matches the 180x180 image-box on screen)
+  // Image size limit 2mb
   const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
   if (imageFile && imageFile.size > maxSizeInBytes) {
     showAlert("Image is too large. Please upload a photo under 2MB.");
@@ -214,21 +214,15 @@ function confirmSave() {
   if (!pendingProduct) return;
 
   // First verify the password via backend
-  $.ajax({
-    url: '../../backend/routes.php?action=verifyManager',
-    type: 'POST',
-    data: { password: password },
-    success: function (verifyResult) {
-      if (verifyResult.trim() === "Success") {
-        // Password correct, now save the product
-        saveProductToBackend();
-      } else {
-        showAlert("Incorrect manager password");
-      }
-    },
-    error: function () {
-      showAlert("Network error during verification.");
+  productsAjax.verifyManager(password, function (verifyResult) {
+    if (verifyResult.trim() === "Success") {
+      // Password correct, now save the product
+      saveProductToBackend();
+    } else {
+      showAlert("Incorrect manager password");
     }
+  }, function () {
+    showAlert("Network error during verification.");
   });
 }
 
@@ -249,40 +243,28 @@ function saveProductToBackend() {
     fd.append("largePrice", pendingProduct.sizes[2].price);
   }
 
-  $.ajax({
-    url: '../../backend/routes.php?action=addProduct',
-    type: 'POST',
-    data: fd,
-    processData: false,
-    contentType: false,
-    success: function (result) {
-      if (result.trim() === "Success") {
-        pendingProduct = null;
-        document.getElementById("managerPassword").value = "";
-        closeModal("confirmModal");
+  productsAjax.addProduct(fd, function (result) {
+    if (result.trim() === "Success") {
+      pendingProduct = null;
+      document.getElementById("managerPassword").value = "";
+      closeModal("confirmModal");
 
-        document.getElementById("successText").innerText = "Product securely added!";
-        document.getElementById("generatedSKU").innerText = "Saved to Database";
-        openModal("successModal");
+      document.getElementById("successText").innerText = "Product securely added!";
+      document.getElementById("generatedSKU").innerText = "Saved to Database";
+      openModal("successModal");
 
-        $.ajax({
-          url: '../../backend/routes.php?action=getProductsTable',
-          type: 'GET',
-          success: function (html) {
-            document.getElementById('productTable').innerHTML = html;
-            lucide.createIcons();
-          }
-        });
+      productsAjax.getProductsTable(function (html) {
+        document.getElementById('productTable').innerHTML = html;
+        lucide.createIcons();
+      });
 
-      } else if (result.trim() === "ErrorImageTooLarge") {
-        showAlert("The image file is too large. Please choose a photo under 2MB.");
-      } else {
-        showAlert("Failed to add product: " + result);
-      }
-    },
-    error: function (err) {
-      showAlert("Network error while adding product.");
+    } else if (result.trim() === "ErrorImageTooLarge") {
+      showAlert("The image file is too large. Please choose a photo under 2MB.");
+    } else {
+      showAlert("Failed to add product: " + result);
     }
+  }, function (err) {
+    showAlert("Network error while adding product.");
   });
 }
 
@@ -312,39 +294,29 @@ document.querySelector("#updateModal .saveBtn").addEventListener("click", functi
     return;
   }
 
-  $.ajax({
-    url: '../../backend/routes.php?action=updateProduct',
-    type: 'POST',
-    data: {
-      skuID: selectedSkuID,
-      productID: selectedProductID,
-      name: name,
-      skuCode: skuCode,
-      price: price,
-      categoryID: categoryID
-    },
-    success: function (result) {
-      if (result.trim() === "Success") {
-        showAlert("Product updated successfully!", true);
-        selectedRow = null;
-        closeModal("updateModal");
+  productsAjax.updateProduct({
+    skuID: selectedSkuID,
+    productID: selectedProductID,
+    name: name,
+    skuCode: skuCode,
+    price: price,
+    categoryID: categoryID
+  }, function (result) {
+    if (result.trim() === "Success") {
+      showAlert("Product updated successfully!", true);
+      selectedRow = null;
+      closeModal("updateModal");
 
-        // Refresh table
-        $.ajax({
-          url: '../../backend/routes.php?action=getProductsTable',
-          type: 'GET',
-          success: function (html) {
-            document.getElementById('productTable').innerHTML = html;
-            lucide.createIcons();
-          }
-        });
-      } else {
-        showAlert("Update failed: " + result);
-      }
-    },
-    error: function (err) {
-      showAlert("Network error during update.");
+      // Refresh table
+      productsAjax.getProductsTable(function (html) {
+        document.getElementById('productTable').innerHTML = html;
+        lucide.createIcons();
+      });
+    } else {
+      showAlert("Update failed: " + result);
     }
+  }, function (err) {
+    showAlert("Network error during update.");
   });
 });
 
@@ -357,23 +329,17 @@ document.querySelector("#deleteModal .deleteBtn").addEventListener("click", func
     return;
   }
 
-  $.ajax({
-    url: '../../backend/routes.php?action=deleteProduct',
-    type: 'POST',
-    data: { skuID: skuID },
-    success: function (result) {
-      if (result.trim() === "Success") {
-        selectedRow.remove();
-        selectedRow = null;
-        closeModal("deleteModal");
-        showAlert("Product removed from view.", true);
-      } else {
-        showAlert("Delete failed: " + result);
-      }
-    },
-    error: function (err) {
-      showAlert("Network error during delete.");
+  productsAjax.deleteProduct(skuID, function (result) {
+    if (result.trim() === "Success") {
+      selectedRow.remove();
+      selectedRow = null;
+      closeModal("deleteModal");
+      showAlert("Product removed from view.", true);
+    } else {
+      showAlert("Delete failed: " + result);
     }
+  }, function (err) {
+    showAlert("Network error during delete.");
   });
 });
 
@@ -394,29 +360,19 @@ window.onclick = function (e) {
 document.addEventListener('DOMContentLoaded', function () {
 
   //load the products table on page load
-  $.ajax({
-    url: '../../backend/routes.php?action=getProductsTable',
-    type: 'GET',
-    success: function (html) {
-      document.getElementById('productTable').innerHTML = html;
-      lucide.createIcons();
-    },
-    error: function (err) {
-      console.error("Error loading products:", err);
-    }
+  productsAjax.getProductsTable(function (html) {
+    document.getElementById('productTable').innerHTML = html;
+    lucide.createIcons();
+  }, function (err) {
+    console.error("Error loading products:", err);
   });
 
   //load the categories dropdown for the update modal
-  $.ajax({
-    url: '../../backend/routes.php?action=getCategoriesDropdown',
-    type: 'GET',
-    success: function (html) {
-      const catSelect = document.getElementById('updateCategory');
-      if (catSelect) catSelect.innerHTML = html;
-    },
-    error: function (err) {
-      console.error("Error loading categories:", err);
-    }
+  productsAjax.getCategoriesDropdown(function (html) {
+    const catSelect = document.getElementById('updateCategory');
+    if (catSelect) catSelect.innerHTML = html;
+  }, function (err) {
+    console.error("Error loading categories:", err);
   });
 
 });

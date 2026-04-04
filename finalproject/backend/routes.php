@@ -15,6 +15,8 @@ if ($action == 'login' || $action == 'session' || $action == 'logout' || $action
     require 'controllers/AuthController.php';
 } else if ($action == 'getCategoriesDropdown' || $action == 'getProductsTable' || $action == 'addProduct' || $action == 'updateProduct' || $action == 'deleteProduct' || $action == 'getPOSProductsJSON') {
     require 'controllers/ProductController.php';
+} else if ($action == 'checkout') {
+    require 'controllers/TransactionController.php';
 } else {
     echo "Error: The requested action was not found.";
 }

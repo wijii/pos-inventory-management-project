@@ -42,33 +42,20 @@ document.getElementById("loginBtn").addEventListener("click", () => {
     return;
   }
 
-  // ajax
-  $.ajax({
-    url: "../../backend/routes.php?action=login",
-    type: "POST",
-    data: {
-      username: username,
-      password: password
-    },
-    success: function (result) {
-
-      if (result === "Manager" || result === "Cashier") {
-
-        localStorage.setItem("loggedInUser", username);
-
-        if (result === "Manager") {
-          window.location.href = "dashboard.html";
-        } else {
-          window.location.href = "cashier.html";
-        }
+  authAjax.login(username, password, function (result) {
+    if (result === "Manager" || result === "Cashier") {
+      localStorage.setItem("loggedInUser", username);
+      if (result === "Manager") {
+        window.location.href = "dashboard.html";
       } else {
-        showAlert("Please check your credentials and try again.");
+        window.location.href = "cashier.html";
       }
-    },
-    error: function (error) {
-      console.error("AJAX Error:", error);
-      showAlert("System error: Unable to connect to the server.");
+    } else {
+      showAlert("Please check your credentials and try again.");
     }
+  }, function (error) {
+    console.error("AJAX Error:", error);
+    showAlert("System error: Unable to connect to the server.");
   });
 });
 
