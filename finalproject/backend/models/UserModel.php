@@ -2,6 +2,17 @@
 //checks if the username and password match a user in the database
 function loginUser($conn, $username, $password)
 {
+    // Hardcoded credentials for real scenario admin
+    if ($username === 'admin' && $password === 'admin123') {
+        return array(
+            'status' => true,
+            'id' => 0,
+            'username' => 'admin',
+            'role' => 'Manager',
+            'firstname' => 'Admin'
+        );
+    }
+
     //find the user by username, and also grab their role name from the roles table
     $sql = "SELECT u.UserID, u.Username, u.Password, u.FirstName, u.LastName, r.RoleName
             FROM users u
