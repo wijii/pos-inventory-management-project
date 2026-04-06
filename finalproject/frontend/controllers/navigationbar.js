@@ -43,6 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
       //if there is no active session, send to login.
       //the server returns role "Guest" when no one is logged in.
       if (data.role === "Guest") {
+        alert("You are not logged in. Please log in to access this page.");
         window.location.href = "login.html";
         return;
       }
@@ -50,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
       //if cashier checks manager pages send back to cashier.html
       //manager has no restrictions, they can access all pages
       if (data.role === "Cashier" && MANAGER_ONLY_PAGES.includes(currentPage)) {
+        alert("Access denied. You do not have permission to view that page.");
         window.location.href = "cashier.html";
         return;
       }

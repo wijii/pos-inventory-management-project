@@ -186,7 +186,8 @@
 
         authAjax.getSession(function (data) {
             if (data.role === 'Guest') {
-                //no logged in, send them to login
+                //not logged in, warn and send them to login
+                alert('You are not logged in. Please log in to access this page.');
                 window.location.href = 'login.html';
                 return;
             }
