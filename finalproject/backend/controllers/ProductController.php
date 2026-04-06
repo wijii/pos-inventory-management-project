@@ -69,10 +69,10 @@ if ($action == 'getCategoriesDropdown') {
 
     if ($space !== false) {
         //pag may space get the 1st letter ($name[0]) + the letter right after the space
-        $baseSKU = $name[0] . $name[$space + 1] . '00';
+        $baseSKU = strtoupper($name[0] . $name[$space + 1]) . '00';
     } else {
         //pag walang space get 1,2 character
-        $baseSKU = $name[0] . $name[1] . '00';
+        $baseSKU = strtoupper($name[0] . $name[1]) . '00';
     }
 
     //add random numbers at the end to prevent duplicate SKUs
