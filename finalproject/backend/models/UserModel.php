@@ -23,7 +23,7 @@ function loginUser($conn, $username, $password)
             // user needs to add 'admin' manually in the system for transactions to work
             return array(
                 'status' => true,
-                'id' => 1, // hope 1 exists
+                'id' => 1,
                 'username' => 'admin',
                 'role' => 'Manager',
                 'firstname' => 'Admin'

@@ -17,10 +17,12 @@ if ($action == 'login' || $action == 'session' || $action == 'logout' || $action
     require 'controllers/ProductController.php';
 } else if ($action == 'checkout') {
     require 'controllers/TransactionController.php';
-} else if ($action == 'getInventoryJSON' || $action == 'updateInventoryStock') {
+} else if ($action == 'getInventoryJSON' || $action == 'updateInventoryStock' || $action == 'restockInventory' || $action == 'getInventoryLogs') {
     require 'controllers/InventoryController.php';
 } else if ($action == 'getDashboardStats') {
     require 'controllers/DashboardController.php';
+} else if ($action == 'getSalesLifetimeStats' || $action == 'getSalesChartData' || $action == 'getSalesProductBreakdown' || $action == 'getSalesTransactionHistory' || $action == 'getSalesReceiptItems') {
+    require 'controllers/SalesController.php';
 } else {
     echo "Error: The requested action was not found.";
 }

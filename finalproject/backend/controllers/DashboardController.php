@@ -18,27 +18,27 @@ if (isset($_GET['action'])) {
 
 if ($action === 'getDashboardStats') {
 
-    // which time period does the frontend want?
+    // which time period
     $period = 'daily';
     if (isset($_GET['period']) && in_array($_GET['period'], array('daily', 'weekly', 'monthly'))) {
         $period = $_GET['period'];
     }
 
     // run all four queries
-    $summary     = getDashboardSummary($conn, $period);
-    $lowStock    = getLowStockCount($conn);
-    $chartData   = getDashboardChartData($conn, $period);
+    $summary = getDashboardSummary($conn, $period);
+    $lowStock = getLowStockCount($conn);
+    $chartData = getDashboardChartData($conn, $period);
     $topProducts = getDashboardTopProducts($conn, $period);
 
     $response = array(
-        'period'       => $period,
-        'sales'        => $summary['totalSales'],
+        'period' => $period,
+        'sales' => $summary['totalSales'],
         'transactions' => $summary['totalTransactions'],
-        'avg'          => $summary['avgTransaction'],
-        'lowStock'     => $lowStock,
-        'chartLabels'  => $chartData['labels'],
-        'chartValues'  => $chartData['values'],
-        'topProducts'  => $topProducts,
+        'avg' => $summary['avgTransaction'],
+        'lowStock' => $lowStock,
+        'chartLabels' => $chartData['labels'],
+        'chartValues' => $chartData['values'],
+        'topProducts' => $topProducts,
     );
 
     header('Content-Type: application/json');

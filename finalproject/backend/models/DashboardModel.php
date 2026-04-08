@@ -1,8 +1,9 @@
 <?php
 
-// Returns total sales revenue, transaction count, and average for the given period.
-// period values: 'daily', 'weekly', 'monthly'
-function getDashboardSummary($conn, $period) {
+//returns total sales revenue, transaction count, and average for the given period.
+//period valuesdaily, weekly, monthly
+function getDashboardSummary($conn, $period)
+{
 
     if ($period === 'daily') {
         $dateFilter = "DATE(t.TransactionDate) = CURDATE()";
@@ -21,39 +22,41 @@ function getDashboardSummary($conn, $period) {
             WHERE $dateFilter";
 
     $result = mysqli_query($conn, $sql);
-    $row    = mysqli_fetch_assoc($result);
+    $row = mysqli_fetch_assoc($result);
 
     return array(
-        'totalSales'        => floatval($row['totalSales']),
+        'totalSales' => floatval($row['totalSales']),
         'totalTransactions' => intval($row['totalTransactions']),
-        'avgTransaction'    => floatval($row['avgTransaction']),
+        'avgTransaction' => floatval($row['avgTransaction']),
     );
 }
 
 
-// Returns count of products whose inventory quantity is at or below the reorder level.
-function getLowStockCount($conn) {
+//returns count of products whose inventory quantity is at or below the reorder level.
+function getLowStockCount($conn)
+{
 
     $sql = "SELECT COUNT(*) AS lowCount
             FROM inventories
             WHERE Quantity <= ReorderLevel";
 
     $result = mysqli_query($conn, $sql);
-    $row    = mysqli_fetch_assoc($result);
+    $row = mysqli_fetch_assoc($result);
 
     return intval($row['lowCount']);
 }
 
 
-// Returns chart data (labels + revenue values) grouped by the period.
-// daily   -> grouped by hour (8am–10pm)
-// weekly  -> grouped by day of week (Mon–Sun)
-// monthly -> grouped by week of month (Wk 1–4)
-function getDashboardChartData($conn, $period) {
+//returns chart data (labels + revenue values) grouped by the period.
+//daily grouped by hour (8am–10pm)
+//weekly grouped by day of week (Mon–Sun)
+//monthly grouped by week of month (Wk 1–4)
+function getDashboardChartData($conn, $period)
+{
 
     if ($period === 'daily') {
 
-        // for today, group by hour and show 8am to 10pm slots
+        // for today group by hour and show 8am to 10pm slots
         $sql = "SELECT
                     HOUR(t.TransactionDate)          AS slot,
                     IFNULL(SUM(t.TotalAmountDue), 0) AS revenue
@@ -64,7 +67,7 @@ function getDashboardChartData($conn, $period) {
 
         $result = mysqli_query($conn, $sql);
 
-        // build a map of hour -> revenue so we can fill in zeros for empty hours
+        // build a map of hour revenue so we can fill in zeros for empty hours
         $hourMap = array();
         while ($row = mysqli_fetch_assoc($result)) {
             $hourMap[intval($row['slot'])] = floatval($row['revenue']);
@@ -82,7 +85,7 @@ function getDashboardChartData($conn, $period) {
 
     } else if ($period === 'weekly') {
 
-        // for this week, group by day name
+        // for this week group by day name
         $sql = "SELECT
                     DAYOFWEEK(t.TransactionDate)     AS dayNum,
                     DAYNAME(t.TransactionDate)        AS dayName,
@@ -94,14 +97,14 @@ function getDashboardChartData($conn, $period) {
 
         $result = mysqli_query($conn, $sql);
 
-        // build a map by day number (1=Sun,2=Mon...7=Sat)
+        // build a map by day number (1=Sun)
         $dayMap = array();
         while ($row = mysqli_fetch_assoc($result)) {
             $dayMap[intval($row['dayNum'])] = floatval($row['revenue']);
         }
 
         // Mon=2, Tue=3, Wed=4, Thu=5, Fri=6, Sat=7, Sun=1
-        $dayOrder  = array(2 => 'Mon', 3 => 'Tue', 4 => 'Wed', 5 => 'Thu', 6 => 'Fri', 7 => 'Sat', 1 => 'Sun');
+        $dayOrder = array(2 => 'Mon', 3 => 'Tue', 4 => 'Wed', 5 => 'Thu', 6 => 'Fri', 7 => 'Sat', 1 => 'Sun');
         $labels = array();
         $values = array();
         foreach ($dayOrder as $num => $label) {
@@ -113,7 +116,7 @@ function getDashboardChartData($conn, $period) {
 
     } else {
 
-        // monthly: group by week of the month (1–4)
+        // monthlygroup by week of the month (1–4)
         $sql = "SELECT
                     CEIL(DAY(t.TransactionDate) / 7) AS weekNum,
                     IFNULL(SUM(t.TotalAmountDue), 0) AS revenue
@@ -141,8 +144,9 @@ function getDashboardChartData($conn, $period) {
 }
 
 
-// Returns the top 5 best-selling products (by revenue) for the given period.
-function getDashboardTopProducts($conn, $period) {
+//returns the top 5 best-selling products (by revenue) for the given period.
+function getDashboardTopProducts($conn, $period)
+{
 
     if ($period === 'daily') {
         $dateFilter = "DATE(t.TransactionDate) = CURDATE()";
@@ -165,14 +169,14 @@ function getDashboardTopProducts($conn, $period) {
             ORDER BY amount DESC
             LIMIT 5";
 
-    $result  = mysqli_query($conn, $sql);
+    $result = mysqli_query($conn, $sql);
     $topList = array();
 
     if ($result) {
         while ($row = mysqli_fetch_assoc($result)) {
             $topList[] = array(
-                'name'   => $row['name'],
-                'sold'   => intval($row['sold']),
+                'name' => $row['name'],
+                'sold' => intval($row['sold']),
                 'amount' => floatval($row['amount']),
             );
         }
