@@ -5,7 +5,7 @@ function getFullInventory($conn)
     //select from inventories and join with productskus and products
     $sql = "SELECT p.ProductName as Name, s.SKUCode, s.Size, 
                    IFNULL(i.Quantity, 0) as Quantity, 
-                   IFNULL(i.ReorderLevel, 10) as ReorderLevel, 
+                   IFNULL(i.ReorderLevel, 5) as ReorderLevel, 
                    UNIX_TIMESTAMP(i.LastUpdateTime) as LastUpdateTimeTs 
             FROM productskus s
             INNER JOIN products p ON s.ProductID = p.ProductID
@@ -50,11 +50,12 @@ function updateInventoryStock($conn, $skuCode, $newStock, $userID)
     $res = mysqli_stmt_get_result($stmt);
     $row = mysqli_fetch_assoc($res);
 
-    if (!$row) return false;
+    if (!$row)
+        return false;
 
-    $skuID      = intval($row['SKUID']);
-    $oldQty     = intval($row['CurrentQty']);
-    $delta      = $newStock - $oldQty;
+    $skuID = intval($row['SKUID']);
+    $oldQty = intval($row['CurrentQty']);
+    $delta = $newStock - $oldQty;
     $changeType = $delta >= 0 ? 'restock' : 'adjustment';
 
     // Update or insert stock
@@ -72,12 +73,13 @@ function updateInventoryStock($conn, $skuCode, $newStock, $userID)
 
     $stmtAction = mysqli_prepare($conn, $sqlAction);
     mysqli_stmt_bind_param($stmtAction, "ii", $newStock, $skuID);
-    if (!mysqli_stmt_execute($stmtAction)) return false;
+    if (!mysqli_stmt_execute($stmtAction))
+        return false;
 
-    // Write audit log - only if there was an actual change
+    // Write audit log only if there was a change
     if ($delta !== 0) {
-        $note    = $changeType === 'restock' ? 'Manual stock update' : 'Manual adjustment';
-        $sqlLog  = "INSERT INTO inventory_logs (SKUID, UserID, ChangeType, QuantityBefore, QuantityChange, QuantityAfter, Note, LogTime)
+        $note = $changeType === 'restock' ? 'Manual stock update' : 'Manual adjustment';
+        $sqlLog = "INSERT INTO inventory_logs (SKUID, UserID, ChangeType, QuantityBefore, QuantityChange, QuantityAfter, Note, LogTime)
                     VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
         $stmtLog = mysqli_prepare($conn, $sqlLog);
         mysqli_stmt_bind_param($stmtLog, "iisiiis", $skuID, $userID, $changeType, $oldQty, $delta, $newStock, $note);
@@ -99,7 +101,8 @@ function restockInventory($conn, $skuCode, $addQty, $userID, $note)
     mysqli_stmt_execute($stmt);
     $res = mysqli_stmt_get_result($stmt);
     $row = mysqli_fetch_assoc($res);
-    if (!$row) return false;
+    if (!$row)
+        return false;
     $skuID = intval($row['SKUID']);
 
     //get current stock
@@ -158,21 +161,21 @@ function getInventoryLogs($conn)
             LIMIT 200";
 
     $result = mysqli_query($conn, $sql);
-    $logs   = array();
+    $logs = array();
 
     if ($result) {
         while ($row = mysqli_fetch_assoc($result)) {
             $logs[] = array(
-                'logID'          => intval($row['LogID']),
-                'changeType'     => $row['ChangeType'],
+                'logID' => intval($row['LogID']),
+                'changeType' => $row['ChangeType'],
                 'quantityBefore' => intval($row['QuantityBefore']),
                 'quantityChange' => intval($row['QuantityChange']),
-                'quantityAfter'  => intval($row['QuantityAfter']),
-                'note'           => $row['Note'],
-                'logTime'        => $row['LogTime'],
-                'itemName'       => $row['itemName'],
-                'skuCode'        => $row['SKUCode'],
-                'changedBy'      => $row['changedBy'],
+                'quantityAfter' => intval($row['QuantityAfter']),
+                'note' => $row['Note'],
+                'logTime' => $row['LogTime'],
+                'itemName' => $row['itemName'],
+                'skuCode' => $row['SKUCode'],
+                'changedBy' => $row['changedBy'],
             );
         }
     }

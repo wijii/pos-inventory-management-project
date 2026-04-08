@@ -38,7 +38,7 @@ function getLowStockCount($conn)
 
     $sql = "SELECT COUNT(*) AS lowCount
             FROM inventories
-            WHERE Quantity <= ReorderLevel";
+            WHERE Quantity <= IFNULL(ReorderLevel, 5)";
 
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_assoc($result);
