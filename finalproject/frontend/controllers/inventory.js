@@ -4,7 +4,7 @@
 
 let inventoryData = [];
 
-const LOW_STOCK_THRESHOLD = 10;
+const LOW_STOCK_THRESHOLD = 5;
 let activeFilter = "all"; // "all" | "low" | "in" | "logs"
 
 // ============================================================
@@ -24,8 +24,8 @@ function formatTimeAgo(ts) {
   let diff = Math.floor((Date.now() - ts) / 1000);
   if (diff < 0) diff = 0;
 
-  if (diff < 60)    return `${diff} seconds ago`;
-  if (diff < 3600)  return `${Math.floor(diff / 60)} minutes ago`;
+  if (diff < 60) return `${diff} seconds ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
   return `${Math.floor(diff / 86400)} days ago`;
 }
@@ -35,8 +35,8 @@ function formatDateExact(ts) {
   return (
     d.toLocaleDateString("en-US", {
       month: "short",
-      day:   "numeric",
-      year:  "numeric",
+      day: "numeric",
+      year: "numeric",
     }) +
     " · " +
     d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
@@ -146,24 +146,26 @@ function renderTable(data) {
   bindUpdateButtons();
   if (window.lucide) lucide.createIcons();
 }
-
-// ============================================================
-// AUDIT LOGS TABLE
-// ============================================================
+//audit logs table
 
 function renderLogsTable() {
   const tbody = document.getElementById("inventoryTable");
-  tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;opacity:0.4;'>Loading audit logs...</td></tr>";
+  tbody.innerHTML =
+    "<tr><td colspan='5' style='text-align:center;opacity:0.4;'>Loading audit logs...</td></tr>";
 
   inventoryAjax.getLogs(
     function (logs) {
       if (!logs || logs.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;opacity:0.4;'>No audit entries yet. Restock an item to create a log.</td></tr>";
+        tbody.innerHTML =
+          "<tr><td colspan='5' style='text-align:center;opacity:0.4;'>No audit entries yet. Restock an item to create a log.</td></tr>";
         return;
       }
 
       //temporarily swap to 5-column log headers
-      document.querySelector("#inventoryTable").closest("table").querySelector("thead tr").innerHTML = `
+      document
+        .querySelector("#inventoryTable")
+        .closest("table")
+        .querySelector("thead tr").innerHTML = `
         <th>Item</th>
         <th>Change</th>
         <th style="text-align:center">Before → After</th>
@@ -171,13 +173,15 @@ function renderLogsTable() {
         <th>By / When</th>
       `;
 
-      tbody.innerHTML = logs.map(function (log) {
-        const isPositive  = log.quantityChange >= 0;
-        const sign        = isPositive ? "+" : "";
-        const changeColor = isPositive ? "#00c950" : "#ef4444";
-        const badgeClass  = log.changeType === "restock" ? "status" : "status low";
+      tbody.innerHTML = logs
+        .map(function (log) {
+          const isPositive = log.quantityChange >= 0;
+          const sign = isPositive ? "+" : "";
+          const changeColor = isPositive ? "#00c950" : "#ef4444";
+          const badgeClass =
+            log.changeType === "restock" ? "status" : "status low";
 
-        return `<tr>
+          return `<tr>
           <td>
             <strong>${log.itemName}</strong><br>
             <small style="opacity:0.5;font-size:11px;">${log.skuCode}</small>
@@ -193,24 +197,29 @@ function renderLogsTable() {
             <strong style="color:${changeColor};">${log.quantityAfter}</strong>
             <span style="color:${changeColor};font-size:12px;"> (${sign}${log.quantityChange})</span>
           </td>
-          <td style="font-size:12px;opacity:0.7;">${log.note || '—'}</td>
+          <td style="font-size:12px;opacity:0.7;">${log.note || "—"}</td>
           <td>
             <div style="font-size:13px;">${log.changedBy}</div>
             <div style="font-size:11px;opacity:0.5;">${log.logTime}</div>
           </td>
         </tr>`;
-      }).join("");
+        })
+        .join("");
 
       if (window.lucide) lucide.createIcons();
     },
     function () {
-      tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;color:#ef4444;'>Failed to load logs.</td></tr>";
-    }
+      tbody.innerHTML =
+        "<tr><td colspan='5' style='text-align:center;color:#ef4444;'>Failed to load logs.</td></tr>";
+    },
   );
 }
 
 function resetTableHeaders() {
-  document.querySelector("#inventoryTable").closest("table").querySelector("thead tr").innerHTML = `
+  document
+    .querySelector("#inventoryTable")
+    .closest("table")
+    .querySelector("thead tr").innerHTML = `
     <th>Product Name</th>
     <th>Status</th>
     <th style="text-align:center">Current Stock</th>
@@ -224,23 +233,24 @@ function resetTableHeaders() {
 // ============================================================
 
 function updateStats() {
-  const allCount  = inventoryData.length;
-  const lowCount  = inventoryData.filter(
+  const allCount = inventoryData.length;
+  const lowCount = inventoryData.filter(
     (i) => i.stock < (i.threshold ?? LOW_STOCK_THRESHOLD),
   ).length;
-  const inCount   = allCount - lowCount;
+  const inCount = allCount - lowCount;
   const totalUnits = inventoryData.reduce((s, i) => s + i.stock, 0);
 
   document.getElementById("statTotalProducts").textContent = allCount;
-  document.getElementById("statLowStock").textContent      = lowCount;
-  document.getElementById("statTotalUnits").textContent    = totalUnits.toLocaleString();
+  document.getElementById("statLowStock").textContent = lowCount;
+  document.getElementById("statTotalUnits").textContent =
+    totalUnits.toLocaleString();
 
   const lowCard = document.getElementById("lowStockCard");
   lowCard.classList.toggle("stat-danger", lowCount > 0);
 
-  document.getElementById("tabAll").textContent  = `All (${allCount})`;
-  document.getElementById("tabLow").textContent  = `Low Stock (${lowCount})`;
-  document.getElementById("tabIn").textContent   = `In Stock (${inCount})`;
+  document.getElementById("tabAll").textContent = `All (${allCount})`;
+  document.getElementById("tabLow").textContent = `Low Stock (${lowCount})`;
+  document.getElementById("tabIn").textContent = `In Stock (${inCount})`;
   document.getElementById("tabLogs").textContent = `Audit Logs`;
 
   if (window.lucide) lucide.createIcons();
@@ -254,10 +264,14 @@ function setFilter(filter) {
     el.classList.remove("active", "active-low", "active-in", "active-logs");
   });
 
-  if (filter === "all")  document.getElementById("tabAll").classList.add("active");
-  if (filter === "low")  document.getElementById("tabLow").classList.add("active-low");
-  if (filter === "in")   document.getElementById("tabIn").classList.add("active-in");
-  if (filter === "logs") document.getElementById("tabLogs").classList.add("active");
+  if (filter === "all")
+    document.getElementById("tabAll").classList.add("active");
+  if (filter === "low")
+    document.getElementById("tabLow").classList.add("active-low");
+  if (filter === "in")
+    document.getElementById("tabIn").classList.add("active-in");
+  if (filter === "logs")
+    document.getElementById("tabLogs").classList.add("active");
 
   if (filter === "logs") {
     resetTableHeaders();
@@ -290,9 +304,9 @@ function bindUpdateButtons() {
   tbody.querySelectorAll(".update-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const row = btn.closest("tr");
-      const idx  = parseInt(row.dataset.index);
+      const idx = parseInt(row.dataset.index);
       const input = row.querySelector(".update-input");
-      const val   = parseInt(input.value);
+      const val = parseInt(input.value);
 
       if (input.value === "") {
         showAlert("Please enter a quantity.", false);
@@ -310,7 +324,7 @@ function bindUpdateButtons() {
         val,
         function (response) {
           if (response.trim() === "Success") {
-            item.stock       = val;
+            item.stock = val;
             item.lastUpdated = Date.now();
             showAlert(`Updated stock for ${item.name}!`, true);
             renderTable(getFilteredData());

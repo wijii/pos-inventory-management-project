@@ -146,7 +146,11 @@ function renderProducts() {
            ? (p.category === "beverages" ? `openSizePicker('${p.id}')` : `addToCart('${p.id}')`)
            : ""}">
       <div class="product-img-wrap">
-        <img src="${p.img}" alt="${p.name}" loading="lazy" />
+        ${p.img
+          ? `<img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+             <div class="product-img-placeholder" style="display:none;"><i data-lucide="image-off" style="width:32px;height:32px;opacity:0.25;"></i></div>`
+          : `<div class="product-img-placeholder"><i data-lucide="image-off" style="width:32px;height:32px;opacity:0.25;"></i></div>`
+        }
         <span class="product-badge">${capitalize(p.category)}</span>
       </div>
       <div class="product-info">
@@ -159,6 +163,7 @@ function renderProducts() {
       </div>
     </div>
   `).join("");
+
 
   lucide.createIcons();
 }

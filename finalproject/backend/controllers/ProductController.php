@@ -212,7 +212,7 @@ if ($action == 'getCategoriesDropdown') {
                 "price" => floatval($p['Price']),
                 "stock" => intval($p['Quantity']), // uses actual stock from database
                 "category" => strtolower($p['CategoryName']),
-                "img" => !empty($p['ProductImagePath']) ? $p['ProductImagePath'] : "https://via.placeholder.com/150"
+                "img" => !empty($p['ProductImagePath']) ? '../../' . $p['ProductImagePath'] : ""
             );
         }
     }
