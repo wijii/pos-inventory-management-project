@@ -32,10 +32,10 @@ function loginUser($conn, $username, $password)
     }
 
     // find the user by username, and also grab their role name from the roles table
-    $sql = "SELECT u.UserID, u.Username, u.Password, u.FirstName, u.LastName, r.RoleName
-            FROM users u
-            INNER JOIN roles r ON u.RoleID = r.RoleID
-            WHERE u.Username = ? AND u.WorkingStatus = 'Active'";
+        $sql = "SELECT u.UserID, u.Username, u.Password, u.FirstName, u.LastName, r.RoleName
+        FROM users u
+        INNER JOIN roles r ON u.RoleID = r.RoleID
+        WHERE u.Username = ?";
 
     $stmt = mysqli_prepare($conn, $sql);
 
@@ -54,13 +54,22 @@ function loginUser($conn, $username, $password)
         //check if the password the user typed matches the one in the database
         if ($password == $row['Password']) {
 
-            //login success - return all the user info the controller needs
+            $conn->query("UPDATE users SET WorkingStatus = 'Inactive'");
+
+            // Then set this user On Duty
+            $stmtUpdate = $conn->prepare("UPDATE users SET WorkingStatus = 'Active' WHERE UserID = ?");
+            $stmtUpdate->bind_param("i", $row['UserID']);
+            $stmtUpdate->execute();
+            $stmtUpdate->close();
+
+            // login success - return all the user info the controller needs
             $userInfo = array();
             $userInfo['status'] = true;
             $userInfo['id'] = $row['UserID'];
             $userInfo['username'] = $row['Username'];
             $userInfo['role'] = $row['RoleName'];
             $userInfo['firstname'] = $row['FirstName'];
+
 
             return $userInfo;
         }
