@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>POS Terminal</title>
+    <link rel="stylesheet" href="../assets/css/navigationbar.css">
+    <link rel="stylesheet" href="../assets/css/pos.css">
+    <link rel="stylesheet" href="../assets/css/topbar.css">
+  </head>
+  <body>
+    <div id="page-overlay"></div>
+    <div class="container">
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="logo">
+          <h2>Manager</h2>
+          <p>Loading...</p>
+        </div>
+        <ul>
+          <li><a href="dashboard.html" class="link"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+          <li class="active"><a href="pos.html" class="link"><i data-lucide="shopping-cart"></i> POS</a></li>
+          <li><a href="products.html" class="link"><i data-lucide="box"></i> Products</a></li>
+          <li><a href="inventory.html" class="link"><i data-lucide="layers"></i> Inventory</a></li>
+          <li><a href="sales.html" class="link"><i data-lucide="receipt"></i> Sales</a></li>
+          <li><a href="staff.html" class="link"><i data-lucide="users"></i> Staff</a></li>
+          <li><a href="settings.html" class="link"><i data-lucide="settings"></i> Settings</a></li>
+        </ul>
+      </div>
+
+      <!-- MAIN -->
+      <div class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+          <div class="topbars"><h3>POS SYSTEM</h3></div>
+          <a href="#" class="logout" onclick="openModal('logoutModal')">
+            <i data-lucide="log-out"></i> Logout
+          </a>
+        </div>
+
+        <!-- POS BODY -->
+        <div class="pos-body">
+
+          <!-- PRODUCTS PANEL -->
+          <div class="products-panel">
+            <div class="search-filter-row">
+              <div class="search-wrap">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Search by product name or by Id" />
+              </div>
+              <div class="filter-btns">
+                <button class="filter-btn active" data-cat="all">All</button>
+                <button class="filter-btn" data-cat="food">Food</button>
+                <button class="filter-btn" data-cat="beverages">Beverages</button>
+              </div>
+            </div>
+            <div class="product-grid-wrapper">
+              <div class="product-grid" id="productGrid"></div>
+            </div>
+          </div>
+
+          <!-- CART PANEL -->
+          <div class="cart-panel">
+
+            <!-- HEADER -->
+            <div class="cart-header">
+              <div class="cart-header-left">
+                <i data-lucide="shopping-cart" class="cart-header-icon"></i>
+                <span class="cart-title">Current Order</span>
+              </div>
+              <span class="cart-count-badge" id="cartCountBadge">0 items</span>
+            </div>
+
+            <!-- ITEMS / EMPTY STATE -->
+            <div class="cart-items" id="cartItems">
+              <div class="cart-empty-state" id="cartEmpty">
+                <svg class="empty-box-icon" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M40 10L68 24V56L40 70L12 56V24L40 10Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+                  <path d="M40 10V70" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/>
+                  <path d="M12 24L40 38L68 24" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+                  <path d="M26 17L54 31" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+                </svg>
+                <span>Cart is empty</span>
+              </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="cart-footer">
+
+              <!-- DISCOUNT -->
+              <div class="cart-section">
+                <div class="cart-section-label">
+                  <i data-lucide="tag" style="width:13px;height:13px;"></i>
+                  DISCOUNT
+                </div>
+                <div class="discount-btns">
+                  <button class="discount-btn active" data-discount="none">None</button>
+                  <button class="discount-btn" data-discount="senior">Senior</button>
+                  <button class="discount-btn" data-discount="pwd">PWD</button>
+                </div>
+                <div class="discount-applied" id="discountApplied" style="display:none;">
+                  <i data-lucide="tag" style="width:12px;height:12px;"></i>
+                  <span id="discountAppliedText"></span>
+                </div>
+              </div>
+
+              <!-- SUMMARY -->
+              <div class="cart-summary">
+                <div class="summary-row">
+                  <span>Subtotal</span>
+                  <span id="subtotal">₱0</span>
+                </div>
+                <div class="summary-row discount-row" id="discountRow" style="display:none;">
+                  <span id="discountLabel">Senior (20%)</span>
+                  <span id="discountAmount" class="discount-amount">-₱0</span>
+                </div>
+                <div class="summary-row">
+                  <span>Tax (12%)</span>
+                  <span id="tax">₱0</span>
+                </div>
+                <div class="summary-row total-row">
+                  <span>Total</span>
+                  <span id="total" class="total-amount">₱0</span>
+                </div>
+              </div>
+
+              <!-- PAYMENT METHOD -->
+              <div class="cart-section">
+                <div class="cart-section-label">PAYMENT METHOD</div>
+                <div class="payment-btns">
+                  <button class="payment-btn active" data-method="cash">
+                    <i data-lucide="banknote" style="width:18px;height:18px;"></i>
+                    <span>Cash</span>
+                  </button>
+                  <button class="payment-btn" data-method="gcash">
+                    <i data-lucide="smartphone" style="width:18px;height:18px;"></i>
+                    <span>GCash</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- GCASH INFO -->
+              <div class="gcash-info" id="gcashInfo" style="display:none;">
+                <i data-lucide="info" style="width:13px;height:13px;flex-shrink:0;"></i>
+                <span>Present GCash QR or enter phone number at checkout</span>
+              </div>
+
+              <!-- CASH INPUT (shown only for cash) -->
+              <div id="cashSection">
+                <div class="cash-input-wrap">
+                  <input type="number" id="cashInput" placeholder="Cash received" min="0" step="0.01" />
+                </div>
+                <div class="change-row">Change: <span id="change">₱0.00</span></div>
+              </div>
+
+              <button class="pay-btn" id="payBtn" disabled>Complete Payment</button>
+
+            </div>
+
+            <!-- RECEIPT -->
+            <div class="receipt-section" id="receiptSection" style="display:none;">
+              <div class="receipt-id" id="receiptId">Receipt RCP-</div>
+              <div class="receipt-total" id="receiptTotal">Total: ₱0.00</div>
+              <button class="print-btn" onclick="printReceipt()">
+                <i data-lucide="printer" style="width:14px;height:14px;"></i>
+                Print Receipt
+              </button>
+            </div>
+
+          </div><!-- end cart-panel -->
+        </div><!-- end pos-body -->
+      </div><!-- end main -->
+    </div><!-- end container -->
+
+    <!-- CONFIRM MODAL -->
+    <div class="modal-overlay" id="confirmModal">
+      <div class="modal">
+        <h3>Confirm Payment</h3>
+        <p class="modal-subtitle">Review order</p>
+        <div class="modal-items-wrap">
+          <div class="modal-items" id="modalItems"></div>
+          <div class="modal-total-row">
+            <span>Total</span>
+            <strong id="modalTotal">₱0.00</strong>
+          </div>
+        </div>
+        <div class="modal-summary">
+          <div>Items: <span class="orange" id="modalItemCount">0</span></div>
+          <div>Cash Received: <span id="modalCash">₱0.00</span></div>
+          <div>Change: <span id="modalChange">₱0.00</span></div>
+        </div>
+        <div class="modal-btns">
+          <button class="modal-cancel-btn" id="modalCancel">Cancel</button>
+          <button class="modal-confirm-btn" id="modalConfirm">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIZE PICKER MODAL -->
+    <div class="size-modal-overlay" id="sizeModal">
+      <div class="size-modal">
+        <div class="size-modal-header">
+          <img class="size-modal-thumb" src="" alt="" />
+          <div class="size-modal-title">
+            <h4></h4>
+            <p>Select a size to add</p>
+          </div>
+          <button class="size-modal-close" onclick="closeSizePicker()">
+            <i data-lucide="x" style="width:18px;height:18px;"></i>
+          </button>
+        </div>
+        <div class="size-options"></div>
+        <button class="size-cancel-btn" onclick="closeSizePicker()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- LOGOUT MODAL -->
+    <div class="logout-modal" id="logoutModal">
+      <div class="modal-content">
+        <h2>Logout</h2>
+        <p>Are you sure you want to logout?</p>
+        <div class="modal-buttons">
+          <button onclick="closeModal('logoutModal')" class="cancelBtn">Cancel</button>
+          <button class="deleteBtn" onclick="confirmLogout()">Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLEAR CART MODAL -->
+    <div class="modal-overlay" id="clearCartModal">
+      <div class="modal">
+        <h3>Clear Cart</h3>
+        <p class="modal-subtitle">Are you sure you want to remove all items?</p>
+        <div class="modal-btns">
+          <button class="modal-cancel-btn" id="clearCartCancel">Cancel</button>
+          <button class="modal-confirm-btn" id="clearCartConfirm">Clear All</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../assets/js/lucide.min.js"></script>
+    <script src="../assets/js/jquery-3.7.1.min.js"></script>
+    <script src="../controllers/navigationbar.js"></script>
+    <script src="../services/posAjax.js"></script>
+    <script src="../controllers/pos.js"></script>
+    <script>lucide.createIcons();</script>
+  </body>
+</html>
+

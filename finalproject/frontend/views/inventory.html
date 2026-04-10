@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inventory</title>
+<link rel="preload" href="fonts/Lato-Bold.ttf" as="font" type="font/truetype" crossorigin>
+<link rel="stylesheet" href="../assets/css/navigationbar.css">
+<link rel="stylesheet" href="../assets/css/inventory.css">
+<link rel="stylesheet" href="../assets/css/topbar.css">
+</head>
+<body>
+
+<div id="page-overlay"></div>
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo">
+      <h2>Manager</h2>
+      <p>Loading...</p>
+    </div>
+    <ul>
+      <li><a href="dashboard.html" class="link"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+      <li><a href="pos.html" class="link"><i data-lucide="shopping-cart"></i> POS</a></li>
+      <li><a href="products.html" class="link"><i data-lucide="box"></i> Products</a></li>
+      <li class="active"><a href="inventory.html" class="link"><i data-lucide="layers"></i> Inventory</a></li>
+      <li><a href="sales.html" class="link"><i data-lucide="receipt"></i> Sales</a></li>
+      <li><a href="staff.html" class="link"><i data-lucide="users"></i> Staff</a></li>
+      <li><a href="settings.html" class="link"><i data-lucide="settings"></i> Settings</a></li>
+    </ul>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbars"><h3>INVENTORY</h3></div>
+      <a href="#" class="logout" onclick="openModal('logoutModal')">
+        <i data-lucide="log-out"></i> Logout
+      </a>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="inventory-stats">
+
+      <!-- Total Products -->
+      <div class="stat-card">
+        <div class="stat-icon-wrap orange">
+          <i data-lucide="package"></i>
+        </div>
+        <div class="stat-text">
+          <div class="stat-label">Total Products</div>
+          <div class="stat-value" id="statTotalProducts">0</div>
+        </div>
+      </div>
+
+      <!-- Low Stock Alerts -->
+      <div class="stat-card" id="lowStockCard">
+        <div class="stat-icon-wrap red">
+          <i data-lucide="alert-circle"></i>
+        </div>
+        <div class="stat-text">
+          <div class="stat-label">Low Stock Alerts</div>
+          <div class="stat-value" id="statLowStock">0</div>
+        </div>
+      </div>
+
+      <!-- Total Units -->
+      <div class="stat-card stat-blue">
+        <div class="stat-icon-wrap blue">
+          <i data-lucide="trending-down"></i>
+        </div>
+        <div class="stat-text">
+          <div class="stat-label">Total Units</div>
+          <div class="stat-value" id="statTotalUnits">0</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SEARCH + FILTER TABS -->
+    <div class="inventory-header">
+      <div class="search-wrap" style="flex:1;">
+        <i data-lucide="search" class="search-icon"></i>
+        <input type="text" id="searchInput" placeholder="Search inventory items or SKU..." />
+      </div>
+
+      <div class="filter-tabs">
+        <button id="tabAll" class="filter-tab active" onclick="setFilter('all')">All</button>
+        <button id="tabLow" class="filter-tab"        onclick="setFilter('low')">Low Stock</button>
+        <button id="tabIn"  class="filter-tab"        onclick="setFilter('in')">In Stock</button>
+        <button id="tabLogs" class="filter-tab"       onclick="setFilter('logs')">Audit Logs</button>
+      </div>
+
+      <div id="dateFilterWrap" style="display:none; align-items:center; gap:8px; width: 100%; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px;">
+          <span style="font-size:12px;opacity:0.6;">Filter Logs by Date:</span>
+          <input type="date" id="dateFrom" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card-bg);color:white;font-size:13px;outline:none;">
+          <span style="font-size:12px;opacity:0.6;">to</span>
+          <input type="date" id="dateTo" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card-bg);color:white;font-size:13px;outline:none;">
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Status</th>
+            <th style="text-align:center">Current Stock</th>
+            <th>Last Updated</th>
+            <th style="text-align:right">Update Stock</th>
+          </tr>
+        </thead>
+        <tbody id="inventoryTable"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- LOGOUT MODAL -->
+<div class="modal" id="logoutModal">
+  <div class="modal-content">
+    <h2>Logout</h2>
+    <p>Are you sure you want to logout?</p>
+    <div class="modal-buttons">
+      <button onclick="closeModal('logoutModal')" class="cancelBtn">Cancel</button>
+      <button class="deleteBtn" onclick="confirmLogout()">Logout</button>
+    </div>
+  </div>
+</div>
+
+<div id="alertsContainer"></div>
+
+<script src="../assets/js/lucide.min.js"></script>
+<script src="../assets/js/jquery-3.7.1.min.js"></script>
+<script src="../services/authAjax.js"></script>
+<script src="../services/inventoryAjax.js"></script>
+<script src="../controllers/navigationbar.js"></script>
+<script src="../controllers/inventory.js"></script>
+<script>lucide.createIcons();</script>
+
+  <script>
+    const authOverlay = document.getElementById('page-overlay');
+    if (authOverlay) authOverlay.style.display = 'block';
+    if (typeof authAjax !== 'undefined') {
+        authAjax.getSession(function (data) {
+            if (data.role !== 'Manager' && data.role !== 'Admin') {
+                alert('Access Denied. Manager only.');
+                window.location.href = 'login.html';
+            } else if (authOverlay) authOverlay.style.display = 'none';
+        }, function () {
+            window.location.href = 'login.html';
+        });
+    }
+  </script>
+</body>
+</html>
+

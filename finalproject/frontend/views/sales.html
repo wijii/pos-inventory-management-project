@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Report</title>
+    <link rel="stylesheet" href="../assets/css/navigationbar.css">
+    <link rel="stylesheet" href="../assets/css/topbar.css">
+    <link rel="stylesheet" href="../assets/css/sales.css">
+    <script src="../assets/js/chart.js"></script>
+</head>
+<body>
+    <div id="page-overlay"></div>
+    <div class="container">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2>Manager</h2>
+                <p>Loading...</p>
+            </div>
+            <ul>
+                <div class="active-indicator"></div>
+                <li><a href="dashboard.html" class="link"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+                <li><a href="pos.html" class="link"><i data-lucide="shopping-cart"></i> POS</a></li>
+                <li><a href="products.html" class="link"><i data-lucide="box"></i> Products</a></li>
+                <li><a href="inventory.html" class="link"><i data-lucide="layers"></i> Inventory</a></li>
+                <li class="active"><a href="sales.html" class="link"><i data-lucide="receipt"></i> Sales</a></li>
+                <li><a href="staff.html" class="link"><i data-lucide="users"></i> Staff</a></li>
+                <li><a href="settings.html" class="link"><i data-lucide="settings"></i> Settings</a></li>
+            </ul>
+        </div>
+
+        <!-- MAIN -->
+        <div class="main" id="main">
+
+            <!-- TOPBAR -->
+            <div class="topbar">
+                <div class="topbars"><h3>SALES REPORT</h3></div>
+                <a href="#" class="logout" onclick="openModal('logoutModal')">
+                    <i data-lucide="log-out" class="logout-icon"></i> Logout
+                </a>
+            </div>
+
+            <!-- STAT CARDS -->
+            <div class="cards">
+                <div class="card">
+                    <div class="card-icon-wrap orange">
+                        <i data-lucide="trending-up" style="width:18px;height:18px;"></i>
+                    </div>
+                    <p>Total Revenue</p>
+                    <h2 id="total-revenue">₱0.00</h2>
+                </div>
+                <div class="card">
+                    <div class="card-icon-wrap blue">
+                        <i data-lucide="shopping-bag" style="width:18px;height:18px;"></i>
+                    </div>
+                    <p>Transactions</p>
+                    <h2 id="total-trans">0</h2>
+                </div>
+                <div class="card">
+                    <div class="card-icon-wrap green">
+                        <i data-lucide="dollar-sign" style="width:18px;height:18px;"></i>
+                    </div>
+                    <p>Avg Ticket</p>
+                    <h2 id="avg-ticket">₱0.00</h2>
+                </div>
+            </div>
+
+            <!-- TAB NAV -->
+            <div class="tabs-card">
+                <div class="report-tabs">
+                    <button class="tab-btn active" data-tab="sales-date">Sales by Date</button>
+                    <button class="tab-btn" data-tab="product-sales">Product Sales</button>
+                    <button class="tab-btn" data-tab="transactions">Transactions</button>
+                </div>
+            </div>
+
+            <!-- TAB 1: SALES BY DATE -->
+            <div id="sales-date" class="tab-pane active">
+                <div class="chart-box">
+                    <div class="chart-header">
+                        <div>
+                            <h3>Revenue Over Time</h3>
+                            <p class="chart-sub" id="rev-sub">Last 14 days</p>
+                        </div>
+                        <div class="chart-stats">
+                            <div class="chart-stat-box">
+                                <p>Period Revenue</p>
+                                <h4 id="period-revenue" class="text-orange">₱0.00</h4>
+                            </div>
+                            <div class="chart-stat-box">
+                                <p>Peak Revenue</p>
+                                <h4 id="peak-label">—</h4>
+                            </div>
+                        </div>
+                        <div class="filters" style="margin-left: auto;">
+                            <button class="filter-btn active" data-period="daily">Daily</button>
+                            <button class="filter-btn" data-period="weekly">Weekly</button>
+                            <button class="filter-btn" data-period="monthly">Monthly</button>
+                        </div>
+                    </div>
+                    <div class="chart-scroll-wrapper">
+                        <div class="chart-container" id="revContainer">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-box">
+                    <div class="chart-header">
+                        <h3>Transaction Count</h3>
+                    </div>
+                    <div class="chart-scroll-wrapper">
+                        <div class="chart-container" id="transContainer">
+                            <canvas id="transactionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: PRODUCT SALES -->
+            <div id="product-sales" class="tab-pane">
+                <div class="chart-box">
+                    <div class="chart-header">
+                        <h3>Product Performance</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="sales-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Product</th>
+                                    <th>Units Sold</th>
+                                    <th>Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: TRANSACTIONS -->
+            <div id="transactions" class="tab-pane">
+                <div class="chart-box">
+                    <div class="chart-header">
+                        <h3>Sales History</h3>
+                    </div>
+                    <div class="table-container">
+                        <table class="sales-table">
+                            <thead>
+                                <tr>
+                                    <th>Receipt</th>
+                                    <th>Items</th>
+                                    <th>Cashier</th>
+                                    <th>Total</th>
+                                    <th>Date & Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactions-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RECEIPT MODAL -->
+    <div id="receipt-modal" class="modal-overlay">
+        <div class="receipt-card">
+            <button class="close-x" onclick="closeReceiptModal()">&times;</button>
+            <div class="receipt-header">
+                <div class="receipt-icon"><i data-lucide="banknote"></i></div>
+                <h2>Casa Cafe Receipt</h2>
+                <p id="m-receipt-id">#TRX-00000</p>
+                <div class="receipt-meta">
+                    <span><i data-lucide="calendar"></i> <span id="m-date">---</span></span>
+                    <span><i data-lucide="clock"></i> <span id="m-time">---</span></span>
+                </div>
+                <p class="cashier-name"><i data-lucide="user"></i> <span id="m-cashier">---</span></p>
+            </div>
+            <div class="receipt-body">
+                <h4>ORDER ITEMS</h4>
+                <div id="m-items-list"></div>
+                <div class="receipt-summary">
+                    <div class="summary-line"><span>Subtotal</span><span id="m-subtotal">₱0.00</span></div>
+                    <div class="summary-line"><span>Tax (12% VAT)</span><span id="m-tax">₱0.00</span></div>
+                    <div class="summary-line"><span>Senior Discount (20%)</span><span id="m-discount">₱0.00</span></div>
+                    <div class="summary-line total">
+                        <span>Total</span>
+                        <span id="m-total" class="text-orange">₱0.00</span>
+                    </div>
+                </div>
+                <div class="payment-info">
+                    <span>Payment Method</span>
+                    <span class="method-tag"><i data-lucide="wallet"></i> Cash</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeReceiptModal()">Close</button>
+                <button class="btn-primary" onclick="window.print()"><i data-lucide="printer"></i> Print</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGOUT MODAL -->
+    <div class="logout-modal" id="logoutModal">
+        <div class="modal-content">
+            <h2>Logout</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="modal-buttons">
+                <button onclick="closeModal('logoutModal')" class="cancelBtn">Cancel</button>
+                <button class="deleteBtn" onclick="confirmLogout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/lucide.min.js"></script>
+    <script src="../assets/js/jquery-3.7.1.min.js"></script>
+    <script src="../services/authAjax.js"></script>
+    <script src="../services/salesAjax.js"></script>
+    <script src="../controllers/navigationbar.js"></script>
+    <script src="../controllers/sales.js"></script>
+    <script>lucide.createIcons();</script>
+  <script>
+    const authOverlay = document.getElementById('page-overlay');
+    if (authOverlay) authOverlay.style.display = 'block';
+    if (typeof authAjax !== 'undefined') {
+        authAjax.getSession(function (data) {
+            if (data.role !== 'Manager' && data.role !== 'Admin') {
+                alert('Access Denied. Manager only.');
+                window.location.href = 'login.html';
+            } else if (authOverlay) authOverlay.style.display = 'none';
+        }, function () {
+            window.location.href = 'login.html';
+        });
+    }
+  </script>
+</body>
+</html>
+

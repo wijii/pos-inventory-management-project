@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Casa Cafe – Login</title>
+  <link rel="stylesheet" href="../assets/css/login.css" />
+</head>
+
+<body>
+
+  <div class="bg-glow bg-glow--left"></div>
+  <div class="bg-glow bg-glow--right"></div>
+
+  <div class="card">
+
+    <div class="card-top">
+      <img src="../assets/svgs/CafeLogo.svg" alt="Casa Cafe Logo" class="Cafelogo">
+      <h1>Casa <span>Cafe</span></h1>
+    </div>
+
+    <div class="card-bottom">
+
+      <div class="inputA">
+        <div class="input-wrapper">
+          <input id="username" type="text" placeholder=" " required />
+          <label for="username">Enter your name</label>
+        </div>
+
+        <div class="input-wrapper">
+          <input id="password" type="password" placeholder=" " required />
+          <label for="password">Enter your password</label>
+        </div>
+      </div>
+
+      <label class="show-pw">
+        <input type="checkbox" id="showPw" />
+        <span class="custom-checkbox"></span>
+        Show Password
+      </label>
+
+      <button id="loginBtn">
+        <img src="../assets/svgs/log-in-outline.svg" alt="Login Icon" class="btn-icon">
+        LOGIN
+      </button>
+
+    </div>
+  </div>
+
+  <div id="alertsContainer"></div>
+  <script src="../assets/js/jquery-3.7.1.min.js"></script>
+  <script src="../services/authAjax.js"></script>
+  <script src="../controllers/login.js"></script>
+  </body>
+
+</html>
