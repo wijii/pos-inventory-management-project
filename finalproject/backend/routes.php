@@ -23,6 +23,8 @@ if ($action == 'login' || $action == 'session' || $action == 'logout' || $action
     require 'controllers/DashboardController.php';
 } else if ($action == 'getSalesLifetimeStats' || $action == 'getSalesChartData' || $action == 'getSalesProductBreakdown' || $action == 'getSalesTransactionHistory' || $action == 'getSalesReceiptItems') {
     require 'controllers/SalesController.php';
+} else if ($action == 'addStaff' || $action == 'deleteStaff' || $action == 'getStaffList') {
+    require 'controllers/StaffController.php';
 } else {
     echo "Error: The requested action was not found.";
 }

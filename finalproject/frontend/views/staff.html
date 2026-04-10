@@ -110,21 +110,41 @@ Settings
   <div class="modal-content">
     <h2>Add Staff Member</h2>
     <form id="addStaffForm" novalidate>
-      
-      <input type="text" name="name" required placeholder="Full Name">
 
-      <select name="role" required>
-        <option value="" disabled selected hidden >Select Role</option>
-        <option value="Manager">Manager</option>
-        <option value="Cashier">Cashier</option>
+      <!-- Role -->
+      <select name="roleID" required>
+      <option value="1">Manager</option>
+      <option value="2">Cashier</option>
       </select>
 
+      <!-- Username -->
+      <input type="text" name="username" required placeholder="Username">
+
+      <!-- Password -->
+      <input type="password" name="password" required placeholder="Password">
+
+      <!-- First Name -->
+      <input type="text" name="firstName" required placeholder="First Name">
+
+      <!-- Last Name -->
+      <input type="text" name="lastName" required placeholder="Last Name">
+
+      <!-- Email & Phone -->
       <div class="cppw">
-        <input type="email" name="email" required placeholder="Email">
-        <input type="text" name="phone" required placeholder="Phone No.">
+        <input type="email" name="emailAddress" required placeholder="Email">
+        <input type="text" name="phoneNo" required placeholder="Phone No.">
       </div>
 
-      <input type="password" name="password" required placeholder="Password">
+      <!-- Working Status -->
+      <select name="workingStatus" required>
+        <option value="" disabled selected hidden>Select Status</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </select>
+
+      <!-- Manager Password (authorization only) -->
+      <input type="password" name="managerPassword" required placeholder="Manager Password">
+
       <hr>
       <div class="modal-buttons">
         <button type="button" class="cancelBtn">Cancel</button>

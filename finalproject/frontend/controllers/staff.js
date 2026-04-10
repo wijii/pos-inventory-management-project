@@ -4,47 +4,60 @@
 
 const MANAGER_PASSWORD = "admin123";
 
-let staff = [
-  { name: "Jhonnas Pogi",   role: "Manager", email: "jhonnas@gmail.com", phone: "0994567891", status: "active", img: "https://i.pravatar.cc/200?img=1" },
-  { name: "Jhonnas tlog",   role: "Cashier", email: "tlog@gmail.com",    phone: "0994567891", status: "active", img: "https://i.pravatar.cc/200?img=2" },
-  { name: "Jhonnas Unggoy", role: "Manager", email: "unggoy@gmail.com",  phone: "0994567891", status: "off",    img: "https://i.pravatar.cc/200?img=3" },
-];
-
-
 // ============================================================
 // STATE
 // ============================================================
 
-let staffIndexToDelete = null;
-
+let staff = []; // will be loaded from DB
+let selectedUserId = null; // ✅ use this consistently
 
 // ============================================================
 // LOGIC
 // ============================================================
 
-function addStaff(name, role, email, phone) {
-  staff.push({
-    name,
-    role,
-    email,
-    phone,
-    status: "active",
-    img: "https://i.pravatar.cc/200",
-  });
+// Fetch staff list from backend
+function fetchStaff() {
+  fetch("/project/pos-inventory-management-project/finalproject/backend/routes.php?action=getStaffList")
+    .then(response => response.json())
+    .then(staffList => {
+      staff = staffList;
+      displayStaff(staff);
+    })
+    .catch(err => console.error("Error fetching staff:", err));
 }
 
-function deleteStaffAt(index) {
-  staff.splice(index, 1);
+function addStaff(roleID, username, password, firstName, lastName, phoneNo, emailAddress, workingStatus) {
+   return fetch("/project/pos-inventory-management-project/finalproject/backend/routes.php?action=addStaff", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ 
+      roleID, 
+      username, 
+      password, 
+      firstName, 
+      lastName, 
+      phoneNo, 
+      emailAddress, 
+      workingStatus 
+    })
+  }).then(response => response.json());
+}
+
+function deleteStaffAt(userId) {
+  return fetch("/project/pos-inventory-management-project/finalproject/backend/routes.php?action=deleteStaff", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ UserID: userId }) 
+  }).then(response => response.json());
 }
 
 function getFilteredStaff(query) {
-  return staff.filter(s => s.name.toLowerCase().includes(query.toLowerCase()));
+  return staff.filter(s => `${s.FirstName} ${s.LastName}`.toLowerCase().includes(query.toLowerCase())); 
 }
 
 function confirmLogout() {
   window.location.href = "login.html";
 }
-
 
 // ============================================================
 // UI / RENDERING
@@ -74,11 +87,17 @@ function showAlert(message) {
 function displayStaff(list) {
   const grid = document.getElementById("staffGrid");
 
-  grid.innerHTML = list.map((s, index) => {
-    const statusClass     = s.status === "active" ? "active" : "off";
-    const textStatusClass = s.status === "active" ? "status-active" : "status-off";
-    const roleClass       = s.role.toLowerCase();
-    const statusLabel     = s.status === "active" ? "Active" : "Off Duty";
+  // Map RoleID to readable role names
+  const roleMap = {
+    1: "Manager",
+    2: "Cashier"
+  };
+
+  grid.innerHTML = list.map((s) => {
+    const statusClass     = s.WorkingStatus === "Active" ? "active" : "off";
+    const textStatusClass = s.WorkingStatus === "Active" ? "status-active" : "status-off";
+    const roleClass       = roleMap[s.RoleID]?.toLowerCase() || "unknown";
+    const statusLabel     = s.WorkingStatus === "Active" ? "On Duty" : "Off Duty"; // changed the wording
 
     return `
       <div class="card">
@@ -87,13 +106,13 @@ function displayStaff(list) {
           <span class="status-text ${textStatusClass}">${statusLabel}</span>
         </div>
 
-        <div class="name">${s.name}</div>
-        <div class="role ${roleClass}">${s.role}</div>
+        <div class="name">${s.FirstName} ${s.LastName}</div>
+        <div class="role ${roleClass}">${roleMap[s.RoleID] || "Unknown"}</div>
 
-        <div class="info"><i data-lucide="mail"></i> ${s.email}</div>
-        <div class="info"><i data-lucide="phone"></i> ${s.phone}</div>
+        <div class="info"><i data-lucide="mail"></i> ${s.EmailAddress}</div>
+        <div class="info"><i data-lucide="phone"></i> ${s.PhoneNo}</div>
 
-        <button class="deleteBtn" onclick="openDeleteModal(${index})">
+        <button class="deleteBtn" onclick="openDeleteModal(${s.UserID})">
           <i data-lucide="trash-2"></i>
         </button>
       </div>
@@ -102,7 +121,6 @@ function displayStaff(list) {
 
   lucide.createIcons();
 }
-
 
 // ============================================================
 // MODALS
@@ -116,19 +134,16 @@ function closeModal(id) {
   document.getElementById(id).style.display = "none";
 }
 
-// Exposed globally so inline onclick can call it
-window.openDeleteModal = function (index) {
-  staffIndexToDelete = index;
+window.openDeleteModal = function (userId) {
+  selectedUserId = userId; // ✅ store the UserID globally
   openModal("deleteModal");
 };
-
 
 // ============================================================
 // EVENT LISTENERS
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-
   // Toggle password visibility
   document.getElementById("togglePassword").addEventListener("click", function () {
     const input = document.getElementById("managerPassword");
@@ -152,36 +167,41 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Submit add form
-  document.getElementById("addStaffForm").addEventListener("submit", (e) => {
-    e.preventDefault();
+document.getElementById("addStaffForm").addEventListener("submit", (e) => {
+  e.preventDefault();
 
-    const formData        = new FormData(e.target);
-    const name            = formData.get("name");
-    const role            = formData.get("role");
-    const email           = formData.get("email");
-    const phone           = formData.get("phone");
-    const enteredPassword = formData.get("password");
+  const formData = new FormData(e.target);
+  const roleID = formData.get("roleID"); // 1 or 2
+  const username = formData.get("username");
+  const password = formData.get("password");
+  const firstName = formData.get("firstName");
+  const lastName = formData.get("lastName");
+  const phoneNo = formData.get("phoneNo");
+  const emailAddress = formData.get("emailAddress");
+  const workingStatus = formData.get("workingStatus");
+  const enteredPassword = formData.get("managerPassword");
 
-    if (!name || !role || !email || !phone || !enteredPassword) {
-      showAlert("Please fill in all fields!");
-      return;
-    }
+  if (enteredPassword !== MANAGER_PASSWORD) {
+    showAlert("Incorrect manager password!");
+    return;
+  }
 
-    if (enteredPassword !== MANAGER_PASSWORD) {
-      showAlert("Incorrect manager password!");
-      e.target.querySelector('input[name="password"]').value = "";
-      return;
-    }
+    addStaff(roleID, username, password, firstName, lastName, phoneNo, emailAddress, workingStatus)
+    .then(result => {
+      if (result.success) {
+        showAlert("New staff member added!");
+        fetchStaff();
+        closeModal("addStaffModal");
+        e.target.reset();
+      } else {
+        showAlert("Failed to add staff.");
+      }
+    });
+});
 
-    addStaff(name, role, email, phone);
-    displayStaff(staff);
-    showAlert("New staff member added!");
-    closeModal("addStaffModal");
-    e.target.reset();
-  });
 
-  // Confirm delete
-  document.querySelector(".confirmDeleteBtn").addEventListener("click", () => {
+    // Confirm delete
+    document.querySelector(".confirmDeleteBtn").addEventListener("click", () => {
     const enteredPassword = document.getElementById("managerPassword").value;
 
     if (enteredPassword !== MANAGER_PASSWORD) {
@@ -189,26 +209,27 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    deleteStaffAt(staffIndexToDelete);
-    staffIndexToDelete = null;
-    displayStaff(staff);
-    closeModal("deleteModal");
-    document.getElementById("managerPassword").value = "";
+    deleteStaffAt(selectedUserId).then(result => {
+    if (result.success) {
+      showAlert("Staff member deleted!");
+      fetchStaff();
+      closeModal("deleteModal");
+      document.getElementById("managerPassword").value = "";
+      selectedUserId = null;
+    } else {
+      showAlert("Cannot delete the staff member who is On Duty.");
+    }
+  });
+
   });
 
   // Cancel delete
   document.querySelector(".cancelDeleteBtn").addEventListener("click", () => {
     closeModal("deleteModal");
     document.getElementById("managerPassword").value = "";
+    selectedUserId = null;
   });
 
-});
-
-
-// ============================================================
-// INIT
-// ============================================================
-
-document.addEventListener("DOMContentLoaded", () => {
-  displayStaff(staff);
+  // Initial load from DB
+  fetchStaff();
 });
