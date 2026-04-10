@@ -27,13 +27,15 @@ BEGIN
     -- Move transaction header rows older than 30 days
     -- ArchivedBy = 'System (Auto)' since this runs automatically
     INSERT INTO transactionarchives
-        (TransactionID, UserID, AmountPaid, TransactionDate, TotalAmountDue, ArchivedDate, ArchivedBy)
+        (TransactionID, UserID, AmountPaid, TransactionDate, TotalAmountDue, PaymentMethod, DiscountAmount, ArchivedDate, ArchivedBy)
     SELECT
         t.TransactionID,
         t.UserID,
         t.AmountPaid,
         t.TransactionDate,
         t.TotalAmountDue,
+        t.PaymentMethod,
+        t.DiscountAmount,
         NOW(),
         'System (Auto)'
     FROM transactions t

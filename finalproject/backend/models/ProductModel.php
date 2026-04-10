@@ -162,10 +162,25 @@ function updateProductSKU($conn, $skuID, $productID, $name, $skuCode, $price, $c
 
 
 //soft-deletes a SKU by marking it Unavailable instead of removing the row from the database This keeps the sales history intact if it was ever sold
-
 function deleteProductSKU($conn, $skuID)
 {
-    $sql = "DELETE FROM productskus WHERE SKUID = ?";
+    // 1. Check if there is remaining stock in the inventories table
+    $sqlCheck = "SELECT Quantity FROM inventories WHERE SKUID = ? LIMIT 1";
+    $stmtCheck = mysqli_prepare($conn, $sqlCheck);
+    mysqli_stmt_bind_param($stmtCheck, "i", $skuID);
+    mysqli_stmt_execute($stmtCheck);
+    $resCheck = mysqli_stmt_get_result($stmtCheck);
+    $inv = mysqli_fetch_assoc($resCheck);
+
+    $stock = $inv ? intval($inv['Quantity']) : 0;
+
+    if ($stock > 0) {
+        // Cannot delete if there is still stock
+        return "ErrorStockExists";
+    }
+
+    // 2. Perform soft-delete (mark as Unavailable)
+    $sql = "UPDATE productskus SET AvailabilityStatus = 'Unavailable' WHERE SKUID = ?";
     $stmt = mysqli_prepare($conn, $sql);
     if (!$stmt)
         return false;

@@ -11,12 +11,19 @@ let activeFilter = "all"; // "all" | "low" | "in" | "logs"
 // HELPERS
 // ============================================================
 
-function getStatus(stock, threshold) {
-  const t = threshold ?? LOW_STOCK_THRESHOLD;
-  if (stock === 0)
-    return { statusText: "Low Stock", statusClass: "out", isDanger: true };
-  if (stock < t)
+function getStatus(item) {
+  const stock = item.stock;
+  const threshold = item.threshold ?? LOW_STOCK_THRESHOLD;
+
+  if (item.availabilityStatus === "Unavailable") {
+    return { statusText: "Unavailable", statusClass: "out", isDanger: true };
+  }
+  if (stock === 0) {
+    return { statusText: "Out of Stock", statusClass: "out", isDanger: true };
+  }
+  if (stock < threshold) {
     return { statusText: "Low Stock", statusClass: "low", isDanger: true };
+  }
   return { statusText: "In Stock", statusClass: "", isDanger: false };
 }
 
@@ -106,10 +113,7 @@ function renderTable(data) {
 
   tbody.innerHTML = data
     .map((item) => {
-      const { statusText, statusClass, isDanger } = getStatus(
-        item.stock,
-        item.threshold,
-      );
+      const { statusText, statusClass, isDanger } = getStatus(item);
       const realIndex = inventoryData.indexOf(item);
 
       return `

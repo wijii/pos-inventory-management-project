@@ -3,14 +3,13 @@
 function getFullInventory($conn)
 {
     //select from inventories and join with productskus and products
-    $sql = "SELECT p.ProductName as Name, s.SKUCode, s.Size, 
+    $sql = "SELECT p.ProductName as Name, s.SKUCode, s.Size, s.AvailabilityStatus,
                    IFNULL(i.Quantity, 0) as Quantity, 
                    IFNULL(i.ReorderLevel, 5) as ReorderLevel, 
                    UNIX_TIMESTAMP(i.LastUpdateTime) as LastUpdateTimeTs 
             FROM productskus s
             INNER JOIN products p ON s.ProductID = p.ProductID
             LEFT JOIN inventories i ON s.SKUID = i.SKUID
-            WHERE s.AvailabilityStatus = 'Available'
             ORDER BY Quantity ASC";
     $result = mysqli_query($conn, $sql);
 
@@ -30,7 +29,8 @@ function getFullInventory($conn)
                 'name' => $name,
                 'stock' => intval($row['Quantity']),
                 'threshold' => intval($row['ReorderLevel']),
-                'lastUpdated' => $lastUpdatedMs
+                'lastUpdated' => $lastUpdatedMs,
+                'availabilityStatus' => $row['AvailabilityStatus']
             );
         }
     }

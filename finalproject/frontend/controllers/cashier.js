@@ -5,22 +5,46 @@
 let products = [];
 
 const SIZE_OPTIONS = [
-  { key: "small",  label: "Small",  badge: "S", sub: "Base size",     multiplier: 1.00 },
-  { key: "medium", label: "Medium", badge: "M", sub: "×1.25 of base", multiplier: 1.25 },
-  { key: "large",  label: "Large",  badge: "L", sub: "×1.5 of base",  multiplier: 1.50 },
+  {
+    key: "small",
+    label: "Small",
+    badge: "S",
+    sub: "Base size",
+    multiplier: 1.0,
+  },
+  {
+    key: "medium",
+    label: "Medium",
+    badge: "M",
+    sub: "×1.25 of base",
+    multiplier: 1.25,
+  },
+  {
+    key: "large",
+    label: "Large",
+    badge: "L",
+    sub: "×1.5 of base",
+    multiplier: 1.5,
+  },
 ];
 
-const TAX_RATE = 0.05;
+const DISCOUNTS = {
+  none: { label: "None", rate: 0, color: "" },
+  senior: { label: "Senior (20%)", rate: 0.2, color: "#00c950" },
+  pwd: { label: "PWD (20%)", rate: 0.2, color: "#60a5fa" },
+};
 
+const TAX_RATE = 0.12;
 
 // ============================================================
 // STATE
 // ============================================================
 
-let cart           = [];
+let cart = [];
 let activeCategory = "all";
-let searchQuery    = "";
-
+let searchQuery = "";
+let activeDiscount = "none";
+let activePayment = "cash";
 
 // ============================================================
 // LOGIC
@@ -30,114 +54,130 @@ function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function formatPrice(val) {
+function fmt(val) {
   return "₱" + val.toFixed(2);
+}
+
+function fmtShort(val) {
+  return val % 1 === 0 ? "₱" + val.toFixed(0) : "₱" + val.toFixed(2);
 }
 
 function getSubtotal() {
   return cart.reduce((s, i) => s + i.price * i.qty, 0);
 }
 
+function getDiscountAmount(subtotal) {
+  return subtotal * DISCOUNTS[activeDiscount].rate;
+}
+
 function getTotal() {
-  let total = getSubtotal() * (1 + TAX_RATE);
-  if (document.getElementById("discountToggle") && document.getElementById("discountToggle").checked) {
-    total = total * 0.8; // 20% discount
-  }
-  return total;
+  const sub = getSubtotal();
+  const discount = getDiscountAmount(sub);
+  const taxable = sub - discount;
+  return taxable * (1 + TAX_RATE);
+}
+
+function getTax() {
+  const sub = getSubtotal();
+  const discount = getDiscountAmount(sub);
+  const taxable = sub - discount;
+  return taxable * TAX_RATE;
 }
 
 function generateReceiptId() {
-  return "RCP-" +
+  return (
+    "RCP-" +
     new Date().toISOString().slice(0, 10).replace(/-/g, "") +
-    "-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+    "-" +
+    Math.random().toString(36).slice(2, 8).toUpperCase()
+  );
+}
+
+function getTotalItemCount() {
+  return cart.reduce((s, i) => s + i.qty, 0);
 }
 
 function addToCart(productId) {
-  const product = products.find(p => p.id === productId);
+  const product = products.find((p) => p.id === productId);
   if (!product || product.stock === 0) return;
-
-  const existing = cart.find(c => c.id === productId);
+  const existing = cart.find((c) => c.id === productId);
   if (existing) {
     if (existing.qty < product.stock) existing.qty++;
   } else {
-    cart.push({ id: product.id, name: product.name, price: product.price, qty: 1 });
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      qty: 1,
+    });
   }
-
   renderCart();
 }
 
 function removeFromCart(productId) {
-  cart = cart.filter(c => c.id !== productId);
+  cart = cart.filter((c) => c.id !== productId);
   renderCart();
 }
 
 function changeQty(productId, delta) {
-  const item    = cart.find(c => c.id === productId);
+  const item = cart.find((c) => c.id === productId);
   if (!item) return;
-
-  const baseId  = productId.replace(/-(small|medium|large)$/, "");
-  const product = products.find(p => p.id === baseId);
-
+  const baseId = productId.replace(/-(small|medium|large)$/, "");
+  const product = products.find((p) => p.id === baseId);
   item.qty += delta;
   if (item.qty <= 0) {
-    cart = cart.filter(c => c.id !== productId);
+    cart = cart.filter((c) => c.id !== productId);
   } else if (product && item.qty > product.stock) {
     item.qty = product.stock;
   }
-
   renderCart();
 }
 
 function pickSize(productId, sizeKey) {
-  const product = products.find(p => p.id === productId);
-  const size    = SIZE_OPTIONS.find(s => s.key === sizeKey);
+  const product = products.find((p) => p.id === productId);
+  const size = SIZE_OPTIONS.find((s) => s.key === sizeKey);
   if (!product || !size) return;
-
   const finalPrice = parseFloat((product.price * size.multiplier).toFixed(2));
-  const cartId     = `${productId}-${sizeKey}`;
-  const cartName   = `${product.name} (${size.label})`;
-
-  const existing = cart.find(c => c.id === cartId);
+  const cartId = `${productId}-${sizeKey}`;
+  const cartName = `${product.name} (${size.label})`;
+  const existing = cart.find((c) => c.id === cartId);
   if (existing) {
     if (existing.qty < product.stock) existing.qty++;
   } else {
     cart.push({ id: cartId, name: cartName, price: finalPrice, qty: 1 });
   }
-
   closeSizePicker();
   renderCart();
 }
 
 function clearCart() {
   cart = [];
-  document.getElementById("cashInput").value    = "";
-  document.getElementById("change").textContent = "₱0.00";
-  if(document.getElementById("discountToggle")) document.getElementById("discountToggle").checked = false;
-  if(document.getElementById("paymentMethod")) document.getElementById("paymentMethod").value = "Cash";
-  document.getElementById("payBtn").disabled    = true;
+  const cashInput = document.getElementById("cashInput");
+  if (cashInput) cashInput.value = "";
+  const changeEl = document.getElementById("change");
+  if (changeEl) changeEl.textContent = "₱0.00";
   renderCart();
   updateTotals();
-}
-
-function printReceipt() {
-  window.print();
 }
 
 function confirmLogout() {
   window.location.href = "login.html";
 }
-
+function printReceipt() {
+  window.print();
+}
 
 // ============================================================
 // UI / RENDERING
 // ============================================================
 
 function renderProducts() {
-  const grid     = document.getElementById("productGrid");
-  const filtered = products.filter(p => {
-    const matchCat    = activeCategory === "all" || p.category === activeCategory;
-    const matchSearch = p.name.toLowerCase().includes(searchQuery) ||
-                        p.id.toLowerCase().includes(searchQuery);
+  const grid = document.getElementById("productGrid");
+  const filtered = products.filter((p) => {
+    const matchCat = activeCategory === "all" || p.category === activeCategory;
+    const matchSearch =
+      p.name.toLowerCase().includes(searchQuery) ||
+      p.id.toLowerCase().includes(searchQuery);
     return matchCat && matchSearch;
   });
 
@@ -146,17 +186,13 @@ function renderProducts() {
     return;
   }
 
-  grid.innerHTML = filtered.map(p => `
+  grid.innerHTML = filtered
+    .map(
+      (p) => `
     <div class="product-card ${p.stock === 0 ? "out-of-stock" : ""}"
-         onclick="${p.stock > 0
-           ? (p.category === "beverages" ? `openSizePicker('${p.id}')` : `addToCart('${p.id}')`)
-           : ""}">
+         onclick="${p.stock > 0 ? (p.category === "beverages" ? `openSizePicker('${p.id}')` : `addToCart('${p.id}')`) : ""}">
       <div class="product-img-wrap">
-        ${p.img
-          ? `<img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-             <div class="product-img-placeholder" style="display:none;"><i data-lucide="image-off" style="width:32px;height:32px;opacity:0.25;"></i></div>`
-          : `<div class="product-img-placeholder"><i data-lucide="image-off" style="width:32px;height:32px;opacity:0.25;"></i></div>`
-        }
+        <img src="${p.img}" alt="${p.name}" loading="lazy" />
         <span class="product-badge">${capitalize(p.category)}</span>
       </div>
       <div class="product-info">
@@ -164,32 +200,48 @@ function renderProducts() {
         <div class="product-id">${p.id}</div>
       </div>
       <div class="product-footer">
-        <span class="product-price">${formatPrice(p.price)}</span>
+        <span class="product-price">${fmt(p.price)}</span>
         <span class="product-stock">${p.stock === 0 ? "Out of Stock" : "Stock " + p.stock}</span>
       </div>
     </div>
-  `).join("");
-
+  `,
+    )
+    .join("");
 
   lucide.createIcons();
 }
 
 function renderCart() {
   const container = document.getElementById("cartItems");
+  const emptyEl = document.getElementById("cartEmpty");
+  const countBadge = document.getElementById("cartCountBadge");
+
+  const totalItems = getTotalItemCount();
+  countBadge.textContent = totalItems + (totalItems === 1 ? " item" : " items");
 
   if (cart.length === 0) {
-    container.innerHTML = `<div class="cart-empty">No items yet.<br>Click a product to add.</div>`;
+    container.innerHTML = `
+      <div class="cart-empty-state" id="cartEmpty">
+        <svg class="empty-box-icon" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M40 10L68 24V56L40 70L12 56V24L40 10Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M40 10V70" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/>
+          <path d="M12 24L40 38L68 24" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M26 17L54 31" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+        </svg>
+        <span>Cart is empty</span>
+      </div>`;
     updateTotals();
-    updateClearButton();
     return;
   }
 
-  container.innerHTML = cart.map(item => `
+  container.innerHTML = cart
+    .map(
+      (item) => `
     <div class="cart-item" id="ci-${item.id}">
       <div class="cart-item-top">
         <div>
           <div class="cart-item-name">${item.name}</div>
-          <div class="cart-item-unit">${formatPrice(item.price)}</div>
+          <div class="cart-item-unit">${fmt(item.price)}</div>
         </div>
         <button class="cart-delete" onclick="removeFromCart('${item.id}')">
           <i data-lucide="trash-2" stroke="currentColor" style="width:14px;height:14px;"></i>
@@ -201,47 +253,73 @@ function renderCart() {
           <span class="qty-value">${item.qty}</span>
           <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
         </div>
-        <div class="cart-item-subtotal">${formatPrice(item.price * item.qty)}</div>
+        <div class="cart-item-subtotal">${fmt(item.price * item.qty)}</div>
       </div>
     </div>
-  `).join("");
+  `,
+    )
+    .join("");
 
   lucide.createIcons();
   updateTotals();
-  updateClearButton();
-}
-
-function updateClearButton() {
-  document.getElementById("clearCartBtn").style.display = cart.length === 0 ? "none" : "flex";
 }
 
 function updateTotals() {
-  const subtotalVal = getSubtotal();
-  const taxVal      = subtotalVal * TAX_RATE;
-  let totalVal    = subtotalVal + taxVal;
-  let discountVal = 0;
+  const sub = getSubtotal();
+  const discount = getDiscountAmount(sub);
+  const tax = getTax();
+  const total = getTotal();
+  const d = DISCOUNTS[activeDiscount];
 
-  if (document.getElementById("discountToggle") && document.getElementById("discountToggle").checked) {
-      discountVal = totalVal * 0.2;
-      totalVal = totalVal - discountVal;
+  document.getElementById("subtotal").textContent = fmtShort(sub);
+  document.getElementById("tax").textContent = fmtShort(tax);
+  document.getElementById("total").textContent = fmtShort(total);
+
+  // Discount row
+  const discountRow = document.getElementById("discountRow");
+  const discountLabel = document.getElementById("discountLabel");
+  const discountAmount = document.getElementById("discountAmount");
+  const discountApplied = document.getElementById("discountApplied");
+  const discountAppliedText = document.getElementById("discountAppliedText");
+
+  if (activeDiscount !== "none") {
+    discountRow.style.display = "";
+    discountLabel.textContent = d.label;
+    discountLabel.style.color = d.color;
+    discountAmount.textContent = "-" + fmtShort(discount);
+    discountAmount.style.color = d.color;
+
+    discountApplied.style.display = "";
+    discountApplied.style.color = d.color;
+    discountAppliedText.textContent = `${d.label} applied — saving ${fmtShort(discount)}`;
+  } else {
+    discountRow.style.display = "none";
+    discountApplied.style.display = "none";
   }
 
-  document.getElementById("subtotal").textContent = formatPrice(subtotalVal);
-  document.getElementById("tax").textContent      = formatPrice(taxVal);
-  document.getElementById("total").textContent    = formatPrice(totalVal);
-
-
-  updateChange(totalVal);
+  updateChange();
 }
 
-function updateChange(totalVal) {
-  const cash   = parseFloat(document.getElementById("cashInput").value) || 0;
-  const change = cash - (totalVal !== undefined ? totalVal : getTotal());
-  document.getElementById("change").textContent = formatPrice(Math.max(0, change));
+function updateChange() {
+  const cashInput = document.getElementById("cashInput");
+  const changeEl = document.getElementById("change");
+  const payBtn = document.getElementById("payBtn");
 
-  document.getElementById("payBtn").disabled = !(cart.length > 0 && cash >= getTotal() && getTotal() > 0);
+  if (activePayment === "cash") {
+    const cash = parseFloat(cashInput?.value) || 0;
+    const change = cash - getTotal();
+    if (changeEl) changeEl.textContent = fmt(Math.max(0, change));
+    if (payBtn)
+      payBtn.disabled = !(
+        cart.length > 0 &&
+        cash >= getTotal() &&
+        getTotal() > 0
+      );
+  } else {
+    // GCash — no cash input needed
+    if (payBtn) payBtn.disabled = !(cart.length > 0 && getTotal() > 0);
+  }
 }
-
 
 // ============================================================
 // MODALS
@@ -250,21 +328,19 @@ function updateChange(totalVal) {
 function openModal(id) {
   document.getElementById(id).style.display = "flex";
 }
-
 function closeModal(id) {
   document.getElementById(id).style.display = "none";
 }
 
 function openSizePicker(productId) {
-  const product = products.find(p => p.id === productId);
+  const product = products.find((p) => p.id === productId);
   if (!product) return;
-
   const overlay = document.getElementById("sizeModal");
-  overlay.querySelector(".size-modal-thumb").src            = product.img;
+  overlay.querySelector(".size-modal-thumb").src = product.img;
   overlay.querySelector(".size-modal-title h4").textContent = product.name;
-
-  overlay.querySelector(".size-options").innerHTML = SIZE_OPTIONS.map(s => {
-    const price    = product.price * s.multiplier;
+  const optionsEl = overlay.querySelector(".size-options");
+  optionsEl.innerHTML = SIZE_OPTIONS.map((s) => {
+    const price = product.price * s.multiplier;
     const showOrig = s.multiplier > 1;
     return `
       <div class="size-option" onclick="pickSize('${productId}', '${s.key}')">
@@ -274,13 +350,11 @@ function openSizePicker(productId) {
           <div class="size-sub">${s.sub}</div>
         </div>
         <div class="size-price-wrap">
-          <div class="size-price-main">${formatPrice(price)}</div>
-          ${showOrig ? `<div class="size-price-orig">${formatPrice(product.price)}</div>` : ""}
+          <div class="size-price-main">${fmt(price)}</div>
+          ${showOrig ? `<div class="size-price-orig">${fmt(product.price)}</div>` : ""}
         </div>
-      </div>
-    `;
+      </div>`;
   }).join("");
-
   overlay.classList.add("show");
 }
 
@@ -288,56 +362,45 @@ function closeSizePicker() {
   document.getElementById("sizeModal").classList.remove("show");
 }
 
-
 // ============================================================
 // EVENT LISTENERS
 // ============================================================
 
-document.getElementById("cashInput").addEventListener("input", () => updateChange());
+// Cash input
+document
+  .getElementById("cashInput")
+  ?.addEventListener("input", () => updateChange());
 
-document.getElementById("discountToggle").addEventListener("change", () => updateTotals());
-
-document.getElementById("paymentMethod").addEventListener("change", (e) => {
-    const isGCash = e.target.value === "GCash";
-    const cashInput = document.getElementById("cashInput");
-    if (isGCash) {
-        cashInput.value = getTotal().toFixed(2);
-        cashInput.readOnly = true;
-    } else {
-        cashInput.value = "";
-        cashInput.readOnly = false;
-    }
-    updateChange();
-});
-
+// Pay button
 document.getElementById("payBtn").addEventListener("click", () => {
-  const cash      = parseFloat(document.getElementById("cashInput").value) || 0;
-  const total     = getTotal();
-  const itemCount = cart.reduce((s, i) => s + i.qty, 0);
+  const cash =
+    activePayment === "cash"
+      ? parseFloat(document.getElementById("cashInput").value) || 0
+      : getTotal();
+  const total = getTotal();
+  const change = activePayment === "cash" ? cash - total : 0;
+  const itemCount = getTotalItemCount();
 
-  document.getElementById("modalItems").innerHTML = cart.map(item => `
+  document.getElementById("modalItems").innerHTML = cart
+    .map(
+      (item) => `
     <div class="modal-item-row">
       <div class="modal-item-left">
-        <span class="modal-item-name">${item.name}</span>
-        <span class="modal-item-qty" style="font-size:11px;opacity:0.5;margin-top:2px;">${item.qty}x</span>
+        <span>${item.name}</span>
+        <span style="font-size:11px;opacity:0.5;margin-top:2px;">${item.qty}x</span>
       </div>
-      <span class="modal-item-price orange">${formatPrice(item.price * item.qty)}</span>
+      <span class="modal-item-price orange">${fmt(item.price * item.qty)}</span>
     </div>
-  `).join("");
+  `,
+    )
+    .join("");
 
-  document.getElementById("modalTotal").textContent     = formatPrice(total);
+  document.getElementById("modalTotal").textContent = fmt(total);
   document.getElementById("modalItemCount").textContent = itemCount;
-  
-  const paymentMethod = document.getElementById("paymentMethod").value;
-  const isDiscounted = document.getElementById("discountToggle").checked;
-  const discountAmount = isDiscounted ? ((getSubtotal() + (getSubtotal() * TAX_RATE)) * 0.2) : 0;
-  
-  document.getElementById("modalPaymentMode").textContent = paymentMethod;
-  document.getElementById("modalDiscountAmount").textContent = formatPrice(discountAmount);
-  
-  document.getElementById("modalCash").textContent      = formatPrice(cash);
-  document.getElementById("modalChange").textContent    = formatPrice(cash - total);
-
+  document.getElementById("modalCash").textContent =
+    activePayment === "cash" ? fmt(cash) : "GCash";
+  document.getElementById("modalChange").textContent =
+    activePayment === "cash" ? fmt(change) : "N/A";
   document.getElementById("confirmModal").classList.add("show");
 });
 
@@ -346,48 +409,59 @@ document.getElementById("modalCancel").addEventListener("click", () => {
 });
 
 document.getElementById("modalConfirm").addEventListener("click", () => {
-  const cash  = parseFloat(document.getElementById("cashInput").value) || 0;
   const total = getTotal();
-  const paymentMethod = document.getElementById("paymentMethod").value;
-  const discountAmount = document.getElementById("discountToggle").checked ? ((getSubtotal() + (getSubtotal() * TAX_RATE)) * 0.2) : 0;
+  const cash =
+    activePayment === "cash"
+      ? parseFloat(document.getElementById("cashInput").value) || 0
+      : total;
 
-  //send the cart to the backend to record the transaction and update inventory
+  //packages cart data and passes to AJAX service to complete transaction
   posAjax.checkout(
     cash,
     total,
     cart,
-    paymentMethod,
-    discountAmount,
     function (result) {
-      if (result.startsWith("Success")) {
-        //show the receipt with the transaction ID returned from the server
-        const transactionID = result.split(":")[1];
-        document.getElementById("receiptId").textContent        = "Receipt RCP-" + transactionID;
-        document.getElementById("receiptTotal").textContent     = "Total: " + formatPrice(total);
+      if (result.startsWith("Success:")) {
+        const transID = result.split(":")[1];
+        const receiptId = generateReceiptId() + "-" + transID; // Attach DB ID to receipt
+
+        document.getElementById("receiptId").textContent =
+          "Receipt " + receiptId;
+        document.getElementById("receiptTotal").textContent =
+          "Total: " + fmt(total);
         document.getElementById("receiptSection").style.display = "flex";
 
-        //clear the cart after successful checkout
         cart = [];
-        document.getElementById("cashInput").value = "";
+        const cashInput = document.getElementById("cashInput");
+        if (cashInput) cashInput.value = "";
         document.getElementById("confirmModal").classList.remove("show");
         renderCart();
-        lucide.createIcons();
-        
-        // RE-LOAD PRODUCTS FROM DB to update the stock labels in the grid immediately
-        loadProductsFromDB();
+
+        // to update the live stock numbers on the order grid
+        posAjax.getProducts(
+          function (data) {
+            products = data || [];
+            renderProducts();
+            lucide.createIcons();
+          },
+          function (err) {
+            console.error(
+              "Failed to refresh stock numbers post-checkout.",
+              err,
+            );
+          },
+        );
       } else {
         alert("Checkout Failed: " + result);
-        document.getElementById("confirmModal").classList.remove("show");
       }
     },
-    function () {
-      alert("Network error during checkout. Please try again.");
-      document.getElementById("confirmModal").classList.remove("show");
-    }
+    function (err) {
+      alert("Network error during checkout.");
+    },
   );
 });
 
-document.getElementById("clearCartBtn").addEventListener("click", () => {
+document.getElementById("clearCartBtn")?.addEventListener("click", () => {
   if (cart.length === 0) return;
   document.getElementById("clearCartModal").classList.add("show");
 });
@@ -401,33 +475,86 @@ document.getElementById("clearCartConfirm").addEventListener("click", () => {
   document.getElementById("clearCartModal").classList.remove("show");
 });
 
-document.querySelectorAll(".filter-btn").forEach(btn => {
+// Filter buttons
+document.querySelectorAll(".filter-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    document
+      .querySelectorAll(".filter-btn")
+      .forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
     activeCategory = btn.dataset.cat;
     renderProducts();
   });
 });
 
-document.getElementById("searchInput").addEventListener("input", e => {
+// Search
+document.getElementById("searchInput").addEventListener("input", (e) => {
   searchQuery = e.target.value.toLowerCase().trim();
   renderProducts();
 });
 
-window.onclick = function (e) {
-  document.querySelectorAll(".modal-overlay, .size-modal-overlay").forEach(modal => {
-    if (e.target === modal) modal.classList.remove("show");
+// Discount buttons
+document.querySelectorAll(".discount-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document
+      .querySelectorAll(".discount-btn")
+      .forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeDiscount = btn.dataset.discount;
+
+    // Update active button color based on discount type
+    const d = DISCOUNTS[activeDiscount];
+    document.querySelectorAll(".discount-btn").forEach((b) => {
+      b.style.borderColor = "";
+      b.style.color = "";
+      b.style.background = "";
+    });
+    if (activeDiscount !== "none") {
+      btn.style.borderColor = d.color;
+      btn.style.color = d.color;
+      btn.style.background = d.color + "18";
+    }
+
+    updateTotals();
+    lucide.createIcons();
   });
+});
+
+// Payment method buttons
+document.querySelectorAll(".payment-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document
+      .querySelectorAll(".payment-btn")
+      .forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    activePayment = btn.dataset.method;
+
+    const cashSection = document.getElementById("cashSection");
+    const gcashInfo = document.getElementById("gcashInfo");
+
+    if (activePayment === "cash") {
+      cashSection.style.display = "";
+      gcashInfo.style.display = "none";
+    } else {
+      cashSection.style.display = "none";
+      gcashInfo.style.display = "";
+    }
+
+    updateChange();
+    lucide.createIcons();
+  });
+});
+
+// Close modals on outside click
+window.onclick = function (e) {
+  document
+    .querySelectorAll(".modal-overlay, .size-modal-overlay")
+    .forEach((modal) => {
+      if (e.target === modal) modal.classList.remove("show");
+    });
 };
 
-
-// ============================================================
-// INIT
-// ============================================================
-
-// separate the load logic into a function so we can refresh after checkout
-function loadProductsFromDB() {
+$(document).ready(function () {
   posAjax.getProducts(
     function (data) {
       if (data && data.length > 0) {
@@ -439,15 +566,11 @@ function loadProductsFromDB() {
       renderCart();
     },
     function () {
+      // fallback or error handling
       products = [];
       renderProducts();
       renderCart();
       console.log("Failed to load products from database.");
-    }
+    },
   );
-}
-
-// load products from the database on page load
-$(document).ready(function () {
-  loadProductsFromDB();
 });

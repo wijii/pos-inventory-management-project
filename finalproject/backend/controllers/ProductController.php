@@ -190,9 +190,11 @@ if ($action == 'getCategoriesDropdown') {
 
     $skuID = intval($_POST['skuID']);
 
-    $success = deleteProductSKU($conn, $skuID);
+    $result = deleteProductSKU($conn, $skuID);
 
-    if ($success) {
+    if ($result === "ErrorStockExists") {
+        echo "Error: Cannot delete product while stock exists. Please clear inventory first.";
+    } else if ($result === true) {
         echo "Success";
     } else {
         echo "Failed: " . mysqli_error($conn);
