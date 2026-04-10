@@ -78,8 +78,20 @@
                         <div class="cart-summary">
                             <div>Subtotal: <strong id="subtotal">&#8369;0.00</strong></div>
                             <div>Tax (5%): <strong id="tax">&#8369;0.00</strong></div>
-                            <div class="total-line">Total: <strong id="total">&#8369;0.00</strong></div>
-                            <div>Payment: <strong>Cash</strong></div>
+                            <div class="summary-line">Total: <strong id="total">&#8369;0.00</strong></div>
+                            
+                            <div class="pos-options">
+                                <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:10px;cursor:pointer;">
+                                    <input type="checkbox" id="discountToggle"> Apply 20% Senior/PWD Discount
+                                </label>
+                                <div style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:10px;">
+                                    Payment Method:
+                                    <select id="paymentMethod" style="padding:4px;border-radius:4px;background:var(--border);color:white;border:none;">
+                                        <option value="Cash">Cash</option>
+                                        <option value="GCash">GCash</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="cash-input-wrap">
@@ -121,6 +133,8 @@
 
             <div class="modal-summary">
                 <div>Items: <span class="orange" id="modalItemCount">0</span></div>
+                <div>Payment Method: <span id="modalPaymentMode" class="orange">Cash</span></div>
+                <div>Discount: <span id="modalDiscountAmount">₱0.00</span></div>
                 <div>Cash Received: <span id="modalCash">₱0.00</span></div>
                 <div>Change: <span id="modalChange">₱0.00</span></div>
             </div>

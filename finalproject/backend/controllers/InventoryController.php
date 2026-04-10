@@ -83,7 +83,11 @@ if ($action == 'getInventoryJSON') {
         exit;
     }
 
-    $logs = getInventoryLogs($conn);
+    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+    $dateFrom = isset($_GET['dateFrom']) ? trim($_GET['dateFrom']) : '';
+    $dateTo = isset($_GET['dateTo']) ? trim($_GET['dateTo']) : '';
+
+    $logs = getInventoryLogs($conn, $search, $dateFrom, $dateTo);
     header('Content-Type: application/json');
     echo json_encode($logs);
 

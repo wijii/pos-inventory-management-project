@@ -81,9 +81,9 @@
 
     <!-- SEARCH + FILTER TABS -->
     <div class="inventory-header">
-      <div class="search-wrap">
+      <div class="search-wrap" style="flex:1;">
         <i data-lucide="search" class="search-icon"></i>
-        <input type="text" id="searchInput" placeholder="Search inventory items..." />
+        <input type="text" id="searchInput" placeholder="Search inventory items or SKU..." />
       </div>
 
       <div class="filter-tabs">
@@ -91,6 +91,13 @@
         <button id="tabLow" class="filter-tab"        onclick="setFilter('low')">Low Stock</button>
         <button id="tabIn"  class="filter-tab"        onclick="setFilter('in')">In Stock</button>
         <button id="tabLogs" class="filter-tab"       onclick="setFilter('logs')">Audit Logs</button>
+      </div>
+
+      <div id="dateFilterWrap" style="display:none; align-items:center; gap:8px; width: 100%; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px;">
+          <span style="font-size:12px;opacity:0.6;">Filter Logs by Date:</span>
+          <input type="date" id="dateFrom" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card-bg);color:white;font-size:13px;outline:none;">
+          <span style="font-size:12px;opacity:0.6;">to</span>
+          <input type="date" id="dateTo" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card-bg);color:white;font-size:13px;outline:none;">
       </div>
     </div>
 
@@ -135,6 +142,20 @@
 <script src="../controllers/inventory.js"></script>
 <script>lucide.createIcons();</script>
 
+  <script>
+    const authOverlay = document.getElementById('page-overlay');
+    if (authOverlay) authOverlay.style.display = 'block';
+    if (typeof authAjax !== 'undefined') {
+        authAjax.getSession(function (data) {
+            if (data.role !== 'Manager' && data.role !== 'Admin') {
+                alert('Access Denied. Manager only.');
+                window.location.href = 'login.html';
+            } else if (authOverlay) authOverlay.style.display = 'none';
+        }, function () {
+            window.location.href = 'login.html';
+        });
+    }
+  </script>
 </body>
 </html>
 

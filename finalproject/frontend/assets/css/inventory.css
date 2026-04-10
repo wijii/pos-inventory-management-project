@@ -142,6 +142,7 @@ body {
 /* ── SEARCH + FILTER ROW ────────────────────────── */
 .inventory-header {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 12px;
     margin: 20px 0 16px;

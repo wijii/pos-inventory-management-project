@@ -40,14 +40,14 @@ function getSKUIDFromFrontendID($conn, $frontendID) {
 }
 
 // Complete the checkout process
-function processCheckout($conn, $userID, $amountPaid, $totalAmountDue, $cartItems) {
+function processCheckout($conn, $userID, $amountPaid, $totalAmountDue, $cartItems, $paymentMethod = 'Cash', $discountAmount = 0) {
     mysqli_begin_transaction($conn);
 
     try {
         //insert into transactions table
-        $sqlTrans = "INSERT INTO transactions (UserID, AmountPaid, TransactionDate, TotalAmountDue) VALUES (?, ?, NOW(), ?)";
+        $sqlTrans = "INSERT INTO transactions (UserID, AmountPaid, TransactionDate, TotalAmountDue, PaymentMethod, DiscountAmount) VALUES (?, ?, NOW(), ?, ?, ?)";
         $stmtTrans = mysqli_prepare($conn, $sqlTrans);
-        mysqli_stmt_bind_param($stmtTrans, "idd", $userID, $amountPaid, $totalAmountDue);
+        mysqli_stmt_bind_param($stmtTrans, "iddsd", $userID, $amountPaid, $totalAmountDue, $paymentMethod, $discountAmount);
         
         if (!mysqli_stmt_execute($stmtTrans)) {
             throw new Exception("Failed to insert transaction.");

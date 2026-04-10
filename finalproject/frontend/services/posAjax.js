@@ -1,5 +1,5 @@
 const posAjax = {
-  checkout: function (cash, total, cart, onSuccess, onError) {
+  checkout: function (cash, total, cart, paymentMethod, discountAmount, onSuccess, onError) {
     $.ajax({
       url: "../../backend/routes.php?action=checkout",
       type: "POST",
@@ -7,6 +7,8 @@ const posAjax = {
         amountPaid: cash,
         totalAmountDue: total,
         cartItems: cart,
+        paymentMethod: paymentMethod,
+        discountAmount: discountAmount
       },
       success: function (response) {
         onSuccess(response);

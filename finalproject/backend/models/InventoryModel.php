@@ -140,8 +140,39 @@ function restockInventory($conn, $skuCode, $addQty, $userID, $note)
 
 
 //returns the full audit trail from inventory_logs, newest first
-function getInventoryLogs($conn)
+function getInventoryLogs($conn, $search = '', $dateFrom = '', $dateTo = '')
 {
+    $whereClauses = [];
+    $params = [];
+    $types = '';
+
+    if (!empty($search)) {
+        $whereClauses[] = "(s.SKUCode LIKE ? OR p.ProductName LIKE ?)";
+        $searchParam = "%" . $search . "%";
+        $params[] = $searchParam;
+        $params[] = $searchParam;
+        $types .= 'ss';
+    }
+
+    if (!empty($dateFrom)) {
+        // filter from start of day
+        $whereClauses[] = "l.LogTime >= ?";
+        $params[] = $dateFrom . " 00:00:00";
+        $types .= 's';
+    }
+
+    if (!empty($dateTo)) {
+        // filter to end of day
+        $whereClauses[] = "l.LogTime <= ?";
+        $params[] = $dateTo . " 23:59:59";
+        $types .= 's';
+    }
+
+    $whereSql = '';
+    if (count($whereClauses) > 0) {
+        $whereSql = "WHERE " . implode(" AND ", $whereClauses);
+    }
+
     $sql = "SELECT
                 l.LogID,
                 l.ChangeType,
@@ -157,10 +188,19 @@ function getInventoryLogs($conn)
             INNER JOIN productskus s ON l.SKUID    = s.SKUID
             INNER JOIN products    p ON s.ProductID = p.ProductID
             LEFT  JOIN users       u ON l.UserID    = u.UserID
+            $whereSql
             ORDER BY l.LogTime DESC
             LIMIT 200";
 
-    $result = mysqli_query($conn, $sql);
+    $stmt = mysqli_prepare($conn, $sql);
+    
+    if (count($params) > 0) {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    
     $logs = array();
 
     if ($result) {

@@ -153,7 +153,12 @@ function renderLogsTable() {
   tbody.innerHTML =
     "<tr><td colspan='5' style='text-align:center;opacity:0.4;'>Loading audit logs...</td></tr>";
 
+  const search = document.getElementById("searchInput").value;
+  const dateFrom = document.getElementById("dateFrom").value;
+  const dateTo = document.getElementById("dateTo").value;
+
   inventoryAjax.getLogs(
+    search, dateFrom, dateTo,
     function (logs) {
       if (!logs || logs.length === 0) {
         tbody.innerHTML =
@@ -270,8 +275,12 @@ function setFilter(filter) {
     document.getElementById("tabLow").classList.add("active-low");
   if (filter === "in")
     document.getElementById("tabIn").classList.add("active-in");
-  if (filter === "logs")
+  if (filter === "logs") {
     document.getElementById("tabLogs").classList.add("active");
+    document.getElementById("dateFilterWrap").style.display = "flex";
+  } else {
+    document.getElementById("dateFilterWrap").style.display = "none";
+  }
 
   if (filter === "logs") {
     resetTableHeaders();
@@ -345,7 +354,18 @@ document.getElementById("searchInput")?.addEventListener("input", () => {
   if (activeFilter !== "logs") {
     renderTable(getFilteredData());
     if (window.lucide) lucide.createIcons();
+  } else {
+    // for logs, we trigger a backend refetch
+    // optionally debounce this if it becomes too slow
+    renderLogsTable();
   }
+});
+
+document.getElementById("dateFrom")?.addEventListener("change", () => {
+    if (activeFilter === "logs") renderLogsTable();
+});
+document.getElementById("dateTo")?.addEventListener("change", () => {
+    if (activeFilter === "logs") renderLogsTable();
 });
 
 $(document).ready(function () {

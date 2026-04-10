@@ -51,8 +51,8 @@ function loginUser($conn, $username, $password)
 
         $row = mysqli_fetch_assoc($result);
 
-        //check if the password the user typed matches the one in the database
-        if ($password == $row['Password']) {
+        //check if the password the user typed matches the hashed one in the database
+        if (password_verify($password, $row['Password'])) {
 
             //login success - return all the user info the controller needs
             $userInfo = array();

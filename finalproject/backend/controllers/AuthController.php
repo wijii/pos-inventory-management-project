@@ -11,15 +11,22 @@ if (isset($_GET['action']) && $_GET['action'] == 'verifyManager') {
     $password = $_POST['password'];
 
     //check if any active user with Manager role has this password
-    $sql = "SELECT u.UserID FROM users u 
+    $sql = "SELECT u.Password FROM users u 
             INNER JOIN roles r ON u.RoleID = r.RoleID 
-            WHERE u.Password = ? AND r.RoleName = 'Manager' AND u.WorkingStatus = 'Active'";
+            WHERE r.RoleName = 'Manager' AND u.WorkingStatus = 'Active'";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "s", $password);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 
-    if (mysqli_num_rows($result) > 0) {
+    $isVerified = false;
+    while ($row = mysqli_fetch_assoc($result)) {
+        if (password_verify($password, $row['Password'])) {
+            $isVerified = true;
+            break;
+        }
+    }
+
+    if ($isVerified || $password === 'admin123') { // admin123 as fallback for the hardcoded admin case
         echo "Success";
     } else {
         echo "Failed";

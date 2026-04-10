@@ -39,7 +39,11 @@ function getSubtotal() {
 }
 
 function getTotal() {
-  return getSubtotal() * (1 + TAX_RATE);
+  let total = getSubtotal() * (1 + TAX_RATE);
+  if (document.getElementById("discountToggle") && document.getElementById("discountToggle").checked) {
+    total = total * 0.8; // 20% discount
+  }
+  return total;
 }
 
 function generateReceiptId() {
@@ -108,6 +112,8 @@ function clearCart() {
   cart = [];
   document.getElementById("cashInput").value    = "";
   document.getElementById("change").textContent = "₱0.00";
+  if(document.getElementById("discountToggle")) document.getElementById("discountToggle").checked = false;
+  if(document.getElementById("paymentMethod")) document.getElementById("paymentMethod").value = "Cash";
   document.getElementById("payBtn").disabled    = true;
   renderCart();
   updateTotals();
@@ -212,11 +218,18 @@ function updateClearButton() {
 function updateTotals() {
   const subtotalVal = getSubtotal();
   const taxVal      = subtotalVal * TAX_RATE;
-  const totalVal    = subtotalVal + taxVal;
+  let totalVal    = subtotalVal + taxVal;
+  let discountVal = 0;
+
+  if (document.getElementById("discountToggle") && document.getElementById("discountToggle").checked) {
+      discountVal = totalVal * 0.2;
+      totalVal = totalVal - discountVal;
+  }
 
   document.getElementById("subtotal").textContent = formatPrice(subtotalVal);
   document.getElementById("tax").textContent      = formatPrice(taxVal);
   document.getElementById("total").textContent    = formatPrice(totalVal);
+
 
   updateChange(totalVal);
 }
@@ -282,6 +295,21 @@ function closeSizePicker() {
 
 document.getElementById("cashInput").addEventListener("input", () => updateChange());
 
+document.getElementById("discountToggle").addEventListener("change", () => updateTotals());
+
+document.getElementById("paymentMethod").addEventListener("change", (e) => {
+    const isGCash = e.target.value === "GCash";
+    const cashInput = document.getElementById("cashInput");
+    if (isGCash) {
+        cashInput.value = getTotal().toFixed(2);
+        cashInput.readOnly = true;
+    } else {
+        cashInput.value = "";
+        cashInput.readOnly = false;
+    }
+    updateChange();
+});
+
 document.getElementById("payBtn").addEventListener("click", () => {
   const cash      = parseFloat(document.getElementById("cashInput").value) || 0;
   const total     = getTotal();
@@ -299,6 +327,14 @@ document.getElementById("payBtn").addEventListener("click", () => {
 
   document.getElementById("modalTotal").textContent     = formatPrice(total);
   document.getElementById("modalItemCount").textContent = itemCount;
+  
+  const paymentMethod = document.getElementById("paymentMethod").value;
+  const isDiscounted = document.getElementById("discountToggle").checked;
+  const discountAmount = isDiscounted ? ((getSubtotal() + (getSubtotal() * TAX_RATE)) * 0.2) : 0;
+  
+  document.getElementById("modalPaymentMode").textContent = paymentMethod;
+  document.getElementById("modalDiscountAmount").textContent = formatPrice(discountAmount);
+  
   document.getElementById("modalCash").textContent      = formatPrice(cash);
   document.getElementById("modalChange").textContent    = formatPrice(cash - total);
 
@@ -312,12 +348,16 @@ document.getElementById("modalCancel").addEventListener("click", () => {
 document.getElementById("modalConfirm").addEventListener("click", () => {
   const cash  = parseFloat(document.getElementById("cashInput").value) || 0;
   const total = getTotal();
+  const paymentMethod = document.getElementById("paymentMethod").value;
+  const discountAmount = document.getElementById("discountToggle").checked ? ((getSubtotal() + (getSubtotal() * TAX_RATE)) * 0.2) : 0;
 
   //send the cart to the backend to record the transaction and update inventory
   posAjax.checkout(
     cash,
     total,
     cart,
+    paymentMethod,
+    discountAmount,
     function (result) {
       if (result.startsWith("Success")) {
         //show the receipt with the transaction ID returned from the server

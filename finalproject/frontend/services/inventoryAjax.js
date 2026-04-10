@@ -56,9 +56,9 @@ const inventoryAjax = {
   },
 
   //fetches the full inventory audit trail
-  getLogs: function (onSuccess, onError) {
+  getLogs: function (search, dateFrom, dateTo, onSuccess, onError) {
     $.ajax({
-      url: "../../backend/routes.php?action=getInventoryLogs",
+      url: `../../backend/routes.php?action=getInventoryLogs&search=${encodeURIComponent(search || '')}&dateFrom=${encodeURIComponent(dateFrom || '')}&dateTo=${encodeURIComponent(dateTo || '')}`,
       type: "GET",
       dataType: "json",
       success: function (response) { onSuccess(response); },

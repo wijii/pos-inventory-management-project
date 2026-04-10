@@ -38,8 +38,17 @@ if ($action == 'checkout') {
         echo "Error: Cart is empty";
         exit;
     }
+    $paymentMethod = 'Cash';
+    if (isset($_POST['paymentMethod'])) {
+        $paymentMethod = $_POST['paymentMethod'];
+    }
 
-    $result = processCheckout($conn, $userID, $amountPaid, $totalAmountDue, $cartItems);
+    $discountAmount = 0;
+    if (isset($_POST['discountAmount'])) {
+        $discountAmount = floatval($_POST['discountAmount']);
+    }
+
+    $result = processCheckout($conn, $userID, $amountPaid, $totalAmountDue, $cartItems, $paymentMethod, $discountAmount);
 
     if ($result['success']) {
         echo "Success:" . $result['transactionID'];
