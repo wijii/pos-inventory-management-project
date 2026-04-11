@@ -1,7 +1,8 @@
 <?php
 
-//returns overall lifetime stats: total revenue, total transactions, avg ticket
-function getSalesLifetimeStats($conn) {
+//returns overall lifetime stats total revenue, total transactions, avg ticket
+function getSalesLifetimeStats($conn)
+{
     $sql = "SELECT
                 IFNULL(SUM(TotalAmountDue), 0) AS totalRevenue,
                 COUNT(TransactionID)            AS totalTransactions,
@@ -9,21 +10,22 @@ function getSalesLifetimeStats($conn) {
             FROM transactions";
 
     $result = mysqli_query($conn, $sql);
-    $row    = mysqli_fetch_assoc($result);
+    $row = mysqli_fetch_assoc($result);
 
     return array(
-        'totalRevenue'      => floatval($row['totalRevenue']),
+        'totalRevenue' => floatval($row['totalRevenue']),
         'totalTransactions' => intval($row['totalTransactions']),
-        'avgTicket'         => floatval($row['avgTicket']),
+        'avgTicket' => floatval($row['avgTicket']),
     );
 }
 
 
 //returns revenue + transaction count per point for the selected period
-//daily   -> last 14 days, one row per day
-//weekly  -> last 12 weeks, one row per week
-//monthly -> last 12 months, one row per month
-function getSalesChartData($conn, $period) {
+//daily   last 14 days, one row per day
+//weekly  last 12 weeks, one row per week
+//monthly last 12 months, one row per month
+function getSalesChartData($conn, $period)
+{
 
     if ($period === 'daily') {
 
@@ -49,7 +51,7 @@ function getSalesChartData($conn, $period) {
 
     } else {
 
-        //monthly: last 12 months
+        //monthly last 12 months
         $sql = "SELECT
                     DATE_FORMAT(TransactionDate, '%b %Y') AS label,
                     IFNULL(SUM(TotalAmountDue), 0)        AS revenue,
@@ -62,28 +64,29 @@ function getSalesChartData($conn, $period) {
 
     $result = mysqli_query($conn, $sql);
 
-    $labels      = array();
-    $revenue     = array();
-    $transCount  = array();
+    $labels = array();
+    $revenue = array();
+    $transCount = array();
 
     if ($result) {
         while ($row = mysqli_fetch_assoc($result)) {
-            $labels[]     = $row['label'];
-            $revenue[]    = floatval($row['revenue']);
+            $labels[] = $row['label'];
+            $revenue[] = floatval($row['revenue']);
             $transCount[] = intval($row['transCount']);
         }
     }
 
     return array(
-        'labels'       => $labels,
-        'revenue'      => $revenue,
+        'labels' => $labels,
+        'revenue' => $revenue,
         'transactions' => $transCount,
     );
 }
 
 
 //returns all products ranked by units sold and revenue (all-time)
-function getSalesProductBreakdown($conn) {
+function getSalesProductBreakdown($conn)
+{
 
     $sql = "SELECT
                 p.ProductName                    AS name,
@@ -95,14 +98,14 @@ function getSalesProductBreakdown($conn) {
             GROUP BY p.ProductID, p.ProductName
             ORDER BY revenue DESC";
 
-    $result   = mysqli_query($conn, $sql);
+    $result = mysqli_query($conn, $sql);
     $products = array();
 
     if ($result) {
         while ($row = mysqli_fetch_assoc($result)) {
             $products[] = array(
-                'name'    => $row['name'],
-                'sold'    => intval($row['sold']),
+                'name' => $row['name'],
+                'sold' => intval($row['sold']),
                 'revenue' => floatval($row['revenue']),
             );
         }
@@ -113,7 +116,8 @@ function getSalesProductBreakdown($conn) {
 
 
 //returns the transaction list (most recent first), with item count and cashier name
-function getSalesTransactionHistory($conn) {
+function getSalesTransactionHistory($conn)
+{
 
     $sql = "SELECT
                 t.TransactionID,
@@ -128,19 +132,19 @@ function getSalesTransactionHistory($conn) {
             GROUP BY t.TransactionID
             ORDER BY t.TransactionDate DESC";
 
-    $result      = mysqli_query($conn, $sql);
-    $history     = array();
+    $result = mysqli_query($conn, $sql);
+    $history = array();
 
     if ($result) {
         while ($row = mysqli_fetch_assoc($result)) {
             $history[] = array(
                 'transactionID' => intval($row['TransactionID']),
-                'total'         => floatval($row['TotalAmountDue']),
-                'amountPaid'    => floatval($row['AmountPaid']),
-                'date'          => date('M d, Y', strtotime($row['TransactionDate'])),
-                'time'          => date('h:i A',  strtotime($row['TransactionDate'])),
-                'cashier'       => $row['cashierName'] ? $row['cashierName'] : 'Admin',
-                'itemCount'     => intval($row['itemCount']),
+                'total' => floatval($row['TotalAmountDue']),
+                'amountPaid' => floatval($row['AmountPaid']),
+                'date' => date('M d, Y', strtotime($row['TransactionDate'])),
+                'time' => date('h:i A', strtotime($row['TransactionDate'])),
+                'cashier' => $row['cashierName'] ? $row['cashierName'] : 'Admin',
+                'itemCount' => intval($row['itemCount']),
             );
         }
     }
@@ -149,8 +153,9 @@ function getSalesTransactionHistory($conn) {
 }
 
 
-//returns the individual items for a single transaction (for the receipt modal)
-function getSalesReceiptItems($conn, $transactionID) {
+//returns the individual items for a single transaction 
+function getSalesReceiptItems($conn, $transactionID)
+{
 
     $sql = "SELECT
                 p.ProductName       AS name,
@@ -169,7 +174,7 @@ function getSalesReceiptItems($conn, $transactionID) {
     mysqli_stmt_execute($stmt);
 
     $result = mysqli_stmt_get_result($stmt);
-    $items  = array();
+    $items = array();
 
     while ($row = mysqli_fetch_assoc($result)) {
         $displayName = $row['name'];
@@ -178,9 +183,9 @@ function getSalesReceiptItems($conn, $transactionID) {
         }
 
         $items[] = array(
-            'name'     => $displayName,
-            'qty'      => intval($row['qty']),
-            'price'    => floatval($row['price']),
+            'name' => $displayName,
+            'qty' => intval($row['qty']),
+            'price' => floatval($row['price']),
             'subtotal' => floatval($row['subtotal']),
         );
     }

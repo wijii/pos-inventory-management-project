@@ -165,6 +165,22 @@ CREATE TABLE `users` (
   `WorkingStatus` enum('Active','Inactive') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
+CREATE TABLE IF NOT EXISTS `inventory_logs` (
+  `LogID`          INT          NOT NULL AUTO_INCREMENT,
+  `SKUID`          INT          NOT NULL,
+  `UserID`         INT          NULL,
+  `ChangeType`     VARCHAR(20)  NOT NULL COMMENT 'restock, adjustment, deduction',
+  `QuantityBefore` INT          NOT NULL DEFAULT 0,
+  `QuantityChange` INT          NOT NULL COMMENT 'positive = added, negative = deducted',
+  `QuantityAfter`  INT          NOT NULL DEFAULT 0,
+  `Note`           VARCHAR(255) NULL,
+  `LogTime`        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`LogID`),
+  FOREIGN KEY (`SKUID`)   REFERENCES `productskus` (`SKUID`),
+  FOREIGN KEY (`UserID`)  REFERENCES `users`       (`UserID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 --
 -- Indexes for dumped tables
 --

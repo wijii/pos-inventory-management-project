@@ -76,6 +76,14 @@ function updateInventoryStock($conn, $skuCode, $newStock, $userID)
     if (!mysqli_stmt_execute($stmtAction))
         return false;
 
+    // Restore availability status if stock is greater than 0
+    if ($newStock > 0) {
+        $sqlRestore = "UPDATE productskus SET AvailabilityStatus = 'Available' WHERE SKUID = ?";
+        $stmtRestore = mysqli_prepare($conn, $sqlRestore);
+        mysqli_stmt_bind_param($stmtRestore, "i", $skuID);
+        mysqli_stmt_execute($stmtRestore);
+    }
+
     // Write audit log only if there was a change
     if ($delta !== 0) {
         $note = $changeType === 'restock' ? 'Manual stock update' : 'Manual adjustment';
@@ -126,6 +134,14 @@ function restockInventory($conn, $skuCode, $addQty, $userID, $note)
         $stmtIns = mysqli_prepare($conn, $sqlIns);
         mysqli_stmt_bind_param($stmtIns, "ii", $newQty, $skuID);
         mysqli_stmt_execute($stmtIns);
+    }
+
+    // Restore availability status if stock is greater than 0
+    if ($newQty > 0) {
+        $sqlRestore = "UPDATE productskus SET AvailabilityStatus = 'Available' WHERE SKUID = ?";
+        $stmtRestore = mysqli_prepare($conn, $sqlRestore);
+        mysqli_stmt_bind_param($stmtRestore, "i", $skuID);
+        mysqli_stmt_execute($stmtRestore);
     }
 
     //write audit log row

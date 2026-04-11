@@ -1,9 +1,9 @@
 <?php
 
+
 session_start();
 
 $base = '../frontend/views/';
-
 
 if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
 

@@ -37,8 +37,10 @@ function getLowStockCount($conn)
 {
 
     $sql = "SELECT COUNT(*) AS lowCount
-            FROM inventories
-            WHERE Quantity <= IFNULL(ReorderLevel, 5)";
+            FROM inventories i
+            JOIN productskus ps ON i.SKUID = ps.SKUID
+            WHERE ps.AvailabilityStatus != 'Unavailable' 
+              AND (i.Quantity < IF(i.ReorderLevel > 0, i.ReorderLevel, 5) OR i.Quantity = 0)";
 
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_assoc($result);

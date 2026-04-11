@@ -13,18 +13,18 @@ let activeFilter = "all"; // "all" | "low" | "in" | "logs"
 
 function getStatus(item) {
   const stock = item.stock;
-  const threshold = item.threshold ?? LOW_STOCK_THRESHOLD;
+  const threshold = item.threshold > 0 ? item.threshold : LOW_STOCK_THRESHOLD;
 
   if (item.availabilityStatus === "Unavailable") {
-    return { statusText: "Unavailable", statusClass: "out", isDanger: true };
+    return { statusText: "Unavailable", statusClass: "out", rowClass: "row-danger" };
   }
   if (stock === 0) {
-    return { statusText: "Out of Stock", statusClass: "out", isDanger: true };
+    return { statusText: "Out of Stock", statusClass: "out", rowClass: "row-danger" };
   }
   if (stock < threshold) {
-    return { statusText: "Low Stock", statusClass: "low", isDanger: true };
+    return { statusText: "Low Stock", statusClass: "low", rowClass: "row-warning" };
   }
-  return { statusText: "In Stock", statusClass: "", isDanger: false };
+  return { statusText: "In Stock", statusClass: "", rowClass: "" };
 }
 
 function formatTimeAgo(ts) {
@@ -57,9 +57,9 @@ function getFilteredData() {
   let data = inventoryData;
 
   if (activeFilter === "low") {
-    data = data.filter((i) => i.stock < (i.threshold ?? LOW_STOCK_THRESHOLD));
+    data = data.filter((i) => i.availabilityStatus !== "Unavailable" && (i.stock === 0 || i.stock < (i.threshold > 0 ? i.threshold : LOW_STOCK_THRESHOLD)));
   } else if (activeFilter === "in") {
-    data = data.filter((i) => i.stock >= (i.threshold ?? LOW_STOCK_THRESHOLD));
+    data = data.filter((i) => i.availabilityStatus !== "Unavailable" && i.stock >= (i.threshold > 0 ? i.threshold : LOW_STOCK_THRESHOLD));
   }
 
   if (q) {
@@ -113,11 +113,11 @@ function renderTable(data) {
 
   tbody.innerHTML = data
     .map((item) => {
-      const { statusText, statusClass, isDanger } = getStatus(item);
+      const { statusText, statusClass, rowClass } = getStatus(item);
       const realIndex = inventoryData.indexOf(item);
 
       return `
-      <tr class="${isDanger ? "row-danger" : ""}" data-index="${realIndex}">
+      <tr class="${rowClass}" data-index="${realIndex}">
         <td><strong>${item.name}</strong><br><small style="color:var(--text-muted);font-size:11px">${item.id}</small></td>
         <td>
           <span class="status ${statusClass}">
@@ -243,22 +243,24 @@ function resetTableHeaders() {
 
 function updateStats() {
   const allCount = inventoryData.length;
-  const lowCount = inventoryData.filter(
-    (i) => i.stock < (i.threshold ?? LOW_STOCK_THRESHOLD),
+  // Low Count will represent anything that is unavailable, out of stock, OR low stock
+  const alertCount = inventoryData.filter(
+    (i) => i.availabilityStatus !== "Unavailable" && (i.stock === 0 || i.stock < (i.threshold > 0 ? i.threshold : LOW_STOCK_THRESHOLD)),
   ).length;
-  const inCount = allCount - lowCount;
+  // In stock are the perfectly fine ones
+  const inCount = allCount - alertCount;
   const totalUnits = inventoryData.reduce((s, i) => s + i.stock, 0);
 
   document.getElementById("statTotalProducts").textContent = allCount;
-  document.getElementById("statLowStock").textContent = lowCount;
+  document.getElementById("statLowStock").textContent = alertCount;
   document.getElementById("statTotalUnits").textContent =
     totalUnits.toLocaleString();
 
   const lowCard = document.getElementById("lowStockCard");
-  lowCard.classList.toggle("stat-danger", lowCount > 0);
+  lowCard.classList.toggle("stat-danger", alertCount > 0);
 
   document.getElementById("tabAll").textContent = `All (${allCount})`;
-  document.getElementById("tabLow").textContent = `Low Stock (${lowCount})`;
+  document.getElementById("tabLow").textContent = `Stock Alerts (${alertCount})`;
   document.getElementById("tabIn").textContent = `In Stock (${inCount})`;
   document.getElementById("tabLogs").textContent = `Audit Logs`;
 
@@ -339,6 +341,7 @@ function bindUpdateButtons() {
           if (response.trim() === "Success") {
             item.stock = val;
             item.lastUpdated = Date.now();
+            if (val > 0) item.availabilityStatus = "Available"; // Sync UI state without refresh
             showAlert(`Updated stock for ${item.name}!`, true);
             renderTable(getFilteredData());
             updateStats();

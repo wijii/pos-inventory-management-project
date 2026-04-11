@@ -290,6 +290,15 @@ tr.row-danger td:first-child {
     border-left: 3px solid var(--danger-border);
 }
 
+/* Row warning */
+tr.row-warning td {
+    background: var(--low-stock-bg);
+}
+
+tr.row-warning td:first-child {
+    border-left: 3px solid var(--low-stock-border);
+}
+
 /* Update column */
 .update-wrapper {
     display: flex;
