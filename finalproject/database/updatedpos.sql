@@ -18,8 +18,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- 
---Database: `updatedpos`
+-- Database: `updatedpos`
+--
 
 -- --------------------------------------------------------
 
@@ -49,6 +49,25 @@ CREATE TABLE `inventories` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `inventory_logs`
+--
+
+CREATE TABLE IF NOT EXISTS `inventory_logs` (
+  `LogID`          INT          NOT NULL AUTO_INCREMENT,
+  `SKUID`          INT          NOT NULL,
+  `UserID`         INT          NULL,
+  `ChangeType`     VARCHAR(20)  NOT NULL COMMENT 'restock, adjustment, deduction',
+  `QuantityBefore` INT          NOT NULL DEFAULT 0,
+  `QuantityChange` INT          NOT NULL COMMENT 'positive = added, negative = deducted',
+  `QuantityAfter`  INT          NOT NULL DEFAULT 0,
+  `Note`           VARCHAR(255) NULL,
+  `LogTime`        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`LogID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `products`
 --
 
@@ -72,7 +91,7 @@ CREATE TABLE `productskus` (
   `Size` varchar(50) DEFAULT NULL,
   `Price` decimal(10,2) NOT NULL,
   `ProductImagePath` varchar(255) DEFAULT NULL,
-  `AvailabilityStatus` enum('Available','Unavailable') NOT NULL
+  `AvailabilityStatus` enum('Available','Unavailable') NOT NULL DEFAULT 'Available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -85,6 +104,18 @@ CREATE TABLE `roles` (
   `RoleID` int(11) NOT NULL,
   `RoleName` enum('Manager','Cashier') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `system_settings`
+--
+
+CREATE TABLE IF NOT EXISTS `system_settings` (
+  `SettingKey`   VARCHAR(100) NOT NULL,
+  `SettingValue` TEXT         NOT NULL,
+  PRIMARY KEY (`SettingKey`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -144,7 +175,9 @@ CREATE TABLE `transactions` (
   `UserID` int(11) NOT NULL,
   `AmountPaid` decimal(10,2) NOT NULL,
   `TransactionDate` datetime NOT NULL,
-  `TotalAmountDue` decimal(10,2) NOT NULL
+  `TotalAmountDue` decimal(10,2) NOT NULL,
+  `PaymentMethod` varchar(50) NOT NULL DEFAULT 'Cash',
+  `DiscountAmount` decimal(10,2) NOT NULL DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -162,24 +195,34 @@ CREATE TABLE `users` (
   `LastName` varchar(100) NOT NULL,
   `PhoneNo` varchar(20) DEFAULT NULL,
   `EmailAddress` varchar(100) NOT NULL,
-  `WorkingStatus` enum('Active','Inactive') NOT NULL
+  `WorkingStatus` enum('Active','Inactive') NOT NULL DEFAULT 'Inactive'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Default data for `roles`
+--
 
-CREATE TABLE IF NOT EXISTS `inventory_logs` (
-  `LogID`          INT          NOT NULL AUTO_INCREMENT,
-  `SKUID`          INT          NOT NULL,
-  `UserID`         INT          NULL,
-  `ChangeType`     VARCHAR(20)  NOT NULL COMMENT 'restock, adjustment, deduction',
-  `QuantityBefore` INT          NOT NULL DEFAULT 0,
-  `QuantityChange` INT          NOT NULL COMMENT 'positive = added, negative = deducted',
-  `QuantityAfter`  INT          NOT NULL DEFAULT 0,
-  `Note`           VARCHAR(255) NULL,
-  `LogTime`        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`LogID`),
-  FOREIGN KEY (`SKUID`)   REFERENCES `productskus` (`SKUID`),
-  FOREIGN KEY (`UserID`)  REFERENCES `users`       (`UserID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO `roles` (`RoleID`, `RoleName`) VALUES
+(1, 'Manager'),
+(2, 'Cashier');
+
+--
+-- Default admin account (username: admin / password: admin123)
+--
+
+INSERT INTO `users` (`RoleID`, `Username`, `Password`, `FirstName`, `LastName`, `PhoneNo`, `EmailAddress`, `WorkingStatus`) VALUES
+(1, 'admin', '$2y$10$k1GNRJiUB4h.f/Kp7aZ7qePYSr15hBidrAC2qO971iEJ4n248UPTy', 'Admin', 'User', '00000000000', 'admin@casacafe.com', 'Inactive');
+
+--
+-- Default data for `system_settings`
+--
+
+INSERT INTO `system_settings` (`SettingKey`, `SettingValue`) VALUES
+('store_name',         'Casa Cafe'),
+('store_email',        'casacafe@gmail.com'),
+('store_contact',      '09999292751'),
+('tax_rate',           '5'),
+('low_stock_threshold','5');
 
 --
 -- Indexes for dumped tables
@@ -197,6 +240,13 @@ ALTER TABLE `categories`
 ALTER TABLE `inventories`
   ADD PRIMARY KEY (`InventoryID`),
   ADD KEY `SKUID` (`SKUID`);
+
+--
+-- Indexes for table `inventory_logs`
+--
+ALTER TABLE `inventory_logs`
+  ADD KEY `SKUID` (`SKUID`),
+  ADD KEY `UserID` (`UserID`);
 
 --
 -- Indexes for table `products`
@@ -264,63 +314,36 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for dumped tables
 --
 
---
--- AUTO_INCREMENT for table `categories`
---
 ALTER TABLE `categories`
   MODIFY `CategoryID` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `inventories`
---
 ALTER TABLE `inventories`
   MODIFY `InventoryID` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `products`
---
+ALTER TABLE `inventory_logs`
+  MODIFY `LogID` INT NOT NULL AUTO_INCREMENT;
+
 ALTER TABLE `products`
   MODIFY `ProductID` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `productskus`
---
 ALTER TABLE `productskus`
   MODIFY `SKUID` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `roles`
---
 ALTER TABLE `roles`
-  MODIFY `RoleID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `RoleID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
---
--- AUTO_INCREMENT for table `transactionarchives`
---
 ALTER TABLE `transactionarchives`
   MODIFY `ArchiveID` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `transactiondetails`
---
 ALTER TABLE `transactiondetails`
   MODIFY `DetailsID` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `transactiondetailsarchives`
---
 ALTER TABLE `transactiondetailsarchives`
   MODIFY `ArchiveDetailID` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `transactions`
---
 ALTER TABLE `transactions`
   MODIFY `TransactionID` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `users`
---
 ALTER TABLE `users`
   MODIFY `UserID` int(11) NOT NULL AUTO_INCREMENT;
 
@@ -328,56 +351,37 @@ ALTER TABLE `users`
 -- Constraints for dumped tables
 --
 
---
--- Constraints for table `inventories`
---
 ALTER TABLE `inventories`
   ADD CONSTRAINT `inventories_ibfk_1` FOREIGN KEY (`SKUID`) REFERENCES `productskus` (`SKUID`);
 
---
--- Constraints for table `products`
---
+ALTER TABLE `inventory_logs`
+  ADD CONSTRAINT `inventory_logs_ibfk_1` FOREIGN KEY (`SKUID`) REFERENCES `productskus` (`SKUID`),
+  ADD CONSTRAINT `inventory_logs_ibfk_2` FOREIGN KEY (`UserID`) REFERENCES `users` (`UserID`);
+
 ALTER TABLE `products`
   ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`CategoryID`) REFERENCES `categories` (`CategoryID`);
 
---
--- Constraints for table `productskus`
---
 ALTER TABLE `productskus`
   ADD CONSTRAINT `productskus_ibfk_1` FOREIGN KEY (`ProductID`) REFERENCES `products` (`ProductID`);
 
---
--- Constraints for table `transactionarchives`
---
 ALTER TABLE `transactionarchives`
   ADD CONSTRAINT `transactionarchives_ibfk_1` FOREIGN KEY (`TransactionID`) REFERENCES `transactions` (`TransactionID`),
   ADD CONSTRAINT `transactionarchives_ibfk_2` FOREIGN KEY (`UserID`) REFERENCES `users` (`UserID`);
 
---
--- Constraints for table `transactiondetails`
---
 ALTER TABLE `transactiondetails`
   ADD CONSTRAINT `transactiondetails_ibfk_1` FOREIGN KEY (`TransactionID`) REFERENCES `transactions` (`TransactionID`),
   ADD CONSTRAINT `transactiondetails_ibfk_2` FOREIGN KEY (`SKUID`) REFERENCES `productskus` (`SKUID`);
 
---
--- Constraints for table `transactiondetailsarchives`
---
 ALTER TABLE `transactiondetailsarchives`
   ADD CONSTRAINT `transactiondetailsarchives_ibfk_1` FOREIGN KEY (`ArchiveID`) REFERENCES `transactionarchives` (`ArchiveID`),
   ADD CONSTRAINT `transactiondetailsarchives_ibfk_2` FOREIGN KEY (`SKUID`) REFERENCES `productskus` (`SKUID`);
 
---
--- Constraints for table `transactions`
---
 ALTER TABLE `transactions`
   ADD CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `users` (`UserID`);
 
---
--- Constraints for table `users`
---
 ALTER TABLE `users`
   ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`RoleID`) REFERENCES `roles` (`RoleID`);
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

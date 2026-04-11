@@ -45,9 +45,9 @@ document.getElementById("loginBtn").addEventListener("click", () => {
     username,
     password,
     function (result) {
-      if (result === "Manager" || result === "Cashier") {
+      if (result.trim() === "Manager" || result.trim() === "Cashier") {
         localStorage.setItem("loggedInUser", username);
-        if (result === "Manager") {
+        if (result.trim() === "Manager") {
           window.location.href = "dashboard.html";
         } else {
           window.location.href = "cashier.html";
@@ -62,6 +62,29 @@ document.getElementById("loginBtn").addEventListener("click", () => {
     },
   );
 });
+
+//shared alert function
+function showAlert(message) {
+  const alertsContainer = document.getElementById("alertsContainer");
+  if (!alertsContainer) return;
+
+  const alertBox = document.createElement("div");
+  alertBox.classList.add("alerts");
+
+  // Adjust path based on where we are
+  const icon = document.createElement("img");
+  icon.src = "../assets/svgs/AlertLogo.svg";
+  icon.classList.add("alert-icon");
+
+  const text = document.createElement("span");
+  text.textContent = message;
+
+  alertBox.appendChild(icon);
+  alertBox.appendChild(text);
+  alertsContainer.appendChild(alertBox);
+
+  setTimeout(() => alertBox.remove(), 3500);
+}
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Enter") document.getElementById("loginBtn").click();

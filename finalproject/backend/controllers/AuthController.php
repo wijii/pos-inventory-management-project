@@ -26,7 +26,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'verifyManager') {
         }
     }
 
-    if ($isVerified || $password === 'admin123') { // admin123 as fallback for the hardcoded admin case
+    if ($isVerified) {
         echo "Success";
     } else {
         echo "Failed";
@@ -36,6 +36,13 @@ if (isset($_GET['action']) && $_GET['action'] == 'verifyManager') {
 
 //logout action to destroy the session
 if (isset($_GET['action']) && $_GET['action'] == 'logout') {
+    if (isset($_SESSION['user_id'])) {
+        $userId = $_SESSION['user_id'];
+        $sql = "UPDATE users SET WorkingStatus = 'Inactive' WHERE UserID = ?";
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "i", $userId);
+        mysqli_stmt_execute($stmt);
+    }
     session_unset();
     session_destroy();
     echo "Success";
@@ -48,7 +55,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'session') {
     if (isset($_SESSION['role'])) {
         echo json_encode(array(
             "role" => $_SESSION['role'],
-            "firstname" => $_SESSION['firstname']
+            "firstname" => $_SESSION['firstname'],
+            "user_id" => $_SESSION['user_id']
         ));
     } else {
         echo json_encode(array("role" => "Guest", "firstname" => "Unauthorized"));
@@ -74,6 +82,9 @@ if (!empty($username) && !empty($password)) {
         $_SESSION['username'] = $loginResult['username'];
         $_SESSION['role'] = $loginResult['role'];  // Manager or Cashier
         $_SESSION['firstname'] = $loginResult['firstname'];
+
+        include_once __DIR__ . '/../models/StaffModel.php';
+        StaffModel::setOnDuty($loginResult['id']);
 
         //echo the role so the AJAX success function can read it as plain text!
         echo $loginResult['role'];

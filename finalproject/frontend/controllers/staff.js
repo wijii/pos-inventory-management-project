@@ -17,7 +17,7 @@ let selectedUserId = null; // ✅ use this consistently
 
 // Fetch staff list from backend
 function fetchStaff() {
-  fetch("/project/pos-inventory-management-project/finalproject/backend/routes.php?action=getStaffList")
+  fetch("/project/finalproject/backend/routes.php?action=getStaffList")
     .then(response => response.json())
     .then(staffList => {
       staff = staffList;
@@ -27,7 +27,7 @@ function fetchStaff() {
 }
 
 function addStaff(roleID, username, password, firstName, lastName, phoneNo, emailAddress, workingStatus) {
-   return fetch("/project/pos-inventory-management-project/finalproject/backend/routes.php?action=addStaff", {
+   return fetch("/project/finalproject/backend/routes.php?action=addStaff", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ 
@@ -44,7 +44,7 @@ function addStaff(roleID, username, password, firstName, lastName, phoneNo, emai
 }
 
 function deleteStaffAt(userId) {
-  return fetch("/project/pos-inventory-management-project/finalproject/backend/routes.php?action=deleteStaff", {
+  return fetch("/project/finalproject/backend/routes.php?action=deleteStaff", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ UserID: userId }) 
@@ -94,10 +94,11 @@ function displayStaff(list) {
   };
 
   grid.innerHTML = list.map((s) => {
-    const statusClass     = s.WorkingStatus === "Active" ? "active" : "off";
-    const textStatusClass = s.WorkingStatus === "Active" ? "status-active" : "status-off";
+    const isActive = (s.WorkingStatus === "Active");
+    const statusClass     = isActive ? "active" : "off";
+    const textStatusClass = isActive ? "status-active" : "status-off";
     const roleClass       = roleMap[s.RoleID]?.toLowerCase() || "unknown";
-    const statusLabel     = s.WorkingStatus === "Active" ? "On Duty" : "Off Duty"; // changed the wording
+    const statusLabel     = isActive ? "On Duty" : "Off Duty";
 
     return `
       <div class="card">

@@ -58,5 +58,3 @@ class StaffModel {
     return $staffList;
   }
 }
-?>
-

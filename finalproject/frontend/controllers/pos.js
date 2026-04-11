@@ -370,18 +370,7 @@ function closeSizePicker() {
   document.getElementById("sizeModal").classList.remove("show");
 }
 
-function updateSidebarLogo() {
-  const sidebarLogo = document.querySelector('.sidebar .logo h2');
-  
-  if (sidebarLogo) {
-    $.get("/project/finalproject/backend/routes.php?action=getStoreSettings", function(res) {
-      if (res) {
-        const data = JSON.parse(res);
-        if (data.storeName) sidebarLogo.textContent = data.storeName;
-      }
-    });
-  }
-}
+
 
 // ============================================================
 // EVENT LISTENERS
@@ -437,10 +426,13 @@ document.getElementById("modalConfirm").addEventListener("click", () => {
       : total;
 
   //packages cart data and passes to AJAX service to complete transaction
+  const discountAmt = getDiscountAmount(getSubtotal());
   posAjax.checkout(
     cash,
     total,
     cart,
+    capitalize(activePayment),
+    discountAmt,
     function (result) {
       if (result.startsWith("Success:")) {
         const transID = result.split(":")[1];
