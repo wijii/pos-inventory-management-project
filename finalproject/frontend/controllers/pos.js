@@ -1,5 +1,6 @@
 // System configuration: Holds static menus, product lists, and tax constants.
 let products = [];
+let lastReceiptHTML = "";
 
 const SIZE_OPTIONS = [
   {
@@ -178,7 +179,17 @@ function clearCart() {
 
 
 function printReceipt() {
-  window.print();
+  if (!lastReceiptHTML) return;
+  const printWindow = window.open('', '', 'height=600,width=400');
+  printWindow.document.write('<html><head><title>Receipt</title></head><body style="margin:0; padding:10px;">');
+  printWindow.document.write(lastReceiptHTML);
+  printWindow.document.write('</body></html>');
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => {
+    printWindow.print();
+    printWindow.close();
+  }, 250);
 }
 
 // UI Renderers: Builds HTML layouts for product cards, shopping cart items, and grand totals.
@@ -443,6 +454,38 @@ document.getElementById("modalConfirm").addEventListener("click", () => {
       if (result.startsWith("Success:")) {
         const transID = result.split(":")[1];
         const receiptId = generateReceiptId() + "-" + transID; // Attach DB ID to receipt
+
+        let method = capitalize(activePayment);
+        lastReceiptHTML = `
+            <div style="font-family: 'Courier New', Courier, monospace; width: 300px; margin: 0 auto; color: #000; font-size: 12px;">
+                <h2 style="text-align:center; margin-bottom: 5px;">CASA CAFE</h2>
+                <div style="text-align:center; margin-bottom: 15px;">Thank you for your purchase!</div>
+                <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
+                <div style="display:flex; justify-content:space-between;"><span>Receipt:</span> <span>${receiptId}</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>Date:</span> <span>${new Date().toLocaleString()}</span></div>
+                <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px;">
+                    ${cart.map(item => `
+                        <tr>
+                            <td style="padding: 2px 0;">${item.qty}x ${item.name}</td>
+                            <td style="text-align:right; padding: 2px 0;">${fmt(item.price * item.qty)}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+                <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
+                <div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Subtotal:</span> <span>${fmt(getSubtotal())}</span></div>
+                ${discountAmt > 0 ? `<div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Discount:</span> <span>-${fmt(discountAmt)}</span></div>` : ''}
+                <div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Tax:</span> <span>${fmt(getTax())}</span></div>
+                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size: 14px; margin: 5px 0;"><span>TOTAL:</span> <span>${fmt(total)}</span></div>
+                <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
+                <div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Method:</span> <span>${method}</span></div>
+                ${method === 'Cash' ? `
+                <div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Amount Given:</span> <span>${fmt(cash)}</span></div>
+                <div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Change:</span> <span>${fmt(cash - total)}</span></div>` : ''}
+                <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
+                <div style="text-align:center; font-size: 10px; margin-top: 10px;">Please come again!</div>
+            </div>
+        `;
 
         document.getElementById("receiptId").textContent =
           "Receipt " + receiptId;
