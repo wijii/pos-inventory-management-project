@@ -43,19 +43,18 @@ function getAllProducts($conn)
     return $products;
 }
 
-//gets base products for the POS screen to display (selects only Small size or No size based on category)
-function getPOSProductsData($conn)
+//gets all base products + size variations for the POS screen with quantities mapped
+function getPOSProductsDataFull($conn)
 {
     $sql = "SELECT p.ProductID, p.ProductName, p.BaseSKU, c.CategoryName,
-                   s.SKUID, s.SKUCode, s.Price, s.ProductImagePath,
+                   s.SKUID, s.SKUCode, s.Size, s.Price, s.ProductImagePath,
                    IFNULL(i.Quantity, 0) as Quantity
             FROM products p
             INNER JOIN categories c ON p.CategoryID = c.CategoryID
             INNER JOIN productskus s ON p.ProductID = s.ProductID
             LEFT JOIN inventories i ON s.SKUID = i.SKUID
             WHERE s.AvailabilityStatus = 'Available'
-            AND (s.Size = 'Small' OR s.Size IS NULL OR s.Size = '')
-            GROUP BY p.ProductID";
+            ORDER BY p.ProductID ASC, FIELD(IFNULL(s.Size, ''), '', 'Small', 'Medium', 'Large')";
 
     $result = mysqli_query($conn, $sql);
     $products = array();

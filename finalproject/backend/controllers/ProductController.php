@@ -200,24 +200,41 @@ if ($action == 'getCategoriesDropdown') {
         echo "Failed: " . mysqli_error($conn);
     }
 } else if ($action == 'getPOSProductsJSON') {
-    //return a JSON list of base products for the POS frontend
-    $data = getPOSProductsData($conn);
-    $posProducts = array();
+    //return a JSON list of products and their size variations for the POS frontend
+    $data = getPOSProductsDataFull($conn);
+    $posProductsMap = array();
 
     if (!empty($data)) {
         foreach ($data as $p) {
-            //build the object to match what pos.js expects
-            //use BaseSKU as ID, fallback to database ProductImagePath if exists, mock stock for now
-            $posProducts[] = array(
-                "id" => $p['BaseSKU'],
-                "name" => $p['ProductName'],
-                "price" => floatval($p['Price']),
-                "stock" => intval($p['Quantity']), // uses actual stock from database
-                "category" => strtolower($p['CategoryName']),
-                "img" => !empty($p['ProductImagePath']) ? '../../' . $p['ProductImagePath'] : ""
-            );
+            $baseSKU = $p['BaseSKU'];
+            $stock = intval($p['Quantity']);
+            
+            if (!isset($posProductsMap[$baseSKU])) {
+                $posProductsMap[$baseSKU] = array(
+                    "id" => $baseSKU,
+                    "name" => $p['ProductName'],
+                    "price" => floatval($p['Price']),
+                    "stock" => 0, // start at 0, sum stock across variations
+                    "category" => strtolower($p['CategoryName']),
+                    "img" => !empty($p['ProductImagePath']) ? '../../' . $p['ProductImagePath'] : "",
+                    "variations" => array(),
+                    "variationStocks" => array()
+                );
+            }
+            
+            // Add to total stock
+            $posProductsMap[$baseSKU]['stock'] += $stock;
+            
+            // if size exists and not empty, load variations
+            if (!empty($p['Size'])) {
+                $sizeKey = strtolower($p['Size']);
+                $posProductsMap[$baseSKU]['variations'][$sizeKey] = floatval($p['Price']);
+                $posProductsMap[$baseSKU]['variationStocks'][$sizeKey] = $stock;
+            }
         }
     }
+
+    $posProducts = array_values($posProductsMap);
 
     header('Content-Type: application/json');
     echo json_encode($posProducts);
