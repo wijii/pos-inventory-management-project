@@ -175,12 +175,8 @@ function clearCart() {
   updateTotals();
 }
 
-function confirmLogout() {
-  authAjax.logout(
-    function() { window.location.href = "login.html"; },
-    function() { window.location.href = "login.html"; }
-  );
-}
+
+
 function printReceipt() {
   window.print();
 }

@@ -21,23 +21,7 @@ function getFilteredStaff(query) {
   );
 }
 
-function confirmLogout() {
-    authAjax.logout(
-        function (result) {
-            if (result.trim() === "Success") {
-                localStorage.removeItem("loggedInUser");
-                window.location.href = "login.html";
-            } else {
-                localStorage.removeItem("loggedInUser");
-                window.location.href = "login.html";
-            }
-        },
-        function () {
-            localStorage.removeItem("loggedInUser");
-            window.location.href = "login.html";
-        }
-    );
-}
+
 
 // UI Renderers: Mounts custom notification alerts and maps JSON payloads into visual user cards.
 function showAlert(message) {

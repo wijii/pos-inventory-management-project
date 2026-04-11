@@ -33,20 +33,13 @@ class StaffModel
         return $staffData;
     }
 
-    public static function addStaff($fullName, $roleName, $email, $phone, $password)
+    public static function addStaff($firstname, $lastname, $username, $roleName, $email, $phone, $password)
     {
         global $conn;
 
         $roleID = ($roleName === 'Manager') ? 1 : 2;
 
-
-        $parts = explode(' ', trim($fullName), 2);
-        $firstName = $parts[0];
-        $lastName = isset($parts[1]) ? $parts[1] : '';
-
-
-        $username = explode('@', $email)[0];
-
+        // Check if the chosen username is already taken; append random digits if so.
         $checkStmt = $conn->prepare("SELECT UserID FROM users WHERE Username = ?");
         $checkStmt->bind_param("s", $username);
         $checkStmt->execute();
@@ -57,12 +50,11 @@ class StaffModel
 
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
-
         $status = 'Inactive';
 
         $stmt = $conn->prepare("INSERT INTO users (RoleID, Username, Password, FirstName, LastName, PhoneNo, EmailAddress, WorkingStatus) 
                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("isssssss", $roleID, $username, $hashedPassword, $firstName, $lastName, $phone, $email, $status);
+        $stmt->bind_param("isssssss", $roleID, $username, $hashedPassword, $firstname, $lastname, $phone, $email, $status);
 
         $success = $stmt->execute();
         $stmt->close();

@@ -197,12 +197,8 @@ function closeModal(id) {
   document.getElementById(id).style.display = "none";
 }
 
-function confirmLogout() {
-  authAjax.logout(
-    function() { window.location.href = "login.html"; },
-    function() { window.location.href = "login.html"; }
-  );
-}
+
+
 
 // Initializer: Attaches click logic to filter tabs and starts the initial data load on startup.
 

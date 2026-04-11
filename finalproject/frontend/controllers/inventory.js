@@ -65,12 +65,8 @@ function getFilteredData() {
   return data;
 }
 
-function confirmLogout() {
-  authAjax.logout(
-    function() { window.location.href = "login.html"; },
-    function() { window.location.href = "login.html"; }
-  );
-}
+
+
 
 // Feedback Alert Generator: Constructs visual toast notifications on screen edges.
 function showAlert(message, isSuccess = true) {

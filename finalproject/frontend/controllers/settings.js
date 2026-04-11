@@ -1,10 +1,5 @@
 // Logic: Contains general application functions such as handling authentication logouts.
-function confirmLogout() {
-  authAjax.logout(
-    function() { window.location.href = "login.html"; },
-    function() { window.location.href = "login.html"; }
-  );
-}
+// confirmLogout is handled globally in navigationbar.js
 
 // UI Renderers: Mounts custom notification alerts whenever settings are saved.
 function showAlert(message) {

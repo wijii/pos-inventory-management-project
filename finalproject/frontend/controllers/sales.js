@@ -23,12 +23,8 @@ function getPeakLabel(labels, values) {
   return labels[values.indexOf(Math.max(...values))];
 }
 
-function confirmLogout() {
-  authAjax.logout(
-    function() { window.location.href = "login.html"; },
-    function() { window.location.href = "login.html"; }
-  );
-}
+
+
 
 
 // UI Renderers: Fetches data via AJAX and populates the data tables or chart instances.
