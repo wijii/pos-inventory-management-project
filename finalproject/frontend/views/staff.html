@@ -21,7 +21,7 @@
 
     <div class="logo">
         <h2>Manager</h2>
-        <p>Loading...</p>
+        <p>Jhonas Pogi</p>
     </div>
 
     <ul>
@@ -78,7 +78,6 @@ Settings
 </ul>
 
 
-
     </div>
 
     <!-- MAIN -->
@@ -111,41 +110,21 @@ Settings
   <div class="modal-content">
     <h2>Add Staff Member</h2>
     <form id="addStaffForm" novalidate>
+      
+      <input type="text" name="name" required placeholder="Full Name">
 
-      <!-- Role -->
-      <select name="roleID" required>
-      <option value="1">Manager</option>
-      <option value="2">Cashier</option>
+      <select name="role" required>
+        <option value="" disabled selected hidden >Select Role</option>
+        <option value="Manager">Manager</option>
+        <option value="Cashier">Cashier</option>
       </select>
 
-      <!-- Username -->
-      <input type="text" name="username" required placeholder="Username">
-
-      <!-- Password -->
-      <input type="password" name="password" required placeholder="Password">
-
-      <!-- First Name -->
-      <input type="text" name="firstName" required placeholder="First Name">
-
-      <!-- Last Name -->
-      <input type="text" name="lastName" required placeholder="Last Name">
-
-      <!-- Email & Phone -->
       <div class="cppw">
-        <input type="email" name="emailAddress" required placeholder="Email">
-        <input type="text" name="phoneNo" required placeholder="Phone No.">
+        <input type="email" name="email" required placeholder="Email">
+        <input type="text" name="phone" required placeholder="Phone No.">
       </div>
 
-      <!-- Working Status -->
-      <select name="workingStatus" required>
-        <option value="" disabled selected hidden>Select Status</option>
-        <option value="Active">Active</option>
-        <option value="Inactive">Inactive</option>
-      </select>
-
-      <!-- Manager Password (authorization only) -->
-      <input type="password" name="managerPassword" required placeholder="Manager Password">
-
+      <input type="password" name="password" required placeholder="Password">
       <hr>
       <div class="modal-buttons">
         <button type="button" class="cancelBtn">Cancel</button>
@@ -187,29 +166,12 @@ Settings
   </div>
 </div>
 
-  <script src="../assets/js/jquery-3.7.1.min.js"></script>
-  <script src="../services/authAjax.js"></script>
-  <script src="../controllers/navigationbar.js"></script>
-<script src="../assets/js/lucide.min.js"></script> 
-<script src="../controllers/staff.js"></script>
-
 <div id="alertsContainer"></div>
-  <script>
-    const authOverlay = document.getElementById('page-overlay');
-    if (authOverlay) authOverlay.style.display = 'block';
-    if (typeof authAjax !== 'undefined') {
-        authAjax.getSession(function (data) {
-            if (data.role !== 'Manager' && data.role !== 'Admin') {
-                alert('Access Denied. Manager only.');
-                window.location.href = 'login.html';
-            } else if (authOverlay) authOverlay.style.display = 'none';
-        }, function () {
-            window.location.href = 'login.html';
-        });
-    }
-
-    // Always render static sidebar icons
-    lucide.createIcons();
-  </script>
+<script src="../assets/js/jquery-3.7.1.min.js"></script>
+<script src="../services/authAjax.js?v=2"></script>
+<script src="../controllers/navigationbar.js?v=2"></script>
+<script src="../assets/js/lucide.min.js"></script> 
+<script src="../services/staffAjax.js?v=2"></script>
+<script src="../controllers/staff.js?v=2"></script>
 </body>
 </html>

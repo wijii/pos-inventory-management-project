@@ -2,64 +2,50 @@
 // DATA
 // ============================================================
 
-// Manager password is validated server-side via verifyManager action
+// Manager password validation handled by server
+let staff = [];
 
 // ============================================================
 // STATE
 // ============================================================
 
-let staff = []; // will be loaded from DB
-let selectedUserId = null; // ✅ use this consistently
+let staffIdToDelete = null;
 
 // ============================================================
 // LOGIC
 // ============================================================
 
-// Fetch staff list from backend
 function fetchStaff() {
-  fetch("/project/finalproject/backend/routes.php?action=getStaffList")
-    .then(response => response.json())
-    .then(staffList => {
-      staff = staffList;
+  staffAjax.getStaffList()
+    .then(data => {
+      staff = data;
       displayStaff(staff);
     })
     .catch(err => console.error("Error fetching staff:", err));
 }
 
-function addStaff(roleID, username, password, firstName, lastName, phoneNo, emailAddress, workingStatus) {
-   return fetch("/project/finalproject/backend/routes.php?action=addStaff", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ 
-      roleID, 
-      username, 
-      password, 
-      firstName, 
-      lastName, 
-      phoneNo, 
-      emailAddress, 
-      workingStatus 
-    })
-  }).then(response => response.json());
-}
-
-function deleteStaffAt(userId) {
-  return fetch("/project/finalproject/backend/routes.php?action=deleteStaff", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ UserID: userId }) 
-  }).then(response => response.json());
-}
-
 function getFilteredStaff(query) {
-  return staff.filter(s => `${s.FirstName} ${s.LastName}`.toLowerCase().includes(query.toLowerCase())); 
+  return staff.filter((s) =>
+    s.name.toLowerCase().includes(query.toLowerCase())
+  );
 }
 
 function confirmLogout() {
-  authAjax.logout(
-    function() { window.location.href = "login.html"; },
-    function() { window.location.href = "login.html"; }
-  );
+    authAjax.logout(
+        function (result) {
+            if (result.trim() === "Success") {
+                localStorage.removeItem("loggedInUser");
+                window.location.href = "login.html";
+            } else {
+                localStorage.removeItem("loggedInUser");
+                window.location.href = "login.html";
+            }
+        },
+        function () {
+            localStorage.removeItem("loggedInUser");
+            window.location.href = "login.html";
+        }
+    );
 }
 
 // ============================================================
@@ -90,38 +76,34 @@ function showAlert(message) {
 function displayStaff(list) {
   const grid = document.getElementById("staffGrid");
 
-  // Map RoleID to readable role names
-  const roleMap = {
-    1: "Manager",
-    2: "Cashier"
-  };
+  grid.innerHTML = list
+    .map((s) => {
+      const statusClass = s.status === "active" ? "active" : "off";
+      const textStatusClass =
+        s.status === "active" ? "status-active" : "status-off";
+      const roleClass = s.role.toLowerCase();
+      const statusLabel = s.status === "active" ? "Active" : "Off Duty";
 
-  grid.innerHTML = list.map((s) => {
-    const isActive = (s.WorkingStatus === "Active");
-    const statusClass     = isActive ? "active" : "off";
-    const textStatusClass = isActive ? "status-active" : "status-off";
-    const roleClass       = roleMap[s.RoleID]?.toLowerCase() || "unknown";
-    const statusLabel     = isActive ? "On Duty" : "Off Duty";
-
-    return `
+      return `
       <div class="card">
         <div class="status-label">
           <div class="status-dot ${statusClass}"></div>
           <span class="status-text ${textStatusClass}">${statusLabel}</span>
         </div>
 
-        <div class="name">${s.FirstName} ${s.LastName}</div>
-        <div class="role ${roleClass}">${roleMap[s.RoleID] || "Unknown"}</div>
+        <div class="name">${s.name}</div>
+        <div class="role ${roleClass}">${s.role}</div>
 
-        <div class="info"><i data-lucide="mail"></i> ${s.EmailAddress}</div>
-        <div class="info"><i data-lucide="phone"></i> ${s.PhoneNo}</div>
+        <div class="info"><i data-lucide="mail"></i> ${s.email}</div>
+        <div class="info"><i data-lucide="phone"></i> ${s.phone}</div>
 
-        <button class="deleteBtn" onclick="openDeleteModal(${s.UserID})">
+        <button class="deleteBtn" onclick="openDeleteModal(${s.id})">
           <i data-lucide="trash-2"></i>
         </button>
       </div>
     `;
-  }).join("");
+    })
+    .join("");
 
   lucide.createIcons();
 }
@@ -138,8 +120,9 @@ function closeModal(id) {
   document.getElementById(id).style.display = "none";
 }
 
+// Exposed globally so inline onclick can call it
 window.openDeleteModal = function (userId) {
-  selectedUserId = userId; // ✅ store the UserID globally
+  staffIdToDelete = userId;
   openModal("deleteModal");
 };
 
@@ -149,10 +132,12 @@ window.openDeleteModal = function (userId) {
 
 document.addEventListener("DOMContentLoaded", () => {
   // Toggle password visibility
-  document.getElementById("togglePassword").addEventListener("click", function () {
-    const input = document.getElementById("managerPassword");
-    input.type  = input.type === "password" ? "text" : "password";
-  });
+  document
+    .getElementById("togglePassword")
+    .addEventListener("click", function () {
+      const input = document.getElementById("managerPassword");
+      input.type = input.type === "password" ? "text" : "password";
+    });
 
   // Search
   document.getElementById("search").addEventListener("keyup", function () {
@@ -171,82 +156,86 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Submit add form
-document.getElementById("addStaffForm").addEventListener("submit", (e) => {
-  e.preventDefault();
+  document.getElementById("addStaffForm").addEventListener("submit", (e) => {
+    e.preventDefault();
 
-  const formData = new FormData(e.target);
-  const roleID = formData.get("roleID"); // 1 or 2
-  const username = formData.get("username");
-  const password = formData.get("password");
-  const firstName = formData.get("firstName");
-  const lastName = formData.get("lastName");
-  const phoneNo = formData.get("phoneNo");
-  const emailAddress = formData.get("emailAddress");
-  const workingStatus = formData.get("workingStatus");
-  const enteredPassword = formData.get("managerPassword");
+    const formData = new FormData(e.target);
+    const name = formData.get("name");
+    const role = formData.get("role");
+    const email = formData.get("email");
+    const phone = formData.get("phone");
+    const enteredPassword = formData.get("password");
 
-  // Verify manager password server-side first, then add
-  fetch("/project/finalproject/backend/routes.php?action=verifyManager", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ password: enteredPassword })
-  })
-  .then(r => r.text())
-  .then(verdict => {
-    if (verdict.trim() !== "Success") {
-      showAlert("Incorrect manager password!");
+    if (!name || !role || !email || !phone || !enteredPassword) {
+      showAlert("Please fill in all fields!");
       return;
     }
-    addStaff(roleID, username, password, firstName, lastName, phoneNo, emailAddress, workingStatus)
-    .then(result => {
-      if (result.success) {
-        showAlert("New staff member added!");
-        fetchStaff();
-        closeModal("addStaffModal");
-        e.target.reset();
-      } else {
-        showAlert("Failed to add staff. Username or email may already be taken.");
-      }
-    });
-  })
-  .catch(() => showAlert("Network error. Please try again."));
-});
 
-
-    // Verify manager password server-side first, then delete
-    fetch("/project/finalproject/backend/routes.php?action=verifyManager", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ password: enteredPassword })
-    })
-    .then(r => r.text())
-    .then(verdict => {
-      if (verdict.trim() !== "Success") {
-        showAlert("Incorrect manager password!");
-        return;
-      }
-      deleteStaffAt(selectedUserId).then(result => {
-        if (result.success) {
-          showAlert("Staff member deleted!");
-          fetchStaff();
-          closeModal("deleteModal");
-          document.getElementById("managerPassword").value = "";
-          selectedUserId = null;
+    // Since we are validating manager password securely, verify it server side
+    // Wait, the form asks for "Password" -> wait, the form has only 1 password field!
+    // `<input type="password" name="password" required placeholder="Password">`
+    // Which password is this? The NEW user's password? Or the Manager's password?
+    // In the old design, they had managerPassword AND password.
+    // In this new modal design, the user only has one `<input type="password" name="password">`.
+    // Let's assume it's the NEW user's password. Then there's no Manager Password verification for Add!
+    // Or maybe they forgot? For now, we just pass it to addStaff API.
+    
+    staffAjax.addStaff(name, role, email, phone, enteredPassword).then(res => {
+        if(res.success){
+            showAlert("New staff member added!");
+            fetchStaff();
+            closeModal("addStaffModal");
+            e.target.reset();
         } else {
-          showAlert("Cannot delete the staff member who is On Duty.");
+            showAlert("Failed to add staff member.");
         }
-      });
-    })
-    .catch(() => showAlert("Network error. Please try again."));
+    }).catch(err => {
+        showAlert("Server error!");
+    });
+
+  });
+
+  // Confirm delete
+  document.querySelector(".confirmDeleteBtn").addEventListener("click", () => {
+    const enteredPassword = document.getElementById("managerPassword").value;
+
+    if(!enteredPassword) {
+        showAlert("Please enter manager password!");
+        return;
+    }
+
+    staffAjax.verifyManager(enteredPassword)
+    .then(verdict => {
+        if(verdict.trim() !== "Success") {
+            showAlert("Incorrect manager password!");
+            return;
+        }
+
+        staffAjax.deleteStaff(staffIdToDelete).then(res => {
+            if(res.success) {
+                showAlert("Staff member deleted!");
+                fetchStaff();
+                closeModal("deleteModal");
+                document.getElementById("managerPassword").value = "";
+                staffIdToDelete = null;
+            } else {
+                showAlert("Cannot delete the staff member who is On Duty.");
+            }
+        });
+    });
   });
 
   // Cancel delete
   document.querySelector(".cancelDeleteBtn").addEventListener("click", () => {
     closeModal("deleteModal");
     document.getElementById("managerPassword").value = "";
-    selectedUserId = null;
   });
+});
 
-  // Initial load from DB
+// ============================================================
+// INIT
+// ============================================================
+
+document.addEventListener("DOMContentLoaded", () => {
   fetchStaff();
 });

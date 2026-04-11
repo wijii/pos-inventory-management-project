@@ -2,59 +2,93 @@
 require_once __DIR__ . '/../config/connect.php';
 
 class StaffModel {
-    public static function addStaff($roleID, $username, $password, $firstName, $lastName, $phoneNo, $email, $status) {
+    public static function getStaffList() {
         global $conn;
+        
+        $sql = "SELECT u.UserID, u.FirstName, u.LastName, r.RoleName, u.EmailAddress, u.PhoneNo, u.WorkingStatus 
+                FROM users u
+                LEFT JOIN roles r ON u.RoleID = r.RoleID";
+        
+        $result = $conn->query($sql);
+        
+        $staffData = [];
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                // Formatting data to match what the frontend expects
+                $fullName = trim($row['FirstName'] . ' ' . $row['LastName']);
+                
+                $staffData[] = [
+                    'id' => $row['UserID'],
+                    'name' => $fullName,
+                    'role' => $row['RoleName'] ?? 'Unknown',
+                    'email' => $row['EmailAddress'],
+                    'phone' => $row['PhoneNo'],
+                    'status' => strtolower($row['WorkingStatus']), // 'active' or 'inactive'
+                ];
+            }
+        }
+        return $staffData;
+    }
+
+    public static function addStaff($fullName, $roleName, $email, $phone, $password) {
+        global $conn;
+        
+        // 1. Role ID mapping
+        $roleID = ($roleName === 'Manager') ? 1 : 2;
+        
+        // 2. Name split
+        $parts = explode(' ', trim($fullName), 2);
+        $firstName = $parts[0];
+        $lastName = isset($parts[1]) ? $parts[1] : '';
+
+        // 3. Auto-generate Username from email to satisfy unique constraint
+        $username = explode('@', $email)[0];
+        // Ensure uniqueness for username
+        $checkStmt = $conn->prepare("SELECT UserID FROM users WHERE Username = ?");
+        $checkStmt->bind_param("s", $username);
+        $checkStmt->execute();
+        if ($checkStmt->get_result()->num_rows > 0) {
+            $username .= rand(100, 999);
+        }
+        $checkStmt->close();
+
+        // 4. Hash password
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        
+        // 5. Initial status
+        $status = 'Inactive';
+        
+        // 6. Insert
         $stmt = $conn->prepare("INSERT INTO users (RoleID, Username, Password, FirstName, LastName, PhoneNo, EmailAddress, WorkingStatus) 
                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("isssssss", $roleID, $username, $password, $firstName, $lastName, $phoneNo, $email, $status);
-        $result = $stmt->execute();
+        $stmt->bind_param("isssssss", $roleID, $username, $hashedPassword, $firstName, $lastName, $phone, $email, $status);
+        
+        $success = $stmt->execute();
         $stmt->close();
-        return $result;
+        
+        return $success;
     }
 
-    public static function setOnDuty($userId) {
+    public static function deleteStaff($userId) {
         global $conn;
 
-        // set everyone else to Inactive
-        $conn->query("UPDATE users SET WorkingStatus = 'Inactive'");
-
-        // set the user to Active
-        $stmt = $conn->prepare("UPDATE users SET WorkingStatus = 'Active' WHERE UserID = ?");
-        $stmt->bind_param("i", $userId);
-        $stmt->execute();
-        $stmt->close();
-    }
-
-    public static function deleteStaff($id) {
-        global $conn;
-
-        // Check if this user is Active
+        // Ensure we don't delete an active user
         $stmt = $conn->prepare("SELECT WorkingStatus FROM users WHERE UserID = ?");
-        $stmt->bind_param("i", $id);
+        $stmt->bind_param("i", $userId);
         $stmt->execute();
         $stmt->bind_result($status);
         $stmt->fetch();
         $stmt->close();
 
         if ($status === 'Active') {
-        // Don’t allow deletion
-        return false;
+            return false;
+        }
+
+        $stmtDelete = $conn->prepare("DELETE FROM users WHERE UserID = ?");
+        $stmtDelete->bind_param("i", $userId);
+        $success = $stmtDelete->execute();
+        $stmtDelete->close();
+        
+        return $success;
     }
-
-    // Otherwise delete
-    $stmt = $conn->prepare("DELETE FROM users WHERE UserID = ?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $deletedRows = $stmt->affected_rows;
-    $stmt->close();
-
-    return $deletedRows > 0;
-}
-
-  public static function getStaffList() {
-    global $conn;
-    $result = $conn->query("SELECT UserID, RoleID, Username, FirstName, LastName, PhoneNo, EmailAddress, WorkingStatus FROM users");
-    $staffList = $result->fetch_all(MYSQLI_ASSOC);
-    return $staffList;
-  }
 }

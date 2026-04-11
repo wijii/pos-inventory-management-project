@@ -6,14 +6,14 @@ function loginUser($conn, $username, $password)
         $sql = "SELECT u.UserID, u.Username, u.Password, u.FirstName, u.LastName, r.RoleName
         FROM users u
         INNER JOIN roles r ON u.RoleID = r.RoleID
-        WHERE u.Username = ?";
+        WHERE u.Username = ? OR u.EmailAddress = ? OR CONCAT(u.FirstName, ' ', u.LastName) = ?";
 
     $stmt = mysqli_prepare($conn, $sql);
 
-    //bind the username to the ? placeholder in the SQL above
-    mysqli_stmt_bind_param($stmt, "s", $username);
+    //bind the same input to all three ? placeholders
+    mysqli_stmt_bind_param($stmt, "sss", $username, $username, $username);
 
-    mysqli_execute($stmt);
+    mysqli_stmt_execute($stmt);
 
     $result = mysqli_stmt_get_result($stmt);
 

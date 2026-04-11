@@ -3,39 +3,39 @@ session_start();
 require_once __DIR__ . '/../config/connect.php';
 require_once __DIR__ . '/../models/StaffModel.php';
 
-
-$action = $_GET['action'] ?? '';
+if (isset($_GET['action'])) {
+    $action = $_GET['action'];
+} else {
+    $action = '';
+}
 
 switch ($action) {
-  case 'addStaff':
-    $roleID     = $_POST['roleID'] ?? '';
-    $username   = $_POST['username'] ?? '';
-    $rawPassword = $_POST['password'] ?? '';
-    $firstName  = $_POST['firstName'] ?? '';
-    $lastName   = $_POST['lastName'] ?? '';
-    $phoneNo    = $_POST['phoneNo'] ?? '';
-    $email      = $_POST['emailAddress'] ?? '';
-    $status     = $_POST['workingStatus'] ?? 'Inactive';
+    case 'getStaffList':
+        $staffData = StaffModel::getStaffList();
+        header('Content-Type: application/json');
+        echo json_encode($staffData);
+        break;
 
-    // Hash password before storing
-    $password = password_hash($rawPassword, PASSWORD_BCRYPT);
+    case 'addStaff':
+        $name = $_POST['name'] ?? '';
+        $role = $_POST['role'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $phone = $_POST['phone'] ?? '';
+        $password = $_POST['password'] ?? '';
 
-    $result = StaffModel::addStaff($roleID, $username, $password, $firstName, $lastName, $phoneNo, $email, $status);
-    echo json_encode(['success' => $result]);
-    break;
+        if (!$name || !$role || !$email || !$password) {
+            echo json_encode(['success' => false, 'message' => 'Missing fields']);
+            exit;
+        }
 
-   case 'deleteStaff':
-    $id = $_POST['UserID'] ?? 0; // ✅ must match frontend
-    $result = StaffModel::deleteStaff($id);
-    echo json_encode(['success' => $result]);
-    break;
+        $result = StaffModel::addStaff($name, $role, $email, $phone, $password);
+        echo json_encode(['success' => $result]);
+        break;
 
-  case 'getStaffList':
-    $list = StaffModel::getStaffList();
-    echo json_encode($list);
-    break;
-
-  default:
-    echo json_encode(['error' => 'Invalid action']);
+    case 'deleteStaff':
+        $id = $_POST['userId'] ?? 0;
+        
+        $result = StaffModel::deleteStaff($id);
+        echo json_encode(['success' => $result]);
+        break;
 }
-?>

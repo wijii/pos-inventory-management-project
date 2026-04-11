@@ -83,8 +83,6 @@ if (!empty($username) && !empty($password)) {
         $_SESSION['role'] = $loginResult['role'];  // Manager or Cashier
         $_SESSION['firstname'] = $loginResult['firstname'];
 
-        include_once __DIR__ . '/../models/StaffModel.php';
-        StaffModel::setOnDuty($loginResult['id']);
 
         //echo the role so the AJAX success function can read it as plain text!
         echo $loginResult['role'];
