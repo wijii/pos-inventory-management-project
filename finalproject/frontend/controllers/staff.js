@@ -2,7 +2,7 @@
 // DATA
 // ============================================================
 
-const MANAGER_PASSWORD = "admin123";
+// Manager password is validated server-side via verifyManager action
 
 // ============================================================
 // STATE
@@ -56,7 +56,10 @@ function getFilteredStaff(query) {
 }
 
 function confirmLogout() {
-  window.location.href = "login.html";
+  authAjax.logout(
+    function() { window.location.href = "login.html"; },
+    function() { window.location.href = "login.html"; }
+  );
 }
 
 // ============================================================
@@ -182,11 +185,18 @@ document.getElementById("addStaffForm").addEventListener("submit", (e) => {
   const workingStatus = formData.get("workingStatus");
   const enteredPassword = formData.get("managerPassword");
 
-  if (enteredPassword !== MANAGER_PASSWORD) {
-    showAlert("Incorrect manager password!");
-    return;
-  }
-
+  // Verify manager password server-side first, then add
+  fetch("/project/finalproject/backend/routes.php?action=verifyManager", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ password: enteredPassword })
+  })
+  .then(r => r.text())
+  .then(verdict => {
+    if (verdict.trim() !== "Success") {
+      showAlert("Incorrect manager password!");
+      return;
+    }
     addStaff(roleID, username, password, firstName, lastName, phoneNo, emailAddress, workingStatus)
     .then(result => {
       if (result.success) {
@@ -195,33 +205,39 @@ document.getElementById("addStaffForm").addEventListener("submit", (e) => {
         closeModal("addStaffModal");
         e.target.reset();
       } else {
-        showAlert("Failed to add staff.");
+        showAlert("Failed to add staff. Username or email may already be taken.");
       }
     });
+  })
+  .catch(() => showAlert("Network error. Please try again."));
 });
 
 
-    // Confirm delete
-    document.querySelector(".confirmDeleteBtn").addEventListener("click", () => {
-    const enteredPassword = document.getElementById("managerPassword").value;
-
-    if (enteredPassword !== MANAGER_PASSWORD) {
-      showAlert("Incorrect manager password!");
-      return;
-    }
-
-    deleteStaffAt(selectedUserId).then(result => {
-    if (result.success) {
-      showAlert("Staff member deleted!");
-      fetchStaff();
-      closeModal("deleteModal");
-      document.getElementById("managerPassword").value = "";
-      selectedUserId = null;
-    } else {
-      showAlert("Cannot delete the staff member who is On Duty.");
-    }
-  });
-
+    // Verify manager password server-side first, then delete
+    fetch("/project/finalproject/backend/routes.php?action=verifyManager", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ password: enteredPassword })
+    })
+    .then(r => r.text())
+    .then(verdict => {
+      if (verdict.trim() !== "Success") {
+        showAlert("Incorrect manager password!");
+        return;
+      }
+      deleteStaffAt(selectedUserId).then(result => {
+        if (result.success) {
+          showAlert("Staff member deleted!");
+          fetchStaff();
+          closeModal("deleteModal");
+          document.getElementById("managerPassword").value = "";
+          selectedUserId = null;
+        } else {
+          showAlert("Cannot delete the staff member who is On Duty.");
+        }
+      });
+    })
+    .catch(() => showAlert("Network error. Please try again."));
   });
 
   // Cancel delete

@@ -3,7 +3,10 @@
 // ============================================================
 
 function confirmLogout() {
-  window.location.href = "login.html";
+  authAjax.logout(
+    function() { window.location.href = "login.html"; },
+    function() { window.location.href = "login.html"; }
+  );
 }
 
 // ============================================================

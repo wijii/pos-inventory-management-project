@@ -169,7 +169,10 @@ function clearCart() {
 }
 
 function confirmLogout() {
-  window.location.href = "login.html";
+  authAjax.logout(
+    function() { window.location.href = "login.html"; },
+    function() { window.location.href = "login.html"; }
+  );
 }
 function printReceipt() {
   window.print();

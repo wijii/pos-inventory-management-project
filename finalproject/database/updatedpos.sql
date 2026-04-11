@@ -199,6 +199,14 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Default data for `categories`
+--
+
+INSERT INTO `categories` (`CategoryID`, `CategoryName`) VALUES
+(1, 'Beverages'),
+(2, 'Food');
+
+--
 -- Default data for `roles`
 --
 
@@ -211,18 +219,18 @@ INSERT INTO `roles` (`RoleID`, `RoleName`) VALUES
 --
 
 INSERT INTO `users` (`RoleID`, `Username`, `Password`, `FirstName`, `LastName`, `PhoneNo`, `EmailAddress`, `WorkingStatus`) VALUES
-(1, 'admin', '$2y$10$k1GNRJiUB4h.f/Kp7aZ7qePYSr15hBidrAC2qO971iEJ4n248UPTy', 'Admin', 'User', '00000000000', 'admin@casacafe.com', 'Inactive');
+(1, 'admin', '$2y$10$k1GNRJiUB4h.f/Kp7aZ7qePYSr15hBidrAC2qO971iEJ4n248UPTy', 'Admin', 'User', '09999292751', 'admin@casacafe.com', 'Inactive');
 
 --
 -- Default data for `system_settings`
 --
 
 INSERT INTO `system_settings` (`SettingKey`, `SettingValue`) VALUES
-('store_name',         'Casa Cafe'),
-('store_email',        'casacafe@gmail.com'),
-('store_contact',      '09999292751'),
-('tax_rate',           '5'),
-('low_stock_threshold','5');
+('storeName',         'Casa Cafe'),
+('storeEmail',        'casacafe@gmail.com'),
+('contactNumber',      '09999292751'),
+('taxRate',           '5'),
+('stockAlert',        '5');
 
 --
 -- Indexes for dumped tables

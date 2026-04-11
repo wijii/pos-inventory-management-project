@@ -78,24 +78,36 @@ function processCheckout($conn, $userID, $amountPaid, $totalAmountDue, $cartItem
             }
 
             //update inventory automatically (checking if row exists first)
-            $sqlCheck = "SELECT InventoryID FROM inventories WHERE SKUID = ? LIMIT 1";
+            $sqlCheck = "SELECT InventoryID, Quantity FROM inventories WHERE SKUID = ? LIMIT 1";
             $stmtCheck = mysqli_prepare($conn, $sqlCheck);
             mysqli_stmt_bind_param($stmtCheck, "i", $skuID);
             mysqli_stmt_execute($stmtCheck);
             $res = mysqli_stmt_get_result($stmtCheck);
             
-            if (mysqli_num_rows($res) > 0) {
-                $sqlUp = "UPDATE inventories SET Quantity = Quantity - ?, LastUpdateTime = NOW() WHERE SKUID = ?";
+            $oldQty = 0;
+            if ($invRow = mysqli_fetch_assoc($res)) {
+                $oldQty = intval($invRow['Quantity']);
+                $newQty = $oldQty - $qty;
+                $sqlUp = "UPDATE inventories SET Quantity = ?, LastUpdateTime = NOW() WHERE SKUID = ?";
                 $stmtUp = mysqli_prepare($conn, $sqlUp);
-                mysqli_stmt_bind_param($stmtUp, "ii", $qty, $skuID);
+                mysqli_stmt_bind_param($stmtUp, "ii", $newQty, $skuID);
                 mysqli_stmt_execute($stmtUp);
             } else {
+                $newQty = -$qty;
                 $sqlIn = "INSERT INTO inventories (SKUID, Quantity, ReorderLevel, LastUpdateTime) VALUES (?, ?, 10, NOW())";
                 $stmtIn = mysqli_prepare($conn, $sqlIn);
-                $negQty = -$qty;
-                mysqli_stmt_bind_param($stmtIn, "ii", $skuID, $negQty);
+                mysqli_stmt_bind_param($stmtIn, "ii", $skuID, $newQty);
                 mysqli_stmt_execute($stmtIn);
             }
+
+            // Log the deduction in inventory_logs
+            $note = "Sale - Transaction #" . $transactionID;
+            $sqlLog = "INSERT INTO inventory_logs (SKUID, UserID, ChangeType, QuantityBefore, QuantityChange, QuantityAfter, Note, LogTime)
+                       VALUES (?, ?, 'deduction', ?, ?, ?, ?, NOW())";
+            $stmtLog = mysqli_prepare($conn, $sqlLog);
+            $negQty = -$qty;
+            mysqli_stmt_bind_param($stmtLog, "iiiiis", $skuID, $userID, $oldQty, $negQty, $newQty, $note);
+            mysqli_stmt_execute($stmtLog);
         }
 
         mysqli_commit($conn);

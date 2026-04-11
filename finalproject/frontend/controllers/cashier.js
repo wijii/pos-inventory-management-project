@@ -34,7 +34,17 @@ const DISCOUNTS = {
   pwd: { label: "PWD (20%)", rate: 0.2, color: "#60a5fa" },
 };
 
-const TAX_RATE = 0.12;
+let TAX_RATE = 0.05; // default; overwritten by settings API on load
+
+// Load tax rate from system settings
+$.get("/project/finalproject/backend/routes.php?action=getStoreSettings", function(res) {
+  if (res) {
+    try {
+      const data = (typeof res === "string") ? JSON.parse(res) : res;
+      if (data.taxRate) TAX_RATE = parseFloat(data.taxRate) / 100;
+    } catch(e) {}
+  }
+});
 
 // ============================================================
 // STATE
@@ -161,7 +171,10 @@ function clearCart() {
 }
 
 function confirmLogout() {
-  window.location.href = "login.html";
+  authAjax.logout(
+    function() { window.location.href = "login.html"; },
+    function() { window.location.href = "login.html"; }
+  );
 }
 function printReceipt() {
   window.print();
