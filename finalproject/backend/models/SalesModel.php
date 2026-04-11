@@ -125,7 +125,7 @@ function getSalesTransactionHistory($conn)
                 t.AmountPaid,
                 t.TransactionDate,
                 CONCAT(u.FirstName, ' ', u.LastName) AS cashierName,
-                COUNT(td.TransactionDetailID)         AS itemCount
+                COUNT(td.DetailsID)         AS itemCount
             FROM transactions t
             LEFT JOIN users u              ON t.UserID         = u.UserID
             LEFT JOIN transactiondetails td ON t.TransactionID = td.TransactionID
@@ -167,7 +167,7 @@ function getSalesReceiptItems($conn, $transactionID)
             INNER JOIN productskus s ON td.SKUID    = s.SKUID
             INNER JOIN products    p ON s.ProductID = p.ProductID
             WHERE td.TransactionID = ?
-            ORDER BY td.TransactionDetailID ASC";
+            ORDER BY td.DetailsID ASC";
 
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "i", $transactionID);

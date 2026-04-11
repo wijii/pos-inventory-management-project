@@ -1,40 +1,10 @@
 // ============================================================
-// DATA
-// ============================================================
-
-const SETTINGS_FIELDS = {
-  account: ["fullname", "username", "email", "password"],
-  store:   ["storeName", "storeEmail", "contactNumber"],
-  tax:     ["taxRate", "stockAlert"],
-};
-
-const SETTINGS_DEFAULTS = {
-  taxRate:    5,
-  stockAlert: 5,
-};
-
-
-// ============================================================
 // LOGIC
 // ============================================================
-
-function saveFields(fields) {
-  fields.forEach(id => {
-    localStorage.setItem(id, document.getElementById(id).value);
-  });
-}
-
-function loadFields(fields) {
-  fields.forEach(id => {
-    document.getElementById(id).value =
-      localStorage.getItem(id) ?? (SETTINGS_DEFAULTS[id] ?? "");
-  });
-}
 
 function confirmLogout() {
   window.location.href = "login.html";
 }
-
 
 // ============================================================
 // UI / RENDERING
@@ -61,7 +31,6 @@ function showAlert(message) {
   setTimeout(() => alertBox.remove(), 3500);
 }
 
-
 // ============================================================
 // MODALS
 // ============================================================
@@ -74,33 +43,86 @@ function closeModal(id) {
   document.getElementById(id).style.display = "none";
 }
 
-
 // ============================================================
-// EVENT LISTENERS
+// EVENT LISTENERS & AJAX
 // ============================================================
 
 document.getElementById("saveAccount").addEventListener("click", () => {
-  saveFields(SETTINGS_FIELDS.account);
-  showAlert("Account settings saved!");
+  const btn = document.getElementById("saveAccount");
+  btn.textContent = "Saving...";
+  
+  $.post("/project/finalproject/backend/routes.php?action=saveUserProfile", {
+    firstname: document.getElementById("firstname").value,
+    lastname: document.getElementById("lastname").value,
+    username: document.getElementById("username").value,
+    email: document.getElementById("email").value,
+    password: document.getElementById("password").value
+  }, function(response) {
+    btn.textContent = "Save Changes";
+    const res = JSON.parse(response);
+    if (res.success) {
+      document.getElementById("password").value = ""; // clear password after save
+      showAlert("Account settings saved!");
+    } else {
+      showAlert("Failed to save account settings.");
+    }
+  });
 });
 
 document.getElementById("saveStore").addEventListener("click", () => {
-  saveFields(SETTINGS_FIELDS.store);
-  showAlert("Store info saved!");
+  const btn = document.getElementById("saveStore");
+  btn.textContent = "Saving...";
+
+  $.post("/project/finalproject/backend/routes.php?action=saveStoreSettings", {
+    storeName: document.getElementById("storeName").value,
+    storeEmail: document.getElementById("storeEmail").value,
+    contactNumber: document.getElementById("contactNumber").value
+  }, function(response) {
+    btn.textContent = "Save Store Info";
+    const res = JSON.parse(response);
+    if (res.success) showAlert("Store info saved!");
+  });
 });
 
 document.getElementById("saveTax").addEventListener("click", () => {
-  saveFields(SETTINGS_FIELDS.tax);
-  showAlert("Tax & alerts saved!");
-});
+  const btn = document.getElementById("saveTax");
+  btn.textContent = "Saving...";
 
+  $.post("/project/finalproject/backend/routes.php?action=saveTaxSettings", {
+    taxRate: document.getElementById("taxRate").value,
+    stockAlert: document.getElementById("stockAlert").value
+  }, function(response) {
+    btn.textContent = "Save";
+    const res = JSON.parse(response);
+    if (res.success) showAlert("Tax & alerts saved!");
+  });
+});
 
 // ============================================================
 // INIT
 // ============================================================
 
 window.onload = () => {
-  loadFields(SETTINGS_FIELDS.account);
-  loadFields(SETTINGS_FIELDS.store);
-  loadFields(SETTINGS_FIELDS.tax);
+  // Load Account Profile
+  $.get("/project/finalproject/backend/routes.php?action=getUserProfile", function(response) {
+    if (response) {
+      const data = JSON.parse(response);
+      if (data.FirstName) document.getElementById("firstname").value = data.FirstName;
+      if (data.LastName) document.getElementById("lastname").value = data.LastName;
+      if (data.Username) document.getElementById("username").value = data.Username;
+      if (data.EmailAddress) document.getElementById("email").value = data.EmailAddress;
+    }
+  });
+
+  // Load System Settings
+  $.get("/project/finalproject/backend/routes.php?action=getStoreSettings", function(response) {
+    if (response) {
+      const data = JSON.parse(response);
+      if (data.storeName) document.getElementById("storeName").value = data.storeName;
+      if (data.storeEmail) document.getElementById("storeEmail").value = data.storeEmail;
+      if (data.contactNumber) document.getElementById("contactNumber").value = data.contactNumber;
+      if (data.taxRate) document.getElementById("taxRate").value = data.taxRate;
+      if (data.stockAlert) document.getElementById("stockAlert").value = data.stockAlert;
+    }
+  });
 };

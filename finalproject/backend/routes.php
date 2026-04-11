@@ -25,6 +25,8 @@ if ($action == 'login' || $action == 'session' || $action == 'logout' || $action
     require 'controllers/SalesController.php';
 } else if ($action == 'addStaff' || $action == 'deleteStaff' || $action == 'getStaffList') {
     require 'controllers/StaffController.php';
+} else if ($action == 'getUserProfile' || $action == 'saveUserProfile' || $action == 'getStoreSettings' || $action == 'saveStoreSettings' || $action == 'saveTaxSettings') {
+    require 'controllers/SettingsController.php';
 } else {
     echo "Error: The requested action was not found.";
 }

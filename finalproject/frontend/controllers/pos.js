@@ -34,7 +34,15 @@ const DISCOUNTS = {
   pwd: { label: "PWD (20%)", rate: 0.2, color: "#60a5fa" },
 };
 
-const TAX_RATE = 0.12;
+let TAX_RATE = 0.05;
+
+// Load global system settings
+$.get("/project/finalproject/backend/routes.php?action=getStoreSettings", function(res) {
+  if (res) {
+    const data = JSON.parse(res);
+    if (data.taxRate) TAX_RATE = parseFloat(data.taxRate) / 100;
+  }
+});
 
 // ============================================================
 // STATE
@@ -360,6 +368,19 @@ function openSizePicker(productId) {
 
 function closeSizePicker() {
   document.getElementById("sizeModal").classList.remove("show");
+}
+
+function updateSidebarLogo() {
+  const sidebarLogo = document.querySelector('.sidebar .logo h2');
+  
+  if (sidebarLogo) {
+    $.get("/project/finalproject/backend/routes.php?action=getStoreSettings", function(res) {
+      if (res) {
+        const data = JSON.parse(res);
+        if (data.storeName) sidebarLogo.textContent = data.storeName;
+      }
+    });
+  }
 }
 
 // ============================================================
