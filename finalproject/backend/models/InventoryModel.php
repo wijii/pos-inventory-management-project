@@ -1,5 +1,6 @@
 <?php
 
+// Inventory Queries: Functions for reading stock levels, applying restocks, and writing audit log entries.
 function getFullInventory($conn)
 {
     //select from inventories and join with productskus and products

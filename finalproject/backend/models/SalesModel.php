@@ -1,6 +1,6 @@
 <?php
 
-//returns overall lifetime stats total revenue, total transactions, avg ticket
+// Sales Queries: Functions for lifetime stats, chart breakdowns, product revenue, transaction history, and receipt line items.
 function getSalesLifetimeStats($conn)
 {
     $sql = "SELECT

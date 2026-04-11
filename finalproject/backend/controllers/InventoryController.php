@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+// Dependencies: Loads the database connection and stock management functions.
 include __DIR__ . '/../config/connect.php';
 include __DIR__ . '/../models/InventoryModel.php';
 

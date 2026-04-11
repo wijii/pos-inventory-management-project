@@ -1,5 +1,6 @@
 <?php
 
+// Transaction Processing: Handles the full checkout flow — SKU lookups, stock deduction, and transaction record creation.
 // Find SKUID from BaseSKU and string parsed size
 function getSKUIDFromFrontendID($conn, $frontendID) {
     $baseSKU = $frontendID;

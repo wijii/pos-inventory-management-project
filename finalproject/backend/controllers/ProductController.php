@@ -2,10 +2,11 @@
 
 session_start();
 
+// Dependencies: Loads the database connection and product catalog functions.
 include __DIR__ . '/../config/connect.php';
 include __DIR__ . '/../models/ProductModel.php';
 
-//read what action the frontend is requesting
+// Route Handler: Reads the action param and delegates to the right product operation.
 if (isset($_GET['action'])) {
     $action = $_GET['action'];
 } else {

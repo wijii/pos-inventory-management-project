@@ -1,14 +1,10 @@
-// ============================================================
-// STATE
-// ============================================================
+// State Management: Tracks the active filter period and the currently rendered chart instance.
 
 let activePeriod       = "daily";
 let salesChartInstance = null;
 
 
-// ============================================================
-// LOGIC
-// ============================================================
+// Helpers & Formatting Logic: Handles styling, percentage calculations, and currency formatting.
 
 function getLowStockStyle(lowStock) {
   if (lowStock > 0) {
@@ -44,9 +40,7 @@ function getPeriodLabel(period) {
 }
 
 
-// ============================================================
-// UI / RENDERING
-// ============================================================
+// UI Renderers: Updates the dashboard cards, charts, and lists using data fetched from the API.
 
 function updateStatCards(data) {
   document.getElementById("sales").textContent        = formatCurrency(data.sales);
@@ -165,6 +159,9 @@ function animateElements() {
   });
 }
 
+
+// Core Fetching Logic: Triggers the AJAX request to get new dashboard statistics.
+
 function updateDashboard(period) {
   showLoadingState();
 
@@ -190,9 +187,7 @@ function updateDashboard(period) {
 }
 
 
-// ============================================================
-// MODALS
-// ============================================================
+// Modal Controllers: Controls the opening and closing of floating popup modals.
 
 function openModal(id) {
   document.getElementById(id).style.display = "flex";
@@ -202,32 +197,24 @@ function closeModal(id) {
   document.getElementById(id).style.display = "none";
 }
 
-
-// ============================================================
-// EVENT LISTENERS
-// ============================================================
-
-document.querySelectorAll(".filter-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    activePeriod = btn.dataset.period;
-    updateDashboard(activePeriod);
-  });
-});
-
-// Overflow fix — clips transforms when scrolling
-const scroller = document.querySelector(".main-scroll");
-if (scroller) {
-  scroller.style.overflow = "visible";
-  scroller.style.height   = "auto";
+function confirmLogout() {
+  authAjax.logout(
+    function() { window.location.href = "login.html"; },
+    function() { window.location.href = "login.html"; }
+  );
 }
 
-
-// ============================================================
-// INIT
-// ============================================================
+// Initializer: Attaches click logic to filter tabs and starts the initial data load on startup.
 
 $(document).ready(function () {
   updateDashboard(activePeriod);
+
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activePeriod = btn.dataset.period;
+      updateDashboard(activePeriod);
+    });
+  });
 });

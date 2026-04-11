@@ -2,10 +2,11 @@
 
 session_start();
 
+// Dependencies: Loads the database connection and dashboard query functions.
 include __DIR__ . '/../config/connect.php';
 include __DIR__ . '/../models/DashboardModel.php';
 
-// only logged in managers should be able to get dashboard data
+// Auth Guard: Blocks this endpoint from unauthenticated requests.
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(array('error' => 'Not logged in'));
     exit;

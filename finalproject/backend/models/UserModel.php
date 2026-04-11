@@ -1,5 +1,5 @@
 <?php
-//checks if the username and password match a user in the database
+// User Authentication: Validates login credentials against the database and manages working status on sign in.
 function loginUser($conn, $username, $password)
 {
     // find the user by username, and also grab their role name from the roles table

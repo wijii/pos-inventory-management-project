@@ -1,7 +1,4 @@
-// ============================================================
-// DATA
-// ============================================================
-
+// System configuration: Holds static menus, product lists, and tax constants.
 let products = [];
 
 const SIZE_OPTIONS = [
@@ -38,20 +35,14 @@ $.get("/project/finalproject/backend/routes.php?action=getStoreSettings", functi
   }
 });
 
-// ============================================================
-// STATE
-// ============================================================
-
+// Application State: Tracks the shopping cart, UI filters, and checkout variables.
 let cart = [];
 let activeCategory = "all";
 let searchQuery = "";
 let activeDiscount = "none";
 let activePayment = "cash";
 
-// ============================================================
-// LOGIC
-// ============================================================
-
+// Financial Math & Core Logic: Calculates cart subtotals, tax bounds, formatting, and receipt IDs.
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
@@ -194,10 +185,7 @@ function printReceipt() {
   window.print();
 }
 
-// ============================================================
-// UI / RENDERING
-// ============================================================
-
+// UI Renderers: Builds HTML layouts for product cards, shopping cart items, and grand totals.
 function renderProducts() {
   const grid = document.getElementById("productGrid");
   const filtered = products.filter((p) => {
@@ -348,10 +336,7 @@ function updateChange() {
   }
 }
 
-// ============================================================
-// MODALS
-// ============================================================
-
+// Modal Controllers: Logic for prompting size choices, clearing the cart, and handling checkout popups.
 function openModal(id) {
   document.getElementById(id).style.display = "flex";
 }
@@ -400,10 +385,7 @@ function closeSizePicker() {
 
 
 
-// ============================================================
-// EVENT LISTENERS
-// ============================================================
-
+// Event Binding & DOM Tracking: Binds cart buttons, input fields, discount overlays, and search bars to functions.
 // Cash input
 document
   .getElementById("cashInput")
@@ -595,6 +577,7 @@ window.onclick = function (e) {
     });
 };
 
+// Initialization: Pulls products from the database immediately when the POS screen mounts and renders them.
 $(document).ready(function () {
   posAjax.getProducts(
     function (data) {

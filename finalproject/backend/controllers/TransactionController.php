@@ -1,9 +1,11 @@
 <?php
 session_start();
 
+// Dependencies: Loads the database connection and the checkout processing logic.
 include __DIR__ . '/../config/connect.php';
 include __DIR__ . '/../models/TransactionModel.php';
 
+// Route Handler: Maps the incoming action parameter to the correct checkout function.
 $action = '';
 if (isset($_GET['action'])) {
     $action = $_GET['action'];

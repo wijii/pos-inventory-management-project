@@ -1,5 +1,7 @@
 <?php
 session_start();
+
+// Dependencies: Loads the database connection and the StaffModel class.
 require_once __DIR__ . '/../config/connect.php';
 require_once __DIR__ . '/../models/StaffModel.php';
 

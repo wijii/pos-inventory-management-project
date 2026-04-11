@@ -1,3 +1,4 @@
+// Staff Service: Requests data related to user accounts, roster checks, and basic team member edits.
 const staffAjax = {
   getStaffList: function () {
     return fetch("../../backend/routes.php?action=getStaffList")

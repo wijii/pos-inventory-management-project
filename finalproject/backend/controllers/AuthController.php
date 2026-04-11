@@ -2,11 +2,11 @@
 
 session_start();
 
-// Includes (using __DIR__ so paths are always correct regardless of routes.php inclusion)
+// Dependencies: Pulls in the database connection and user login logic from the model.
 include __DIR__ . '/../config/connect.php';
 include __DIR__ . '/../models/UserModel.php';
 
-//verify manager password 
+// Manager Verification: Checks if any active manager's password matches the one submitted.
 if (isset($_GET['action']) && $_GET['action'] == 'verifyManager') {
     $password = $_POST['password'];
 

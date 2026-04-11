@@ -1,7 +1,4 @@
-// ============================================================
-// LOGIC
-// ============================================================
-
+// Logic: Contains general application functions such as handling authentication logouts.
 function confirmLogout() {
   authAjax.logout(
     function() { window.location.href = "login.html"; },
@@ -9,10 +6,7 @@ function confirmLogout() {
   );
 }
 
-// ============================================================
-// UI / RENDERING
-// ============================================================
-
+// UI Renderers: Mounts custom notification alerts whenever settings are saved.
 function showAlert(message) {
   const alertsContainer = document.getElementById("alertsContainer");
   if (!alertsContainer) return;
@@ -34,10 +28,7 @@ function showAlert(message) {
   setTimeout(() => alertBox.remove(), 3500);
 }
 
-// ============================================================
-// MODALS
-// ============================================================
-
+// Modal Actions: Toggles popup menus.
 function openModal(id) {
   document.getElementById(id).style.display = "flex";
 }
@@ -46,10 +37,7 @@ function closeModal(id) {
   document.getElementById(id).style.display = "none";
 }
 
-// ============================================================
-// EVENT LISTENERS & AJAX
-// ============================================================
-
+// Event Listeners & AJAX: Binds save buttons to HTTP post requests to update database flags.
 document.getElementById("saveStore").addEventListener("click", () => {
   const btn = document.getElementById("saveStore");
   btn.textContent = "Saving...";
@@ -79,10 +67,7 @@ document.getElementById("saveTax").addEventListener("click", () => {
   });
 });
 
-// ============================================================
-// INIT
-// ============================================================
-
+// Initializer Script: Queries backend for current values to pre-populate form inputs on load.
 window.onload = () => {
 
 

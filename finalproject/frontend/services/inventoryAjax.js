@@ -1,3 +1,4 @@
+// Inventory Service: Handles stock level adjustments, fetching logs, and querying inventory status.
 const inventoryAjax = {
 
   getInventory: function (onSuccess, onError) {

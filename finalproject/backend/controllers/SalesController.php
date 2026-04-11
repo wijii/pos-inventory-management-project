@@ -2,10 +2,11 @@
 
 session_start();
 
+// Dependencies: Loads the database connection and sales query functions.
 include __DIR__ . '/../config/connect.php';
 include __DIR__ . '/../models/SalesModel.php';
 
-//only logged-in users may access sales data
+// Auth Guard: Blocks unauthenticated requests from accessing any sales data.
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(array('error' => 'Not logged in'));
     exit;

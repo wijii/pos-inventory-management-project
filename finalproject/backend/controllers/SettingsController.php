@@ -1,10 +1,11 @@
 <?php
 session_start();
 
+// Dependencies: Loads the database connection and settings read/write functions.
 include __DIR__ . '/../config/connect.php';
 include __DIR__ . '/../models/SettingsModel.php';
 
-// Check if user is logged in
+// Auth Guard: Rejects any call that doesn't have an active session.
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['error' => 'Not authenticated']);
     exit;

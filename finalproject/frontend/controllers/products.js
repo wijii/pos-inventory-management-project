@@ -1,5 +1,6 @@
 const MANAGER_PASSWORD = "admin123";
 
+// Core State & Logic: Defines temporary product placeholders and random SKU generation formulas.
 let pendingProduct = null;
 let selectedRow = null;
 let selectedSkuID = null;
@@ -47,10 +48,7 @@ function buildDrinkRows(product) {
     .join("");
 }
 
-// ============================================================
-// UI / RENDERING
-// ============================================================
-
+// UI & Notification Layouts: Pops up toast messages and mounts small UI preview components.
 function showAlert(message, isSuccess = false) {
   const alertsContainer = document.getElementById("alertsContainer");
   if (!alertsContainer) return;
@@ -96,10 +94,7 @@ function populateConfirmModal(name, category, priceText) {
   document.getElementById("confirmPrice").innerText = priceText;
 }
 
-// ============================================================
-// MODALS
-// ============================================================
-
+// Modal Bindings: Groups logic for opening forms, populating fields, and saving additions to the DB.
 function openModal(id) {
   document.getElementById(id).style.display = "flex";
 }
@@ -297,6 +292,7 @@ function saveProductToBackend() {
   );
 }
 
+// Event Listeners: Triggers image preview conversions when a new file gets uploaded.
 document
   .getElementById("foodImageInput")
   .addEventListener("change", function () {
@@ -411,6 +407,7 @@ window.onclick = function (e) {
   });
 };
 
+// Initializer Script: Boots the product lists immediately when the interface loads up.
 document.addEventListener("DOMContentLoaded", function () {
   //load the products table on page load
   productsAjax.getProductsTable(

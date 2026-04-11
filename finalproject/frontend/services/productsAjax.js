@@ -1,3 +1,4 @@
+// Products Service: Handles CRUD operations for food and drink menus, including uploading imagery.
 const productsAjax = {
   verifyManager: function (password, onSuccess, onError) {
     $.ajax({

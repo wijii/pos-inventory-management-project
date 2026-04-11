@@ -1,5 +1,6 @@
 <?php
 
+// Settings Queries: Handles the system_settings table, including initialization, reading values, and saving them back.
 function initSettingsTable($conn)
 {
     $sql = "CREATE TABLE IF NOT EXISTS system_settings (

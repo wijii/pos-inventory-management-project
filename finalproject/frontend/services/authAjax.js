@@ -1,3 +1,4 @@
+// Authentication Service: Manages HTTP requests for credential checking, logout cleanup, and session heartbeats.
 const authAjax = {
   login: function (username, password, onSuccess, onError) {
     $.ajax({

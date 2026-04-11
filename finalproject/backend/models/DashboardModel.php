@@ -1,6 +1,6 @@
 <?php
 
-//returns total sales revenue, transaction count, and average for the given period.
+// Dashboard Queries: SQL functions for pulling sales summaries, low stock counts, chart data, and top products.
 //period valuesdaily, weekly, monthly
 function getDashboardSummary($conn, $period)
 {

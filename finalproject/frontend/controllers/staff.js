@@ -1,20 +1,11 @@
-// ============================================================
-// DATA
-// ============================================================
-
+// Data Cache: Serves as the global memory for handling active staff list.
 // Manager password validation handled by server
 let staff = [];
 
-// ============================================================
-// STATE
-// ============================================================
-
+// Internal State: Tracks which staff profile is flagged for removal.
 let staffIdToDelete = null;
 
-// ============================================================
-// LOGIC
-// ============================================================
-
+// Logic & Parsing: Fetches updated data sets or matches items using queries.
 function fetchStaff() {
   staffAjax.getStaffList()
     .then(data => {
@@ -48,10 +39,7 @@ function confirmLogout() {
     );
 }
 
-// ============================================================
-// UI / RENDERING
-// ============================================================
-
+// UI Renderers: Mounts custom notification alerts and maps JSON payloads into visual user cards.
 function showAlert(message) {
   const alertsContainer = document.getElementById("alertsContainer");
   if (!alertsContainer) return;
@@ -108,10 +96,7 @@ function displayStaff(list) {
   lucide.createIcons();
 }
 
-// ============================================================
-// MODALS
-// ============================================================
-
+// Modal Actions: Toggles popup menus like authentication panels and profile editors.
 function openModal(id) {
   document.getElementById(id).style.display = "flex";
 }
@@ -126,10 +111,7 @@ window.openDeleteModal = function (userId) {
   openModal("deleteModal");
 };
 
-// ============================================================
-// EVENT LISTENERS
-// ============================================================
-
+// Event Handlers: Binds all button clicks, form submissions, and password toggles across the dashboard.
 document.addEventListener("DOMContentLoaded", () => {
   // Toggle password visibility
   document
@@ -225,10 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ============================================================
-// INIT
-// ============================================================
-
+// Startup Hook: Boots up the module by populating the initial staff roster whenever the screen loads.
 document.addEventListener("DOMContentLoaded", () => {
   fetchStaff();
 });

@@ -1,15 +1,9 @@
-// ============================================================
-// DATA & SESSION
-// ============================================================
-
+// State Cache: Saves the logged-in user handle into local browser storage.
 function saveSession(username) {
   localStorage.setItem("loggedInUser", username);
 }
 
-// ============================================================
-// UI / RENDERING
-// ============================================================
-
+// UI Listeners: Subscribes dynamic style changes for login inputs.
 function updateButtonColor() {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -90,8 +84,5 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Enter") document.getElementById("loginBtn").click();
 });
 
-// ============================================================
-// INIT
-// ============================================================
-
+// Startup Initialize: Ensures correct button coloring when loaded.
 updateButtonColor();

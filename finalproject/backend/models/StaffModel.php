@@ -1,4 +1,5 @@
 <?php
+// Staff Queries: OOP class that handles fetching, adding, and removing team member records.
 require_once __DIR__ . '/../config/connect.php';
 
 class StaffModel

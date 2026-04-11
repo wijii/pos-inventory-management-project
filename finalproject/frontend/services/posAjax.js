@@ -1,3 +1,4 @@
+// POS Service: Handles checkout carts, discounts, and querying active product catalogs.
 const posAjax = {
   checkout: function (cash, total, cart, paymentMethod, discountAmount, onSuccess, onError) {
     $.ajax({

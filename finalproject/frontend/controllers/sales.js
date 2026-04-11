@@ -1,7 +1,4 @@
-// ============================================================
-// STATE
-// ============================================================
-
+// State Variables: Keeps track of charts and the currently active time period for fetching.
 let activePeriod = "daily";
 let revChart     = null;
 let transChart   = null;
@@ -13,10 +10,7 @@ const PERIOD_SUB_LABELS = {
 };
 
 
-// ============================================================
-// LOGIC
-// ============================================================
-
+// Logic & Utilities: Formats currencies and determines chart peaks.
 function formatCurrency(value) {
   return "₱" + parseFloat(value).toLocaleString("en-PH", {
     minimumFractionDigits: 2,
@@ -37,10 +31,7 @@ function confirmLogout() {
 }
 
 
-// ============================================================
-// UI / RENDERING
-// ============================================================
-
+// UI Renderers: Fetches data via AJAX and populates the data tables or chart instances.
 function renderLifetimeStats() {
   salesAjax.getLifetimeStats(
     function (data) {
@@ -180,10 +171,7 @@ function renderTransactionTable() {
 }
 
 
-// ============================================================
-// MODALS
-// ============================================================
-
+// Modal Logic: Handles popovers such as viewing the receipt details table.
 function openModal(id) {
   document.getElementById(id).style.display = "flex";
 }
@@ -241,10 +229,7 @@ function closeReceiptModal() {
 }
 
 
-// ============================================================
-// EVENT LISTENERS
-// ============================================================
-
+// DOM Event Tracking: Attaches tab switching and dropdown button actions to their respective functions.
 document.querySelectorAll(".filter-btn").forEach(function (btn) {
   btn.addEventListener("click", function () {
     document.querySelectorAll(".filter-btn").forEach(function (b) { b.classList.remove("active"); });
@@ -276,10 +261,7 @@ window.onclick = function (e) {
 };
 
 
-// ============================================================
-// INIT
-// ============================================================
-
+// Startup Initialization: Triggers initial widget loads when the dashboard mounts.
 $(document).ready(function () {
   renderLifetimeStats();
   renderCharts();

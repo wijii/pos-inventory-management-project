@@ -1,4 +1,5 @@
 <?php
+// Product Queries: Functions for fetching the menu catalog, building the POS product list, and saving or removing SKUs.
 // Gets all categories from the database
 function getAllCategories($conn)
 {

@@ -1,3 +1,4 @@
+// Sales Service: Retrieves historical charts, transaction lists, and individual receipt lookups.
 const salesAjax = {
   //fetches lifetime total revenue, transaction count, and avg ticket
   getLifetimeStats: function (onSuccess, onError) {

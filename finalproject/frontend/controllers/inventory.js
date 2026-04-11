@@ -1,16 +1,10 @@
-// ============================================================
-// DATA
-// ============================================================
-
+// State & Constants: Houses the item lists and stock limits.
 let inventoryData = [];
 
 const LOW_STOCK_THRESHOLD = 5;
 let activeFilter = "all"; // "all" | "low" | "in" | "logs"
 
-// ============================================================
-// HELPERS
-// ============================================================
-
+// General Utilities: Formats dates and determines low stock visual states.
 function getStatus(item) {
   const stock = item.stock;
   const threshold = item.threshold > 0 ? item.threshold : LOW_STOCK_THRESHOLD;
@@ -78,10 +72,7 @@ function confirmLogout() {
   );
 }
 
-// ============================================================
-// ALERT
-// ============================================================
-
+// Feedback Alert Generator: Constructs visual toast notifications on screen edges.
 function showAlert(message, isSuccess = true) {
   const alertsContainer = document.getElementById("alertsContainer");
   if (!alertsContainer) return;
@@ -107,10 +98,7 @@ function showAlert(message, isSuccess = true) {
   setTimeout(() => alertBox.remove(), 3500);
 }
 
-// ============================================================
-// RENDER TABLE
-// ============================================================
-
+// UI Data Tables: Assembles data columns for live tracking and historical audit logs.
 function renderTable(data) {
   const tbody = document.getElementById("inventoryTable");
 
@@ -240,10 +228,7 @@ function resetTableHeaders() {
   `;
 }
 
-// ============================================================
-// STATS + FILTER TABS
-// ============================================================
-
+// Derived Analytics: Computes sums on the fly to hydrate statistic widgets and tab filters.
 function updateStats() {
   const allCount = inventoryData.length;
   // Low Count will represent anything that is unavailable, out of stock, OR low stock
@@ -301,10 +286,7 @@ function setFilter(filter) {
   }
 }
 
-// ============================================================
-// MODALS
-// ============================================================
-
+// Modal Controllers: Logic for showing and hiding dialog popup boxes.
 function openModal(id) {
   document.getElementById(id).style.display = "flex";
 }
@@ -312,10 +294,7 @@ function closeModal(id) {
   document.getElementById(id).style.display = "none";
 }
 
-// ============================================================
-// EVENT LISTENERS
-// ============================================================
-
+// Event Tracking & Initialization: Maps search inputs and row buttons to their logic, then boots up the page.
 function bindUpdateButtons() {
   const tbody = document.getElementById("inventoryTable");
 

@@ -1,7 +1,6 @@
 <?php
 
-//AJAX requests will be sent to this file.
-//check what action the frontend wants to perform.
+// Entry Point: All AJAX calls from the frontend land here. Reads the action param and routes to the right controller.
 
 if (isset($_GET['action'])) {
     $action = $_GET['action'];
@@ -9,7 +8,7 @@ if (isset($_GET['action'])) {
     $action = '';
 }
 
-//route the request to the correct Controller based on the action
+// Route Map: Each branch maps a group of action names to its responsible controller file.
 
 if ($action == 'login' || $action == 'session' || $action == 'logout' || $action == 'verifyManager') {
     require 'controllers/AuthController.php';
