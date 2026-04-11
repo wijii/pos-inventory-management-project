@@ -209,6 +209,10 @@ function confirmLogout() {
 $(document).ready(function () {
   updateDashboard(activePeriod);
 
+  // Silent Auto-Backup: Pings the backup controller in the background once per day.
+  // The PHP script checks if a backup already ran today, so it never duplicates files.
+  fetch("../../backend/routes.php?action=runAutoBackup").catch(() => {});
+
   document.querySelectorAll(".filter-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));

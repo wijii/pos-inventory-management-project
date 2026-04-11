@@ -122,24 +122,27 @@ function showAlert(message) {
   setTimeout(() => alertBox.remove(), 3500);
 }
 
-//logout logic
+//logout logic: fires one last silent backup to capture end-of-day sales, then logs out.
 function confirmLogout() {
-  authAjax.logout(
-    function (result) {
-      if (result.trim() === "Success") {
-        // Clear local storage and redirect to login
-        localStorage.removeItem("loggedInUser");
-        window.location.href = "login.html";
-      } else {
-        console.error("Logout failed at server, forcing local logout.");
-        localStorage.removeItem("loggedInUser");
-        window.location.href = "login.html";
-      }
-    },
-    function () {
-      //even if server fails,clear local and redirect
-      localStorage.removeItem("loggedInUser");
-      window.location.href = "login.html";
-    },
-  );
+  // End-of-Day Backup: Runs the backup one final time before the session is destroyed.
+  // The .finally() ensures logout always proceeds even if the backup fetch fails.
+  fetch("../../backend/routes.php?action=runAutoBackup")
+    .finally(function () {
+      authAjax.logout(
+        function (result) {
+          if (result.trim() === "Success") {
+            localStorage.removeItem("loggedInUser");
+            window.location.href = "login.html";
+          } else {
+            console.error("Logout failed at server, forcing local logout.");
+            localStorage.removeItem("loggedInUser");
+            window.location.href = "login.html";
+          }
+        },
+        function () {
+          localStorage.removeItem("loggedInUser");
+          window.location.href = "login.html";
+        },
+      );
+    });
 }

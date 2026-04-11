@@ -26,6 +26,8 @@ if ($action == 'login' || $action == 'session' || $action == 'logout' || $action
     require 'controllers/StaffController.php';
 } else if ($action == 'getUserProfile' || $action == 'saveUserProfile' || $action == 'getStoreSettings' || $action == 'saveStoreSettings' || $action == 'saveTaxSettings') {
     require 'controllers/SettingsController.php';
+} else if ($action == 'runAutoBackup') {
+    require 'controllers/AutoBackupController.php';
 } else {
     echo "Error: The requested action was not found.";
 }
