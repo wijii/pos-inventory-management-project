@@ -11,7 +11,20 @@
 }
 
 .main::-webkit-scrollbar {
-  width: 0px;
+  width: 6px;
+}
+
+.main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+
+.main::-webkit-scrollbar-thumb:hover {
+  background: var(--orange);
 }
 
 /* LINKS */
@@ -45,7 +58,8 @@
 
 .main {
   flex: 1;
-    overflow-x: visible !important;  /* ← add this */
+  overflow-y: auto;
+  overflow-x: visible !important;
   animation: pageFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 

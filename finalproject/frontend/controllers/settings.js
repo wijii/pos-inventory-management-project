@@ -50,28 +50,6 @@ function closeModal(id) {
 // EVENT LISTENERS & AJAX
 // ============================================================
 
-document.getElementById("saveAccount").addEventListener("click", () => {
-  const btn = document.getElementById("saveAccount");
-  btn.textContent = "Saving...";
-  
-  $.post("/project/finalproject/backend/routes.php?action=saveUserProfile", {
-    firstname: document.getElementById("firstname").value,
-    lastname: document.getElementById("lastname").value,
-    username: document.getElementById("username").value,
-    email: document.getElementById("email").value,
-    password: document.getElementById("password").value
-  }, function(response) {
-    btn.textContent = "Save Changes";
-    const res = JSON.parse(response);
-    if (res.success) {
-      document.getElementById("password").value = ""; // clear password after save
-      showAlert("Account settings saved!");
-    } else {
-      showAlert("Failed to save account settings.");
-    }
-  });
-});
-
 document.getElementById("saveStore").addEventListener("click", () => {
   const btn = document.getElementById("saveStore");
   btn.textContent = "Saving...";
@@ -106,16 +84,7 @@ document.getElementById("saveTax").addEventListener("click", () => {
 // ============================================================
 
 window.onload = () => {
-  // Load Account Profile
-  $.get("/project/finalproject/backend/routes.php?action=getUserProfile", function(response) {
-    if (response) {
-      const data = JSON.parse(response);
-      if (data.FirstName) document.getElementById("firstname").value = data.FirstName;
-      if (data.LastName) document.getElementById("lastname").value = data.LastName;
-      if (data.Username) document.getElementById("username").value = data.Username;
-      if (data.EmailAddress) document.getElementById("email").value = data.EmailAddress;
-    }
-  });
+
 
   // Load System Settings
   $.get("/project/finalproject/backend/routes.php?action=getStoreSettings", function(response) {

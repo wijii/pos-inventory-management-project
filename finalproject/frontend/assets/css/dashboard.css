@@ -82,7 +82,7 @@ body {
 /* ── DASHBOARD GRID ─────────────────────────────────── */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 1fr 700px;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
     gap: 20px;
     align-items: start;
 }
@@ -98,7 +98,7 @@ body {
 /* ── STAT CARDS ─────────────────────────────────────── */
 .stats {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 14px;
 }
 
@@ -454,4 +454,10 @@ body {
     color: var(--text-color);
     font-weight: bold;
     cursor: pointer;
+}
+
+@media (max-width: 1200px) {
+    .right {
+        margin-top: 0;
+    }
 }
