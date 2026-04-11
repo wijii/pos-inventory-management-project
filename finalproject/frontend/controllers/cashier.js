@@ -8,24 +8,18 @@ const SIZE_OPTIONS = [
   {
     key: "small",
     label: "Small",
-    badge: "S",
-    sub: "Base size",
-    multiplier: 1.0,
+    badge: "S"
   },
   {
     key: "medium",
     label: "Medium",
-    badge: "M",
-    sub: "×1.25 of base",
-    multiplier: 1.25,
+    badge: "M"
   },
   {
     key: "large",
     label: "Large",
-    badge: "L",
-    sub: "×1.5 of base",
-    multiplier: 1.5,
-  },
+    badge: "L"
+  }
 ];
 
 const DISCOUNTS = {
@@ -34,15 +28,13 @@ const DISCOUNTS = {
   pwd: { label: "PWD (20%)", rate: 0.2, color: "#60a5fa" },
 };
 
-let TAX_RATE = 0.05; // default; overwritten by settings API on load
+let TAX_RATE = 0.05;
 
-// Load tax rate from system settings
+// Load global system settings
 $.get("/project/finalproject/backend/routes.php?action=getStoreSettings", function(res) {
   if (res) {
-    try {
-      const data = (typeof res === "string") ? JSON.parse(res) : res;
-      if (data.taxRate) TAX_RATE = parseFloat(data.taxRate) / 100;
-    } catch(e) {}
+    const data = JSON.parse(res);
+    if (data.taxRate) TAX_RATE = parseFloat(data.taxRate) / 100;
   }
 });
 
@@ -110,9 +102,15 @@ function getTotalItemCount() {
 function addToCart(productId) {
   const product = products.find((p) => p.id === productId);
   if (!product || product.stock === 0) return;
+  
+  let maxStock = product.stock;
+  if (product.variationStocks && product.variationStocks['base'] !== undefined) {
+      maxStock = parseInt(product.variationStocks['base']);
+  }
+  
   const existing = cart.find((c) => c.id === productId);
   if (existing) {
-    if (existing.qty < product.stock) existing.qty++;
+    if (existing.qty < maxStock) existing.qty++;
   } else {
     cart.push({
       id: product.id,
@@ -134,11 +132,19 @@ function changeQty(productId, delta) {
   if (!item) return;
   const baseId = productId.replace(/-(small|medium|large)$/, "");
   const product = products.find((p) => p.id === baseId);
+  
+  let maxStock = product ? product.stock : Infinity;
+  const sizeMatch = productId.match(/-(small|medium|large)$/);
+  const sizeKey = sizeMatch ? sizeMatch[1] : 'base';
+  if (product && product.variationStocks && product.variationStocks[sizeKey] !== undefined) {
+      maxStock = parseInt(product.variationStocks[sizeKey]);
+  }
+
   item.qty += delta;
   if (item.qty <= 0) {
     cart = cart.filter((c) => c.id !== productId);
-  } else if (product && item.qty > product.stock) {
-    item.qty = product.stock;
+  } else if (item.qty > maxStock) {
+    item.qty = maxStock;
   }
   renderCart();
 }
@@ -147,12 +153,20 @@ function pickSize(productId, sizeKey) {
   const product = products.find((p) => p.id === productId);
   const size = SIZE_OPTIONS.find((s) => s.key === sizeKey);
   if (!product || !size) return;
-  const finalPrice = parseFloat((product.price * size.multiplier).toFixed(2));
+  let finalPrice = parseFloat(product.price);
+  if (product.variations && product.variations[sizeKey] !== undefined) {
+      finalPrice = parseFloat(product.variations[sizeKey]);
+  }
+  let maxStock = product.stock;
+  if (product.variationStocks && product.variationStocks[sizeKey] !== undefined) {
+      maxStock = parseInt(product.variationStocks[sizeKey]);
+  }
+  
   const cartId = `${productId}-${sizeKey}`;
   const cartName = `${product.name} (${size.label})`;
   const existing = cart.find((c) => c.id === cartId);
   if (existing) {
-    if (existing.qty < product.stock) existing.qty++;
+    if (existing.qty < maxStock) existing.qty++;
   } else {
     cart.push({ id: cartId, name: cartName, price: finalPrice, qty: 1 });
   }
@@ -353,18 +367,27 @@ function openSizePicker(productId) {
   overlay.querySelector(".size-modal-title h4").textContent = product.name;
   const optionsEl = overlay.querySelector(".size-options");
   optionsEl.innerHTML = SIZE_OPTIONS.map((s) => {
-    const price = product.price * s.multiplier;
-    const showOrig = s.multiplier > 1;
+    let price = parseFloat(product.price);
+    if (product.variations && product.variations[s.key] !== undefined) {
+        price = parseFloat(product.variations[s.key]);
+    }
+    
+    let sizeStock = 0;
+    if (product.variationStocks && product.variationStocks[s.key] !== undefined) {
+        sizeStock = parseInt(product.variationStocks[s.key]);
+    }
+    
+    const hasStock = sizeStock > 0;
+    
     return `
-      <div class="size-option" onclick="pickSize('${productId}', '${s.key}')">
+      <div class="size-option" ${!hasStock ? 'style="pointer-events:none;"' : `onclick="pickSize('${productId}', '${s.key}')"`}>
         <div class="size-badge">${s.badge}</div>
         <div class="size-info">
           <div class="size-name">${s.label}</div>
-          <div class="size-sub">${s.sub}</div>
+          ${!hasStock ? '<p style="color:#ef4444; font-size:11px; margin:0; margin-top:2px; font-weight:500;">Out of Stock</p>' : ''}
         </div>
         <div class="size-price-wrap">
           <div class="size-price-main">${fmt(price)}</div>
-          ${showOrig ? `<div class="size-price-orig">${fmt(product.price)}</div>` : ""}
         </div>
       </div>`;
   }).join("");
@@ -374,6 +397,8 @@ function openSizePicker(productId) {
 function closeSizePicker() {
   document.getElementById("sizeModal").classList.remove("show");
 }
+
+
 
 // ============================================================
 // EVENT LISTENERS
@@ -429,10 +454,13 @@ document.getElementById("modalConfirm").addEventListener("click", () => {
       : total;
 
   //packages cart data and passes to AJAX service to complete transaction
+  const discountAmt = getDiscountAmount(getSubtotal());
   posAjax.checkout(
     cash,
     total,
     cart,
+    capitalize(activePayment),
+    discountAmt,
     function (result) {
       if (result.startsWith("Success:")) {
         const transID = result.split(":")[1];

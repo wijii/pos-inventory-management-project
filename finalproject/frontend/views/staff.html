@@ -110,14 +110,19 @@ Settings
   <div class="modal-content">
     <h2>Add Staff Member</h2>
     <form id="addStaffForm" novalidate>
-      
-      <input type="text" name="name" required placeholder="Full Name">
+      <div class="cppw">
+        <input type="text" name="firstname" required placeholder="First Name">
+        <input type="text" name="lastname" required placeholder="Last Name">
+      </div>
 
-      <select name="role" required>
-        <option value="" disabled selected hidden >Select Role</option>
-        <option value="Manager">Manager</option>
-        <option value="Cashier">Cashier</option>
-      </select>
+      <div class="cppw">
+        <input type="text" name="username" required placeholder="Username">
+        <select name="role" required>
+          <option value="" disabled selected hidden>Select Role</option>
+          <option value="Manager">Manager</option>
+          <option value="Cashier">Cashier</option>
+        </select>
+      </div>
 
       <div class="cppw">
         <input type="email" name="email" required placeholder="Email">
@@ -171,7 +176,7 @@ Settings
 <script src="../services/authAjax.js?v=2"></script>
 <script src="../controllers/navigationbar.js?v=2"></script>
 <script src="../assets/js/lucide.min.js"></script> 
-<script src="../services/staffAjax.js?v=2"></script>
-<script src="../controllers/staff.js?v=2"></script>
+<script src="../services/staffAjax.js?v=3"></script>
+<script src="../controllers/staff.js?v=3"></script>
 </body>
 </html>

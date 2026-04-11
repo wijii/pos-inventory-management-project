@@ -17,18 +17,20 @@ switch ($action) {
         break;
 
     case 'addStaff':
-        $name = $_POST['name'] ?? '';
+        $firstname = $_POST['firstname'] ?? '';
+        $lastname = $_POST['lastname'] ?? '';
+        $username = $_POST['username'] ?? '';
         $role = $_POST['role'] ?? '';
         $email = $_POST['email'] ?? '';
         $phone = $_POST['phone'] ?? '';
         $password = $_POST['password'] ?? '';
 
-        if (!$name || !$role || !$email || !$password) {
+        if (!$firstname || !$lastname || !$username || !$role || !$email || !$password) {
             echo json_encode(['success' => false, 'message' => 'Missing fields']);
             exit;
         }
 
-        $result = StaffModel::addStaff($name, $role, $email, $phone, $password);
+        $result = StaffModel::addStaff($firstname, $lastname, $username, $role, $email, $phone, $password);
         echo json_encode(['success' => $result]);
         break;
 

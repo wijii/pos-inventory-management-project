@@ -4,11 +4,11 @@ const staffAjax = {
       .then((r) => r.json());
   },
 
-  addStaff: function (name, role, email, phone, password) {
+  addStaff: function (firstname, lastname, username, role, email, phone, password) {
     return fetch("../../backend/routes.php?action=addStaff", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ name, role, email, phone, password }),
+      body: new URLSearchParams({ firstname, lastname, username, role, email, phone, password }),
     }).then((r) => r.json());
   },
 

@@ -160,27 +160,20 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
-    const name = formData.get("name");
+    const firstname = formData.get("firstname");
+    const lastname = formData.get("lastname");
+    const username = formData.get("username");
     const role = formData.get("role");
     const email = formData.get("email");
     const phone = formData.get("phone");
     const enteredPassword = formData.get("password");
 
-    if (!name || !role || !email || !phone || !enteredPassword) {
+    if (!firstname || !lastname || !username || !role || !email || !phone || !enteredPassword) {
       showAlert("Please fill in all fields!");
       return;
     }
 
-    // Since we are validating manager password securely, verify it server side
-    // Wait, the form asks for "Password" -> wait, the form has only 1 password field!
-    // `<input type="password" name="password" required placeholder="Password">`
-    // Which password is this? The NEW user's password? Or the Manager's password?
-    // In the old design, they had managerPassword AND password.
-    // In this new modal design, the user only has one `<input type="password" name="password">`.
-    // Let's assume it's the NEW user's password. Then there's no Manager Password verification for Add!
-    // Or maybe they forgot? For now, we just pass it to addStaff API.
-    
-    staffAjax.addStaff(name, role, email, phone, enteredPassword).then(res => {
+    staffAjax.addStaff(firstname, lastname, username, role, email, phone, enteredPassword).then(res => {
         if(res.success){
             showAlert("New staff member added!");
             fetchStaff();

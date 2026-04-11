@@ -30,35 +30,19 @@ class StaffModel {
         return $staffData;
     }
 
-    public static function addStaff($fullName, $roleName, $email, $phone, $password) {
+    public static function addStaff($firstName, $lastName, $username, $roleName, $email, $phone, $password) {
         global $conn;
         
         // 1. Role ID mapping
         $roleID = ($roleName === 'Manager') ? 1 : 2;
         
-        // 2. Name split
-        $parts = explode(' ', trim($fullName), 2);
-        $firstName = $parts[0];
-        $lastName = isset($parts[1]) ? $parts[1] : '';
-
-        // 3. Auto-generate Username from email to satisfy unique constraint
-        $username = explode('@', $email)[0];
-        // Ensure uniqueness for username
-        $checkStmt = $conn->prepare("SELECT UserID FROM users WHERE Username = ?");
-        $checkStmt->bind_param("s", $username);
-        $checkStmt->execute();
-        if ($checkStmt->get_result()->num_rows > 0) {
-            $username .= rand(100, 999);
-        }
-        $checkStmt->close();
-
-        // 4. Hash password
+        // 2. Hash password
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
         
-        // 5. Initial status
+        // 3. Initial status
         $status = 'Inactive';
         
-        // 6. Insert
+        // 4. Insert
         $stmt = $conn->prepare("INSERT INTO users (RoleID, Username, Password, FirstName, LastName, PhoneNo, EmailAddress, WorkingStatus) 
                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("isssssss", $roleID, $username, $hashedPassword, $firstName, $lastName, $phone, $email, $status);
