@@ -79,9 +79,13 @@ function saveSystemSettings($conn, $settingsArray)
     $sql = "UPDATE system_settings SET SettingValue = ? WHERE SettingKey = ?";
     $stmt = mysqli_prepare($conn, $sql);
 
+    $allSuccess = true;
     foreach ($settingsArray as $key => $value) {
         mysqli_stmt_bind_param($stmt, "ss", $value, $key);
-        mysqli_stmt_execute($stmt);
+        if (!mysqli_stmt_execute($stmt)) {
+            $allSuccess = false;
+        }
     }
-    return true;
+    mysqli_stmt_close($stmt);
+    return $allSuccess;
 }

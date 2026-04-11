@@ -10,7 +10,7 @@ function showAlert(message) {
   alertBox.classList.add("alerts");
 
   const icon = document.createElement("img");
-  icon.src = "../assets/svgs/circle-alert.svg";
+  icon.src = "../assets/svgs/AlertLogo.svg"; 
   icon.classList.add("alert-icon");
 
   const text = document.createElement("span");
@@ -33,48 +33,76 @@ function closeModal(id) {
 }
 
 // Event Listeners & AJAX: Binds save buttons to HTTP post requests to update database flags.
-document.getElementById("saveStore").addEventListener("click", () => {
-  const btn = document.getElementById("saveStore");
-  btn.textContent = "Saving...";
+$(document).ready(function() {
+  
+  // Save Store Info
+  document.getElementById("saveStore")?.addEventListener("click", () => {
+    const btn = document.getElementById("saveStore");
+    const originalText = btn.textContent;
+    btn.textContent = "Saving...";
 
-  $.post("/project/finalproject/backend/routes.php?action=saveStoreSettings", {
-    storeName: document.getElementById("storeName").value,
-    storeEmail: document.getElementById("storeEmail").value,
-    contactNumber: document.getElementById("contactNumber").value
-  }, function(response) {
-    btn.textContent = "Save Store Info";
-    const res = JSON.parse(response);
-    if (res.success) showAlert("Store info saved!");
+    $.ajax({
+      url: "../../backend/routes.php?action=saveStoreSettings",
+      type: "POST",
+      data: {
+        storeName: document.getElementById("storeName").value,
+        storeEmail: document.getElementById("storeEmail").value,
+        contactNumber: document.getElementById("contactNumber").value
+      },
+      dataType: "json",
+      success: function(res) {
+        btn.textContent = originalText;
+        if (res.success) showAlert("Store info saved!");
+      },
+      error: function() {
+        btn.textContent = originalText;
+        showAlert("Error saving store info.");
+      }
+    });
   });
-});
 
-document.getElementById("saveTax").addEventListener("click", () => {
-  const btn = document.getElementById("saveTax");
-  btn.textContent = "Saving...";
+  // Save Tax & Alerts
+  document.getElementById("saveTax")?.addEventListener("click", () => {
+    const btn = document.getElementById("saveTax");
+    const originalText = btn.textContent;
+    btn.textContent = "Saving...";
 
-  $.post("/project/finalproject/backend/routes.php?action=saveTaxSettings", {
-    taxRate: document.getElementById("taxRate").value,
-    stockAlert: document.getElementById("stockAlert").value
-  }, function(response) {
-    btn.textContent = "Save";
-    const res = JSON.parse(response);
-    if (res.success) showAlert("Tax & alerts saved!");
+    $.ajax({
+      url: "../../backend/routes.php?action=saveTaxSettings",
+      type: "POST",
+      data: {
+        taxRate: document.getElementById("taxRate").value,
+        stockAlert: document.getElementById("stockAlert").value
+      },
+      dataType: "json",
+      success: function(res) {
+        btn.textContent = originalText;
+        if (res.success) showAlert("Tax & alerts saved!");
+      },
+      error: function() {
+        btn.textContent = originalText;
+        showAlert("Error saving tax settings.");
+      }
+    });
   });
-});
-
-// Initializer Script: Queries backend for current values to pre-populate form inputs on load.
-window.onload = () => {
-
 
   // Load System Settings
-  $.get("/project/finalproject/backend/routes.php?action=getStoreSettings", function(response) {
-    if (response) {
-      const data = JSON.parse(response);
-      if (data.storeName) document.getElementById("storeName").value = data.storeName;
-      if (data.storeEmail) document.getElementById("storeEmail").value = data.storeEmail;
-      if (data.contactNumber) document.getElementById("contactNumber").value = data.contactNumber;
-      if (data.taxRate) document.getElementById("taxRate").value = data.taxRate;
-      if (data.stockAlert) document.getElementById("stockAlert").value = data.stockAlert;
+  $.ajax({
+    url: "../../backend/routes.php?action=getStoreSettings",
+    type: "GET",
+    dataType: "json",
+    success: function(data) {
+      if (data) {
+        if (data.storeName) document.getElementById("storeName").value = data.storeName;
+        if (data.storeEmail) document.getElementById("storeEmail").value = data.storeEmail;
+        if (data.contactNumber) document.getElementById("contactNumber").value = data.contactNumber;
+        if (data.taxRate) document.getElementById("taxRate").value = data.taxRate;
+        if (data.stockAlert) document.getElementById("stockAlert").value = data.stockAlert;
+      }
+    },
+    error: function() {
+      console.error("Failed to load settings.");
     }
   });
-};
+
+});

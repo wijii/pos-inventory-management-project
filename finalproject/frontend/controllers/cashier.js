@@ -29,10 +29,15 @@ const DISCOUNTS = {
 let TAX_RATE = 0.05;
 
 // Load global system settings
-$.get("/project/finalproject/backend/routes.php?action=getStoreSettings", function(res) {
+$.get("../../backend/routes.php?action=getStoreSettings", function(res) {
   if (res) {
     const data = JSON.parse(res);
-    if (data.taxRate) TAX_RATE = parseFloat(data.taxRate) / 100;
+    if (data.taxRate) {
+        TAX_RATE = parseFloat(data.taxRate) / 100;
+        const taxLabel = document.getElementById("taxLabel");
+        if (taxLabel) taxLabel.textContent = `Tax (${data.taxRate}%)`;
+        updateTotals(); // Refresh UI with new rate
+    }
   }
 });
 
