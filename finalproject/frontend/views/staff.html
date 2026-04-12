@@ -110,7 +110,7 @@
         </div>
         <div class="cppw">
           <input type="email" name="email" required placeholder="Email">
-          <input type="text" name="phone" required placeholder="Phone No." oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+          <input type="tel" name="phone" required placeholder="Phone No." minlength="7" maxlength="15" oninput="this.value = this.value.replace(/[^0-9]/g, '')" onpaste="setTimeout(() => { this.value = this.value.replace(/[^0-9]/g, '') }, 0)">
         </div>
         <input type="password" name="password" required placeholder="Password">
         <hr>

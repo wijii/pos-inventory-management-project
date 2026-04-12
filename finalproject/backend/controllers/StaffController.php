@@ -20,15 +20,22 @@ switch ($action) {
 
     case 'addStaff':
         $firstname = $_POST['firstname'] ?? '';
-        $lastname = $_POST['lastname'] ?? '';
-        $username = $_POST['username'] ?? '';
-        $role = $_POST['role'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $phone = $_POST['phone'] ?? '';
-        $password = $_POST['password'] ?? '';
+        $lastname  = $_POST['lastname']  ?? '';
+        $username  = $_POST['username']  ?? '';
+        $role      = $_POST['role']      ?? '';
+        $email     = $_POST['email']     ?? '';
+        $phone     = $_POST['phone']     ?? '';
+        $password  = $_POST['password']  ?? '';
 
-        if (!$firstname || !$lastname || !$username || !$role || !$email || !$password) {
+        // Check required fields (including phone)
+        if (!$firstname || !$lastname || !$username || !$role || !$email || !$phone || !$password) {
             echo json_encode(['success' => false, 'message' => 'Missing fields']);
+            exit;
+        }
+
+        // Phone must be digits only and at least 7 characters
+        if (!ctype_digit($phone) || strlen($phone) < 7) {
+            echo json_encode(['success' => false, 'message' => 'Invalid phone number']);
             exit;
         }
 

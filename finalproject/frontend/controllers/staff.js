@@ -139,6 +139,16 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (!/^\d+$/.test(phone)) {
+      showAlert("Phone number must contain digits only!");
+      return;
+    }
+
+    if (phone.length < 7) {
+      showAlert("Please enter a valid phone number (at least 7 digits)!");
+      return;
+    }
+
     staffAjax.addStaff(firstname, lastname, username, role, email, phone, enteredPassword).then(res => {
         if(res.success){
             showAlert("New staff member added!");
