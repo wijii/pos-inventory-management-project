@@ -224,20 +224,7 @@
     <script src="../controllers/navigationbar.js"></script>
     <script src="../controllers/sales.js"></script>
     <script>lucide.createIcons();</script>
-  <script>
-    const authOverlay = document.getElementById('page-overlay');
-    if (authOverlay) authOverlay.style.display = 'block';
-    if (typeof authAjax !== 'undefined') {
-        authAjax.getSession(function (data) {
-            if (data.role !== 'Manager' && data.role !== 'Admin') {
-                alert('Access Denied. Manager only.');
-                window.location.href = 'login.html';
-            } else if (authOverlay) authOverlay.style.display = 'none';
-        }, function () {
-            window.location.href = 'login.html';
-        });
-    }
-  </script>
+
 </body>
 </html>
 

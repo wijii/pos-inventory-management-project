@@ -63,21 +63,22 @@
   animation: pageFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* FADE OVERLAY (covers screen when navigating away) */
+/* FADE OVERLAY (covers screen on load to prevent glitch) */
 #page-overlay {
   position: fixed;
   inset: 0;
   background: #1a1614;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
+  opacity: 1;
+  pointer-events: all;
+  transition: opacity 0.5s ease;
   z-index: 9999;
 }
 
 #page-overlay.fade-out {
-  opacity: 1;
-  pointer-events: all;
+  opacity: 0;
+  pointer-events: none;
 }
+
 
 /* SIDEBAR */
 .sidebar {

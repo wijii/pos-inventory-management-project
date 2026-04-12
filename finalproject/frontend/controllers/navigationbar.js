@@ -58,7 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       //auth passed, hide the overlay and show the page
       if (overlay) {
-        overlay.style.display = "none";
+        overlay.classList.add("fade-out");
+        // Remove it from the DOM flow after the transition finishes so it doesn't block clicks
+        setTimeout(() => overlay.style.display = "none", 500);
       }
 
       //update the sidebar logo with the real user info.
@@ -87,16 +89,19 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   );
 
-  //add the Casa Cafe branding at the bottom
-  const sidebarBottom = document.createElement("div");
-  sidebarBottom.className = "sidebar-bottom";
-  sidebarBottom.innerHTML = `
-      <img src="../assets/svgs/CafeLogo.svg" alt="Store Logo" />
-      <span class="sidebar-brand-text" id="navStoreName">
-        <span class="brand-white">Casa</span> <span class="brand-orange">Cafe</span>
-      </span>
-    `;
-  document.querySelector(".sidebar").appendChild(sidebarBottom);
+  //add the Casa Cafe branding at the bottom if a sidebar exists
+  const sidebar = document.querySelector(".sidebar");
+  if (sidebar) {
+      const sidebarBottom = document.createElement("div");
+      sidebarBottom.className = "sidebar-bottom";
+      sidebarBottom.innerHTML = `
+          <img src="../assets/svgs/CafeLogo.svg" alt="Store Logo" />
+          <span class="sidebar-brand-text" id="navStoreName">
+            <span class="brand-white">Casa</span> <span class="brand-orange">Cafe</span>
+          </span>
+        `;
+      sidebar.appendChild(sidebarBottom);
+  }
 
   // Fetch the actual store name dynamically
   fetch("../../backend/routes.php?action=getStoreSettings")
