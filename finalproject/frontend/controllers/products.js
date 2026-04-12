@@ -104,23 +104,23 @@ function closeModal(id) {
 }
 
 function openFoodModal() {
-  document.getElementById("foodName").value = '';
-  document.getElementById("foodPrice").value = '';
-  document.getElementById("foodImageInput").value = '';
+  document.getElementById("foodName").value = "";
+  document.getElementById("foodPrice").value = "";
+  document.getElementById("foodImageInput").value = "";
   const foodPreview = document.getElementById("foodPreview");
-  if (foodPreview) foodPreview.src = '';
+  if (foodPreview) foodPreview.src = "";
   closeModal("typeModal");
   openModal("foodModal");
 }
 
 function openDrinkModal() {
-  document.getElementById("drinkName").value = '';
-  document.getElementById("smallPrice").value = '';
-  document.getElementById("mediumPrice").value = '';
-  document.getElementById("largePrice").value = '';
-  document.getElementById("drinkImageInput").value = '';
+  document.getElementById("drinkName").value = "";
+  document.getElementById("smallPrice").value = "";
+  document.getElementById("mediumPrice").value = "";
+  document.getElementById("largePrice").value = "";
+  document.getElementById("drinkImageInput").value = "";
   const drinkPreview = document.getElementById("drinkPreview");
-  if (drinkPreview) drinkPreview.src = '';
+  if (drinkPreview) drinkPreview.src = "";
   closeModal("typeModal");
   openModal("drinkModal");
 }
@@ -136,9 +136,13 @@ function openUpdateModal(btn) {
   //pre-fill the modal with the row's current values
   //since cell 0 now has an image inside,look for the span that holds the name
   const nameSpan = cells[0].querySelector("span");
+  let rawName = nameSpan ? nameSpan.innerText : cells[0].innerText;
+  // strip any appended size strings like " (Small)" so it doesn't duplicate on save
+  rawName = rawName.replace(/\s*\((Small|Medium|Large|S|M|L)\)$/i, "");
+
   document.querySelector(
     "#updateModal input[placeholder='Product name']",
-  ).value = nameSpan ? nameSpan.innerText : cells[0].innerText;
+  ).value = rawName;
 
   document.querySelector("#updateModal .row input[type='text']").value =
     cells[1].innerText;
@@ -168,6 +172,11 @@ function saveFood() {
   }
   if (parseFloat(price) < 0) {
     showAlert("Price cannot be negative!");
+    return;
+  }
+
+  if (parseFloat(price) === 0) {
+    showAlert("Price cannot be 0!");
     return;
   }
 
@@ -334,6 +343,11 @@ document
 
     if (!name || !skuCode || !price || !categoryID) {
       showAlert("Please fill all fields");
+      return;
+    }
+
+    if (parseFloat(price) < 0) {
+      showAlert("Price cannot be negative!");
       return;
     }
 

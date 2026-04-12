@@ -63,11 +63,11 @@
   animation: pageFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* FADE OVERLAY */
+/* FADE OVERLAY (covers screen on load to prevent glitch) */
 #page-overlay {
   position: fixed;
   inset: 0;
-  background: #1a1614;
+  background: var(--bg);
   opacity: 1;
   pointer-events: all;
   transition: opacity 0.5s ease;
@@ -87,8 +87,8 @@
   border-right: 2px solid var(--border);
   height: 100vh;
   
-  display: flex;           /* ← must have this */
-  flex-direction: column;  /* ← must have this */
+  display: flex;          
+  flex-direction: column; 
   gap: 10px; 
 }
 
