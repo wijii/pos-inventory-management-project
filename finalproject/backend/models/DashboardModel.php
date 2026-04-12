@@ -75,11 +75,26 @@ function getDashboardChartData($conn, $period)
             $hourMap[intval($row['slot'])] = floatval($row['revenue']);
         }
 
-        // show business hours 8am to 10pm
+        // Make business hours dynamic based on actual sales data
+        $minHour = 8;
+        $maxHour = 22;
+        
+        if (!empty($hourMap)) {
+            $minHour = min(array_keys($hourMap));
+            $maxHour = max(array_keys($hourMap));
+            
+            // Add slight padding to make chart look better, cap between 0-23
+            if ($maxHour - $minHour < 4) {
+               $minHour = max(0, $minHour - 2);
+               $maxHour = min(23, $maxHour + 2);
+            }
+        }
+
+        // Render chart dynamically jumping by 1 hour for maximum accuracy
         $labels = array();
         $values = array();
-        for ($h = 8; $h <= 22; $h += 2) {
-            $labels[] = ($h < 12 ? $h . ':00 AM' : ($h == 12 ? '12:00 PM' : ($h - 12) . ':00 PM'));
+        for ($h = $minHour; $h <= $maxHour; $h++) {
+            $labels[] = ($h == 0 ? '12:00 AM' : ($h < 12 ? $h . ':00 AM' : ($h == 12 ? '12:00 PM' : ($h - 12) . ':00 PM')));
             $values[] = isset($hourMap[$h]) ? $hourMap[$h] : 0;
         }
 

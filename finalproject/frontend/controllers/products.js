@@ -104,11 +104,23 @@ function closeModal(id) {
 }
 
 function openFoodModal() {
+  document.getElementById("foodName").value = '';
+  document.getElementById("foodPrice").value = '';
+  document.getElementById("foodImageInput").value = '';
+  const foodPreview = document.getElementById("foodPreview");
+  if (foodPreview) foodPreview.src = '';
   closeModal("typeModal");
   openModal("foodModal");
 }
 
 function openDrinkModal() {
+  document.getElementById("drinkName").value = '';
+  document.getElementById("smallPrice").value = '';
+  document.getElementById("mediumPrice").value = '';
+  document.getElementById("largePrice").value = '';
+  document.getElementById("drinkImageInput").value = '';
+  const drinkPreview = document.getElementById("drinkPreview");
+  if (drinkPreview) drinkPreview.src = '';
   closeModal("typeModal");
   openModal("drinkModal");
 }

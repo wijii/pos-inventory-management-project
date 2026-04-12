@@ -97,7 +97,25 @@ function renderCharts() {
             borderRadius:    5,
           }],
         },
-        options: commonOptions,
+        options: {
+          responsive:          true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { displayColors: false },
+          },
+          scales: {
+            x: { grid: { color: "rgba(255,255,255,0.05)" }, ticks: { color: "rgba(252,250,248,0.5)" } },
+            y: { 
+                 grid: { color: "rgba(255,255,255,0.05)" }, 
+                 ticks: { 
+                   color: "rgba(252,250,248,0.5)",
+                   precision: 0,
+                   stepSize: 1
+                 } 
+               },
+          },
+        },
       });
     },
     function () {
@@ -231,7 +249,7 @@ function viewReceipt(transactionID, cashier, date, time, total, amountPaid) {
       // Build thermal receipt!
       lastReceiptHTML = `
             <div style="font-family: 'Courier New', Courier, monospace; width: 300px; margin: 0 auto; color: #000; font-size: 12px;">
-                <h2 style="text-align:center; margin-bottom: 5px; text-transform: uppercase;">${STORE_NAME}</h2>
+                <h2 style="text-align:center; margin-bottom: 5px;">${STORE_NAME}</h2>
                 <div style="text-align:center; margin-bottom: 15px;">Transaction Record</div>
                 <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
                 <div style="display:flex; justify-content:space-between;"><span>Receipt:</span> <span>RCP-${transactionID}</span></div>
@@ -248,11 +266,14 @@ function viewReceipt(transactionID, cashier, date, time, total, amountPaid) {
                 </table>
                 <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
                 <div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Subtotal:</span> <span>${formatCurrency(subtotal)}</span></div>
+                ${total < subtotal ? `<div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Discount:</span> <span>-${formatCurrency(subtotal - total)}</span></div>` : ''}
                 <div style="display:flex; justify-content:space-between; font-weight:bold; font-size: 14px; margin: 5px 0;"><span>TOTAL:</span> <span>${formatCurrency(total)}</span></div>
                 <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
+                <div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Method:</span> <span>Cash</span></div>
                 <div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Amount Given:</span> <span>${formatCurrency(amountPaid)}</span></div>
                 <div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Change:</span> <span>${formatCurrency(amountPaid - total)}</span></div>
                 <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
+                <div style="text-align:center; font-size: 10px; margin-top: 10px;">Please come again!</div>
             </div>
       `;
 
