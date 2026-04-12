@@ -170,13 +170,8 @@ function saveFood() {
     showAlert("Please fill all fields!");
     return;
   }
-  if (parseFloat(price) < 0) {
-    showAlert("Price cannot be negative!");
-    return;
-  }
-
-  if (parseFloat(price) === 0) {
-    showAlert("Price cannot be 0!");
+  if (parseFloat(price) <= 0) {
+    showAlert("Price must be greater than 0!");
     return;
   }
 
@@ -206,11 +201,11 @@ function saveDrink() {
     return;
   }
   if (
-    parseFloat(small) < 0 ||
-    parseFloat(medium) < 0 ||
-    parseFloat(large) < 0
+    parseFloat(small) <= 0 ||
+    parseFloat(medium) <= 0 ||
+    parseFloat(large) <= 0
   ) {
-    showAlert("Prices cannot be negative!");
+    showAlert("Prices must be greater than 0!");
     return;
   }
 
@@ -346,8 +341,8 @@ document
       return;
     }
 
-    if (parseFloat(price) < 0) {
-      showAlert("Price cannot be negative!");
+    if (parseFloat(price) <= 0) {
+      showAlert("Price must be greater than 0!");
       return;
     }
 
