@@ -203,22 +203,13 @@ function viewReceipt(transactionID, cashier, date, time, total, amountPaid) {
   document.getElementById("m-cashier").textContent     = cashier;
   document.getElementById("m-items-list").innerHTML    = "<p style='opacity:0.4;text-align:center;'>Loading items...</p>";
   document.getElementById("m-total").textContent       = formatCurrency(total);
+  
+  if (document.getElementById("receiptStoreName")) {
+    document.getElementById("receiptStoreName").textContent = `${STORE_NAME} Receipt`;
+  }
 
   document.getElementById("receipt-modal").classList.add("active");
   lucide.createIcons();
-
-  // Fetch the actual store name dynamically for the receipt modals
-  fetch("../../backend/routes.php?action=getStoreSettings")
-    .then(r => r.json())
-    .then(data => {
-        if(data && data.storeName) {
-            STORE_NAME = data.storeName.toUpperCase();
-            const el = document.getElementById("receiptStoreName");
-            if(el) {
-                el.textContent = `${data.storeName} Receipt`;
-            }
-        }
-    }).catch(e => console.error("Failed to fetch store name", e));
 
   //fetch the actual line items for this transaction
   salesAjax.getReceiptItems(
@@ -337,6 +328,14 @@ window.onclick = function (e) {
 
 // Startup Initialization: Triggers initial widget loads when the dashboard mounts.
 $(document).ready(function () {
+  fetch("../../backend/routes.php?action=getStoreSettings")
+    .then(r => r.json())
+    .then(data => {
+        if(data && data.storeName) {
+            STORE_NAME = data.storeName.toUpperCase();
+        }
+    }).catch(e => console.error("Failed to fetch store name", e));
+
   renderLifetimeStats();
   renderCharts();
   renderTransactionTable(); // pre-load the history table so it is ready when user clicks the tab
