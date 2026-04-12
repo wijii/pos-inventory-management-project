@@ -63,7 +63,7 @@
   animation: pageFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* FADE OVERLAY (covers screen on load to prevent glitch) */
+/* FADE OVERLAY */
 #page-overlay {
   position: fixed;
   inset: 0;
@@ -166,7 +166,6 @@
 
 .sidebar .active {
   background: var(--orange);
-  /* Removed transition: background 1s ease; to prevent glitchy animation on page load */
 }
 
 .sidebar .active a {
