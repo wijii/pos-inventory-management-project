@@ -156,17 +156,16 @@
   border-radius: 8px;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: background 0.4s ease, border 0.15s ease;
+  transition: border 0.15s ease;
 }
 
 .sidebar li:hover {
   border: 2px solid var(--border);
 }
 
-/* ACTIVE MENU */
 .sidebar .active {
   background: var(--orange);
-  transition: background 1s ease;
+  /* Removed transition: background 1s ease; to prevent glitchy animation on page load */
 }
 
 .sidebar .active a {

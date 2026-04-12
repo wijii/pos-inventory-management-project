@@ -5,13 +5,22 @@ session_start();
 include __DIR__ . '/../config/connect.php';
 include __DIR__ . '/../models/SettingsModel.php';
 
-// Auth Guard: Rejects any call that doesn't have an active session.
+$action = isset($_GET['action']) ? $_GET['action'] : '';
+
+// Public actions (no session required)
+if ($action == 'getStoreSettings') {
+    $settings = getSystemSettings($conn);
+    echo json_encode($settings);
+    exit;
+}
+
+// Auth Guard: Rejects any sensitive calls that don't have an active session.
 if (!isset($_SESSION['user_id'])) {
+    header('Content-Type: application/json');
     echo json_encode(['error' => 'Not authenticated']);
     exit;
 }
 
-$action = isset($_GET['action']) ? $_GET['action'] : '';
 $userId = $_SESSION['user_id'];
 
 if ($action == 'getUserProfile') {
@@ -27,10 +36,6 @@ else if ($action == 'saveUserProfile') {
 
     $success = saveUserProfile($conn, $userId, $firstName, $lastName, $username, $email, $password);
     echo json_encode(['success' => $success]);
-}
-else if ($action == 'getStoreSettings') {
-    $settings = getSystemSettings($conn);
-    echo json_encode($settings);
 }
 else if ($action == 'saveStoreSettings') {
     $storeName = $_POST['storeName'] ?? '';

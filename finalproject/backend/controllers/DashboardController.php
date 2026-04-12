@@ -5,6 +5,7 @@ session_start();
 // Dependencies: Loads the database connection and dashboard query functions.
 include __DIR__ . '/../config/connect.php';
 include __DIR__ . '/../models/DashboardModel.php';
+include __DIR__ . '/../models/SettingsModel.php';
 
 // Auth Guard: Blocks this endpoint from unauthenticated requests.
 if (!isset($_SESSION['user_id'])) {
@@ -26,8 +27,9 @@ if ($action === 'getDashboardStats') {
     }
 
     // run all four queries
+    $threshold = getSingleSetting($conn, 'stockAlert', 5);
     $summary = getDashboardSummary($conn, $period);
-    $lowStock = getLowStockCount($conn);
+    $lowStock = getLowStockCount($conn, $threshold);
     $chartData = getDashboardChartData($conn, $period);
     $topProducts = getDashboardTopProducts($conn, $period);
 

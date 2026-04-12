@@ -1,12 +1,12 @@
 <?php
 
 // Inventory Queries: Functions for reading stock levels, applying restocks, and writing audit log entries.
-function getFullInventory($conn)
+function getFullInventory($conn, $defaultThreshold = 5)
 {
     //select from inventories and join with productskus and products
     $sql = "SELECT p.ProductName as Name, s.SKUCode, s.Size, s.AvailabilityStatus,
                    IFNULL(i.Quantity, 0) as Quantity, 
-                   IFNULL(i.ReorderLevel, 5) as ReorderLevel, 
+                   IFNULL(i.ReorderLevel, $defaultThreshold) as ReorderLevel, 
                    UNIX_TIMESTAMP(i.LastUpdateTime) as LastUpdateTimeTs 
             FROM productskus s
             INNER JOIN products p ON s.ProductID = p.ProductID

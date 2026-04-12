@@ -1,7 +1,8 @@
-// State Variables: Keeps track of charts and the currently active time period for fetching.
 let activePeriod = "daily";
 let revChart     = null;
 let transChart   = null;
+let STORE_NAME   = "CASA CAFE";
+let lastReceiptHTML = "";
 
 const PERIOD_SUB_LABELS = {
   daily:   "Last 14 days",
@@ -188,6 +189,19 @@ function viewReceipt(transactionID, cashier, date, time, total, amountPaid) {
   document.getElementById("receipt-modal").classList.add("active");
   lucide.createIcons();
 
+  // Fetch the actual store name dynamically for the receipt modals
+  fetch("../../backend/routes.php?action=getStoreSettings")
+    .then(r => r.json())
+    .then(data => {
+        if(data && data.storeName) {
+            STORE_NAME = data.storeName.toUpperCase();
+            const el = document.getElementById("receiptStoreName");
+            if(el) {
+                el.textContent = `${data.storeName} Receipt`;
+            }
+        }
+    }).catch(e => console.error("Failed to fetch store name", e));
+
   //fetch the actual line items for this transaction
   salesAjax.getReceiptItems(
     transactionID,
@@ -213,6 +227,35 @@ function viewReceipt(transactionID, cashier, date, time, total, amountPaid) {
       document.getElementById("m-subtotal").textContent = formatCurrency(subtotal);
       document.getElementById("m-total").textContent    = formatCurrency(total);
       lucide.createIcons();
+
+      // Build thermal receipt!
+      lastReceiptHTML = `
+            <div style="font-family: 'Courier New', Courier, monospace; width: 300px; margin: 0 auto; color: #000; font-size: 12px;">
+                <h2 style="text-align:center; margin-bottom: 5px; text-transform: uppercase;">${STORE_NAME}</h2>
+                <div style="text-align:center; margin-bottom: 15px;">Transaction Record</div>
+                <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
+                <div style="display:flex; justify-content:space-between;"><span>Receipt:</span> <span>RCP-${transactionID}</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>Date:</span> <span>${date} ${time}</span></div>
+                <div style="display:flex; justify-content:space-between;"><span>Cashier:</span> <span>${cashier}</span></div>
+                <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px;">
+                    ${items.map(item => `
+                        <tr>
+                            <td style="padding: 2px 0;">${item.qty}x ${item.name}</td>
+                            <td style="text-align:right; padding: 2px 0;">${formatCurrency(item.price * item.qty)}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+                <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
+                <div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Subtotal:</span> <span>${formatCurrency(subtotal)}</span></div>
+                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size: 14px; margin: 5px 0;"><span>TOTAL:</span> <span>${formatCurrency(total)}</span></div>
+                <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
+                <div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Amount Given:</span> <span>${formatCurrency(amountPaid)}</span></div>
+                <div style="display:flex; justify-content:space-between; margin: 2px 0;"><span>Change:</span> <span>${formatCurrency(amountPaid - total)}</span></div>
+                <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
+            </div>
+      `;
+
     },
     function () {
       document.getElementById("m-items-list").innerHTML = "<p style='color:#ef4444;text-align:center;'>Failed to load items.</p>";
@@ -222,6 +265,20 @@ function viewReceipt(transactionID, cashier, date, time, total, amountPaid) {
 
 function closeReceiptModal() {
   document.getElementById("receipt-modal").classList.remove("active");
+}
+
+function printSalesReceipt() {
+  if (!lastReceiptHTML) return;
+  const printWindow = window.open('', '', 'height=600,width=400');
+  printWindow.document.write('<html><head><title>Receipt Record</title></head><body style="margin:0; padding:10px;">');
+  printWindow.document.write(lastReceiptHTML);
+  printWindow.document.write('</body></html>');
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => {
+    printWindow.print();
+    printWindow.close();
+  }, 250);
 }
 
 

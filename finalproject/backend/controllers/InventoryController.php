@@ -4,6 +4,7 @@ session_start();
 // Dependencies: Loads the database connection and stock management functions.
 include __DIR__ . '/../config/connect.php';
 include __DIR__ . '/../models/InventoryModel.php';
+include __DIR__ . '/../models/SettingsModel.php';
 
 $action = '';
 if (isset($_GET['action'])) {
@@ -17,7 +18,8 @@ if ($action == 'getInventoryJSON') {
         exit;
     }
 
-    $data = getFullInventory($conn);
+    $threshold = getSingleSetting($conn, 'stockAlert', 5);
+    $data = getFullInventory($conn, $threshold);
     header('Content-Type: application/json');
     echo json_encode($data);
 

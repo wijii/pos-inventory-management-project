@@ -27,6 +27,7 @@ const DISCOUNTS = {
 };
 
 let TAX_RATE = 0.05;
+let STORE_NAME = "CASA CAFE";
 
 // Load global system settings
 $.get("../../backend/routes.php?action=getStoreSettings", function(res) {
@@ -37,6 +38,9 @@ $.get("../../backend/routes.php?action=getStoreSettings", function(res) {
         const taxLabel = document.getElementById("taxLabel");
         if (taxLabel) taxLabel.textContent = `Tax (${data.taxRate}%)`;
         updateTotals(); // Refresh UI with new rate
+    }
+    if (data.storeName) {
+        STORE_NAME = data.storeName.toUpperCase();
     }
   }
 });
@@ -463,7 +467,7 @@ document.getElementById("modalConfirm").addEventListener("click", () => {
         let method = capitalize(activePayment);
         lastReceiptHTML = `
             <div style="font-family: 'Courier New', Courier, monospace; width: 300px; margin: 0 auto; color: #000; font-size: 12px;">
-                <h2 style="text-align:center; margin-bottom: 5px;">CASA CAFE</h2>
+                <h2 style="text-align:center; margin-bottom: 5px;">${STORE_NAME}</h2>
                 <div style="text-align:center; margin-bottom: 15px;">Thank you for your purchase!</div>
                 <hr style="border-top: 1px dashed #000; margin: 5px 0;" />
                 <div style="display:flex; justify-content:space-between;"><span>Receipt:</span> <span>${receiptId}</span></div>

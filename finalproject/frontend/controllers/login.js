@@ -25,6 +25,27 @@ document
   .getElementById("password")
   .addEventListener("input", updateButtonColor);
 
+// Fetch Store settings for the login page branding
+window.addEventListener("DOMContentLoaded", () => {
+    fetch("../../backend/routes.php?action=getStoreSettings")
+        .then(r => r.json())
+        .then(data => {
+            if (data && data.storeName) {
+                document.title = data.storeName + " – Login";
+                const loginHeader = document.querySelector(".card-top h1");
+                if(loginHeader) {
+                    const nameParts = data.storeName.trim().split(" ");
+                    if(nameParts.length > 1) {
+                         loginHeader.innerHTML = `${nameParts[0]} <span>${nameParts.slice(1).join(" ")}</span>`;
+                    } else {
+                         loginHeader.innerHTML = `${data.storeName}`;
+                    }
+                }
+            }
+        })
+        .catch(e => console.error("Failed to load store settings", e));
+});
+
 document.getElementById("loginBtn").addEventListener("click", () => {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();

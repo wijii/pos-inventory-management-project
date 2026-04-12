@@ -24,7 +24,7 @@
                 <li><a href="pos.html" class="link"><i data-lucide="shopping-cart"></i> POS</a></li>
                 <li><a href="products.html" class="link"><i data-lucide="box"></i> Products</a></li>
                 <li><a href="inventory.html" class="link"><i data-lucide="layers"></i> Inventory</a></li>
-                <li class="active"><a href="sales.html" class="link"><i data-lucide="receipt"></i> Sales</a></li>
+                <li><a href="sales.html" class="link"><i data-lucide="receipt"></i> Sales</a></li>
                 <li><a href="staff.html" class="link"><i data-lucide="users"></i> Staff</a></li>
                 <li><a href="settings.html" class="link"><i data-lucide="settings"></i> Settings</a></li>
             </ul>
@@ -173,7 +173,7 @@
             <button class="close-x" onclick="closeReceiptModal()">&times;</button>
             <div class="receipt-header">
                 <div class="receipt-icon"><i data-lucide="banknote"></i></div>
-                <h2>Casa Cafe Receipt</h2>
+                <h2 id="receiptStoreName">Store Receipt</h2>
                 <p id="m-receipt-id">#TRX-00000</p>
                 <div class="receipt-meta">
                     <span><i data-lucide="calendar"></i> <span id="m-date">---</span></span>
@@ -200,7 +200,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="closeReceiptModal()">Close</button>
-                <button class="btn-primary" onclick="window.print()"><i data-lucide="printer"></i> Print</button>
+                <button class="btn-primary" onclick="printSalesReceipt()"><i data-lucide="printer"></i> Print</button>
             </div>
         </div>
     </div>

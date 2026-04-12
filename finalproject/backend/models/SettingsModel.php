@@ -89,3 +89,16 @@ function saveSystemSettings($conn, $settingsArray)
     mysqli_stmt_close($stmt);
     return $allSuccess;
 }
+
+function getSingleSetting($conn, $key, $default = '')
+{
+    $sql = "SELECT SettingValue FROM system_settings WHERE SettingKey = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "s", $key);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if ($row = mysqli_fetch_assoc($result)) {
+        return $row['SettingValue'];
+    }
+    return $default;
+}

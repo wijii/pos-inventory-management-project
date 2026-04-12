@@ -52,7 +52,21 @@ $(document).ready(function() {
       dataType: "json",
       success: function(res) {
         btn.textContent = originalText;
-        if (res.success) showAlert("Store info saved!");
+        if (res.success) {
+            showAlert("Store info saved!");
+            
+            // Instantly update the sidebar branding so the user doesn't have to refresh
+            const updatedStoreName = document.getElementById("storeName").value.trim();
+            const el = document.getElementById("navStoreName");
+            if (el && updatedStoreName) {
+                const nameParts = updatedStoreName.split(" ");
+                if (nameParts.length > 1) {
+                    el.innerHTML = `<span class="brand-white">${nameParts[0]}</span> <span class="brand-orange">${nameParts.slice(1).join(" ")}</span>`;
+                } else {
+                    el.innerHTML = `<span class="brand-orange">${updatedStoreName}</span>`;
+                }
+            }
+        }
       },
       error: function() {
         btn.textContent = originalText;

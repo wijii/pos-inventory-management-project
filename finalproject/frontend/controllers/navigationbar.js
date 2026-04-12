@@ -91,12 +91,29 @@ document.addEventListener("DOMContentLoaded", () => {
   const sidebarBottom = document.createElement("div");
   sidebarBottom.className = "sidebar-bottom";
   sidebarBottom.innerHTML = `
-      <img src="../assets/svgs/CafeLogo.svg" alt="Casa Cafe" />
-      <span class="sidebar-brand-text">
+      <img src="../assets/svgs/CafeLogo.svg" alt="Store Logo" />
+      <span class="sidebar-brand-text" id="navStoreName">
         <span class="brand-white">Casa</span> <span class="brand-orange">Cafe</span>
       </span>
     `;
   document.querySelector(".sidebar").appendChild(sidebarBottom);
+
+  // Fetch the actual store name dynamically
+  fetch("../../backend/routes.php?action=getStoreSettings")
+    .then(r => r.json())
+    .then(data => {
+        if(data && data.storeName) {
+            const el = document.getElementById("navStoreName");
+            if(el) {
+                const nameParts = data.storeName.trim().split(" ");
+                if(nameParts.length > 1) {
+                     el.innerHTML = `<span class="brand-white">${nameParts[0]}</span> <span class="brand-orange">${nameParts.slice(1).join(" ")}</span>`;
+                } else {
+                     el.innerHTML = `<span class="brand-orange">${data.storeName}</span>`;
+                }
+            }
+        }
+    }).catch(e => console.error("Failed to fetch store name", e));
 });
 
 //shared alert function
